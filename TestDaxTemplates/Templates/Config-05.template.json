@@ -1,0 +1,81 @@
+{
+  "Templates": [
+    {
+      "Class": "HolidaysDefinitionTable",
+      "Table": "HolidaysDefinition",
+      "Template": "HolidaysDefinition.json",
+      "IsHidden": true
+    },
+    {
+      "Class": "HolidaysTable",
+      "Table": "Holidays",
+      "Template": null,
+      "IsHidden": true
+    },
+    {
+      "Class": "CustomDateTable",
+      "Table": "Date",
+      "ReferenceTable": "DateAutoTemplate",
+      "Template": "DateTemplate-05.json",
+      "LocalizationFiles": [
+        "DateLocalization-04.json"
+      ]
+    },
+    {
+      "Class": "MeasuresTemplate",
+      "Table": null,
+      "Template": "TimeIntelligence-05.json",
+      "_comment": "TargetMeasures can override the default setting",
+      "TargetMeasures": [
+        {
+          "Name": "Sales Amount"
+        },
+        {
+          "Name": "Total Cost"
+        }
+      ]
+    }
+  ],
+
+  "IsoTranslation": null,
+  "IsoFormat": null,
+  "LocalizationFiles": [
+    "DateLocalization-04.json"
+  ],
+  "OnlyTablesColumns": [
+    "Sales",
+    "Orders"
+  ],
+  "ExceptTablesColumns": [],
+  "FirstYearMin": null,
+  "FirstYearMax": null,
+  "LastYearMin": null,
+  "LastYearMax": null,
+  "AutoScan": "Full",
+  "DefaultVariables": {
+    "__FirstFiscalMonth": "4",
+    "__QuarterWeekType": "\"445\"",
+    "__OffsetYears": "1"
+  },
+
+  "IsoCountry": "US",
+  "InLieuOfPrefix": "(in lieu of ",
+  "InLieuOfSuffix": ")",
+  "WorkingDays": "{ 2, 3, 4, 5, 6 }",
+  "HolidaysDefinitionTable": "HolidaysDefinition",
+  "HolidaysDefinitionTemplate": "HolidaysDefinition.json",
+
+  "HolidaysReference": {
+    "TableName": "Holidays",
+    "DateColumnName": "Holiday Date",
+    "HolidayColumnName": "Holiday Name"
+  },
+  "TargetMeasures": [
+    {
+      "Name": "Sales Amount"
+    },
+    {
+      "Name": "Total Cost"
+    }
+  ]
+}

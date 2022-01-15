@@ -1,0 +1,9 @@
+﻿{
+  "IsoCountry": "US",
+  "InLieuOfPrefix": "(in lieu of ",
+  "InLieuOfSuffix": ")",
+  "HolidayDefinitionTable": "HolidaysDefinition",
+  "FirstYear": 2000,
+  "LastYear": 2022,
+  "WorkingDays": "{ 2, 3, 4, 5, 6 }"
+}

@@ -1,0 +1,54 @@
+{
+  "_comment": "Weekly Time Intelligence",
+  "TargetTable": {
+    "SQLBI_CalendarType": "Weekly"
+  },
+  "TemplateAnnotations": {
+    "SQLBI_Template": "TimeIntelligence",
+    "SQLBI_TimeIntelligence": "Weekly",
+    "SQLBI_CalendarType": "Weekly"
+  },
+  "MeasureTemplates": [
+    {
+      "Name": "_ShowValueForDates",
+      "IsHidden": true,
+      "IsSingleInstance": true,
+      "MultiLineComment": [
+        "Returns TRUE if the period selected is earlier",
+        "than the last period with data."
+      ],
+      "MultiLineExpression": [
+        "VAR __LastDateWithData =",
+        "    CALCULATE (",
+        "        @@GETMAXDATE(),",
+        "        REMOVEFILTERS ()",
+        "    )",
+        "VAR __FirstDateVisible =",
+        "    MIN ( @_C-SQLBI_AttributeType-FiscalDate_@ )",
+        "VAR __Result =",
+        "    __FirstDateVisible <= __LastDateWithData",
+        "RETURN",
+        "    __Result"
+      ]
+    },
+    {
+      "Name": "MTD",
+      "MultiLineExpression": [
+        "IF (",
+        "    [_ShowValueForDates],",
+        "    VAR __LastDayAvailable = MAX ( @_C-SQLBI_AttributeType-FiscalDayOfMonth_@ )",
+        "    VAR __LastFiscalYearMonthAvailable = MAX ( @_C-SQLBI_AttributeType-FiscalMonths_@ )",
+        "    VAR __Result =",
+        "        CALCULATE (",
+        "            @@GETMEASURE(),",
+        "            ALLEXCEPT ( @_T-SQLBI_CalendarType-Weekly_@, @_CL-SQLBI_FilterSafe-True_@ ),",
+        "            @_C-SQLBI_AttributeType-FiscalDayOfMonth_@ <= __LastDayAvailable,",
+        "            @_C-SQLBI_AttributeType-FiscalMonths_@ = __LastFiscalYearMonthAvailable",
+        "        )",
+        "    RETURN",
+        "        __Result",
+        ")"
+      ]
+    }
+  ]
+}

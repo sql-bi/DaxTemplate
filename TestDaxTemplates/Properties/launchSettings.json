@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "TestDaxTemplates": {
+      "commandName": "Project",
+      "commandLineArgs": "--server=\"localhost:60385\" --database=\"571f6c3e-0d19-4644-9edb-1204304e7f90\""
+    }
+  }
+}
