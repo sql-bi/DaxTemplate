@@ -55,6 +55,7 @@
     "DateColumnName": "Holiday Date",
     "HolidayColumnName": "Holiday Name"
   },
+  "AutoNaming": "Prefix",
   "TargetMeasures": [
     {
       "Name": "Sales Amount"

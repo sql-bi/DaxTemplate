@@ -43,7 +43,6 @@ namespace Dax.Template.Measures
         public string? TemplateExpression { get; set; }
 
         private static readonly Regex regexFindPlaceholders = new(@"@_(?<entity>.*?)-(?<attribute>.*?)(-(?<value>.*?))?_@", RegexOptions.Compiled);
-        // private static readonly Regex regexGetMeasure = new(@"@@GETMEASURE[ \r\n\t]*\([ \r\n\t]*\)", RegexOptions.Compiled);
         private static readonly Regex regexGetMeasure = new(@"@@GETMEASURE[ \r\n\t]*\((?<templateName>[^\)]*?)\)", RegexOptions.Compiled);
 
         private static string? GetGroupValue( Match match, string groupName)

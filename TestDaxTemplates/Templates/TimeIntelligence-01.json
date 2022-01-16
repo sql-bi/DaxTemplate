@@ -35,6 +35,7 @@
     },
     {
       "Name": "YTD",
+      "DisplayFolder": "To-date total",
       "MultiLineExpression": [
         "IF (",
         "    [_ShowValueForDates],",
@@ -47,6 +48,7 @@
     },
     {
       "Name": "QTD",
+      "DisplayFolder": "To-date total",
       "MultiLineExpression": [
         "IF (",
         "    [_ShowValueForDates],",
@@ -59,6 +61,7 @@
     },
     {
       "Name": "MTD",
+      "DisplayFolder": "To-date total",
       "MultiLineExpression": [
         "IF (",
         "    [_ShowValueForDates],",
@@ -71,6 +74,7 @@
     },
     {
       "Name": "PY",
+      "DisplayFolder": "Growth",
       "MultiLineExpression": [
         "IF (",
         "    [_ShowValueForDates],",
@@ -86,6 +90,7 @@
     },
     {
       "Name": "YOY",
+      "DisplayFolder": "Growth",
       "MultiLineExpression": [
         "VAR __ValueCurrentPeriod = @@GETMEASURE()",
         "VAR __ValuePreviousPeriod = @@GETMEASURE( PY )",
@@ -100,6 +105,7 @@
     },
     {
       "Name": "YOY %",
+      "DisplayFolder": "Growth",
       "FormatString": "0.00%",
       "MultiLineExpression": [
         "DIVIDE ( ",
@@ -110,6 +116,7 @@
     },
     {
       "Name": "PQ",
+      "DisplayFolder": "Growth",
       "MultiLineExpression": [
         "IF (",
         "    [_ShowValueForDates],",
@@ -125,6 +132,7 @@
     },
     {
       "Name": "QOQ",
+      "DisplayFolder": "Growth",
       "MultiLineExpression": [
         "VAR __ValueCurrentPeriod = @@GETMEASURE()",
         "VAR __ValuePreviousPeriod = @@GETMEASURE( PQ )",
@@ -139,6 +147,7 @@
     },
     {
       "Name": "QOQ %",
+      "DisplayFolder": "Growth",
       "FormatString": "0.00%",
       "MultiLineExpression": [
         "DIVIDE ( ",
@@ -149,6 +158,7 @@
     },
     {
       "Name": "PM",
+      "DisplayFolder": "Growth",
       "MultiLineExpression": [
         "IF (",
         "    [_ShowValueForDates],",
@@ -164,6 +174,7 @@
     },
     {
       "Name": "MOM",
+      "DisplayFolder": "Growth",
       "MultiLineExpression": [
         "VAR __ValueCurrentPeriod = @@GETMEASURE()",
         "VAR __ValuePreviousPeriod = @@GETMEASURE( PM )",
@@ -178,6 +189,7 @@
     },
     {
       "Name": "MOM %",
+      "DisplayFolder": "Growth",
       "FormatString": "0.00%",
       "MultiLineExpression": [
         "DIVIDE ( ",
@@ -188,6 +200,7 @@
     },
     {
       "Name": "PYTD",
+      "DisplayFolder": "To-date growth",
       "MultiLineExpression": [
         "IF (",
         "    [_ShowValueForDates],",
@@ -203,6 +216,7 @@
     },
     {
       "Name": "YOYTD",
+      "DisplayFolder": "To-date growth",
       "MultiLineExpression": [
         "VAR __ValueCurrentPeriod = @@GETMEASURE( YTD )",
         "VAR __ValuePreviousPeriod = @@GETMEASURE( PYTD )",
@@ -217,6 +231,7 @@
     },
     {
       "Name": "YOYTD %",
+      "DisplayFolder": "To-date growth",
       "FormatString": "0.00%",
       "MultiLineExpression": [
         "DIVIDE ( ",
@@ -227,6 +242,7 @@
     },
     {
       "Name": "PQTD",
+      "DisplayFolder": "To-date growth",
       "MultiLineExpression": [
         "IF (",
         "    [_ShowValueForDates],",
@@ -242,6 +258,7 @@
     },
     {
       "Name": "QOQTD",
+      "DisplayFolder": "To-date growth",
       "MultiLineExpression": [
         "VAR __ValueCurrentPeriod = @@GETMEASURE( QTD )",
         "VAR __ValuePreviousPeriod = @@GETMEASURE( PQTD )",
@@ -256,6 +273,7 @@
     },
     {
       "Name": "QOQTD %",
+      "DisplayFolder": "To-date growth",
       "FormatString": "0.00%",
       "MultiLineExpression": [
         "DIVIDE ( ",
@@ -266,6 +284,7 @@
     },
     {
       "Name": "PMTD",
+      "DisplayFolder": "To-date growth",
       "MultiLineExpression": [
         "IF (",
         "    [_ShowValueForDates],",
@@ -281,6 +300,7 @@
     },
     {
       "Name": "MOMTD",
+      "DisplayFolder": "To-date growth",
       "MultiLineExpression": [
         "VAR __ValueCurrentPeriod = @@GETMEASURE( MTD )",
         "VAR __ValuePreviousPeriod = @@GETMEASURE( PMTD )",
@@ -295,6 +315,7 @@
     },
     {
       "Name": "MOMTD %",
+      "DisplayFolder": "To-date growth",
       "FormatString": "0.00%",
       "MultiLineExpression": [
         "DIVIDE ( ",
@@ -305,6 +326,7 @@
     },
     {
       "Name": "PYC",
+      "DisplayFolder": "Growth over full period",
       "MultiLineExpression": [
         "IF (",
         "    [_ShowValueForDates],",
@@ -317,6 +339,7 @@
     },
     {
       "Name": "YTDOPY",
+      "DisplayFolder": "Growth over full period",
       "MultiLineExpression": [
         "VAR __ValueCurrentPeriod = @@GETMEASURE( YTD )",
         "VAR __ValuePreviousPeriod = @@GETMEASURE( PYC )",
@@ -331,6 +354,7 @@
     },
     {
       "Name": "YDTOPY %",
+      "DisplayFolder": "Growth over full period",
       "FormatString": "0.00%",
       "MultiLineExpression": [
         "DIVIDE ( ",
@@ -341,6 +365,7 @@
     },
     {
       "Name": "PQC",
+      "DisplayFolder": "Growth over full period",
       "MultiLineExpression": [
         "IF (",
         "    [_ShowValueForDates],",
@@ -353,6 +378,7 @@
     },
     {
       "Name": "QTDOPQ",
+      "DisplayFolder": "Growth over full period",
       "MultiLineExpression": [
         "VAR __ValueCurrentPeriod = @@GETMEASURE( QTD )",
         "VAR __ValuePreviousPeriod = @@GETMEASURE( PQC )",
@@ -367,6 +393,7 @@
     },
     {
       "Name": "QDTOPQ %",
+      "DisplayFolder": "Growth over full period",
       "FormatString": "0.00%",
       "MultiLineExpression": [
         "DIVIDE ( ",
@@ -377,6 +404,7 @@
     },
     {
       "Name": "PMC",
+      "DisplayFolder": "Growth over full period",
       "MultiLineExpression": [
         "IF (",
         "    [_ShowValueForDates],",
@@ -389,6 +417,7 @@
     },
     {
       "Name": "MTDOPM",
+      "DisplayFolder": "Growth over full period",
       "MultiLineExpression": [
         "VAR __ValueCurrentPeriod = @@GETMEASURE( MTD )",
         "VAR __ValuePreviousPeriod = @@GETMEASURE( PMC )",
@@ -403,6 +432,7 @@
     },
     {
       "Name": "MTDOPM %",
+      "DisplayFolder": "Growth over full period",
       "FormatString": "0.00%",
       "MultiLineExpression": [
         "DIVIDE ( ",
@@ -413,6 +443,7 @@
     },
     {
       "Name": "MAT",
+      "DisplayFolder": "Moving annual growth",
       "MultiLineExpression": [
         "IF (",
         "    [_ShowValueForDates],",
@@ -430,6 +461,7 @@
     },
     {
       "Name": "PYMAT",
+      "DisplayFolder": "Moving annual growth",
       "MultiLineExpression": [
         "IF (",
         "    [_ShowValueForDates],",
@@ -442,6 +474,7 @@
     },
     {
       "Name": "MATG",
+      "DisplayFolder": "Moving annual growth",
       "MultiLineExpression": [
         "VAR __ValueCurrentPeriod = @@GETMEASURE( MAT )",
         "VAR __ValuePreviousPeriod = @@GETMEASURE( PYMAT )",
@@ -456,6 +489,7 @@
     },
     {
       "Name": "MATG %",
+      "DisplayFolder": "Moving annual growth",
       "FormatString": "0.00%",
       "MultiLineExpression": [
         "DIVIDE ( ",
