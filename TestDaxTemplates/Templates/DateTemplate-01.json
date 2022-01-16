@@ -125,7 +125,10 @@
       "Name": "Day of Week",
       "Expression": "DATE(1900, 1, 7 + __WeekdayNumber + (7 * (__WeekdayNumber < __FirstDayOfWeek)))",
       "DataType": "DateTime",
-      "FormatString": "ddd"
+      "FormatString": "ddd",
+      "Annotations": {
+        "SQLBI_FilterSafe": true
+      }
     },
     {
       "Name": "Fiscal Year",
@@ -159,18 +162,27 @@
       "Name": "IsWorking",
       "Expression": "__IsWorkingDay",
       "DataType": "Boolean",
-      "IsHidden": true
+      "IsHidden": true,
+      "Annotations": {
+        "SQLBI_FilterSafe": true
+      }
     },
     {
       "Name": "Working Day Value",
       "Expression": "IF ( __IsWorkingDay, 1 )",
       "DataType": "Int64",
-      "IsHidden": true
+      "IsHidden": true,
+      "Annotations": {
+        "SQLBI_FilterSafe": true
+      }
     },
     {
       "Name": "Holiday Name",
       "Expression": "__HolidayName",
-      "DataType": "String"
+      "DataType": "String",
+      "Annotations": {
+        "SQLBI_FilterSafe": true
+      }
     },
     {
       "Name": "DateWithTransactions",

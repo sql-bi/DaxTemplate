@@ -1,6 +1,6 @@
 {
   "_comment": "Standard Time Intelligence",
-  "_comment1": "NOTE: current version does not support Day of week selection in calculations",
+  "_comment1": "NOTE: current version does not support filter safe filters (Day of Week, Working Days, Holidays)",
   "_comment2": "NOTE: current version does not support fiscal calculations",
   "TargetTable": {
     "SQLBI_CalendarType": "Calendar"

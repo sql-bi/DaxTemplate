@@ -73,7 +73,7 @@ namespace Dax.Template.Measures
             }
             measure.FormatString = FormatString ?? ReferenceMeasure?.FormatString;
             measure.IsHidden = IsHidden;
-            measure.DisplayFolder = DisplayFolder;
+            measure.DisplayFolder = DisplayFolder; // TODO we should implement macros/functions to create dynamic folders (e.g. based on measure name and customizable with parameters in config)
             measure.Description = Description;
             measure.Expression = GetDaxExpression(model, ReferenceMeasure?.Name);
             ApplyAnnotations(measure);
