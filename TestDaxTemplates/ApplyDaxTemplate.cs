@@ -12,9 +12,9 @@ using Dax.Template.Interfaces;
 
 namespace TestDaxTemplates
 {
-    public partial class ApplyDate : Form
+    public partial class ApplyDaxTemplate : Form
     {
-        public ApplyDate()
+        public ApplyDaxTemplate()
         {
             InitializeComponent();
         }
@@ -54,6 +54,7 @@ namespace TestDaxTemplates
                 // TODO: add a parameter to create a different table copying the existing relationships
             }
             server.Disconnect();
+            MessageBox.Show($"Applied template {dateTableNameTemplate}");
         }
 
         private CalculatedTableTemplateBase CreateHolidaysDefinitionTable(string dateTableName, Model model, bool hideTable)
@@ -161,6 +162,7 @@ namespace TestDaxTemplates
             var config = ReadConfig<SimpleDateTemplateConfig>();
             var result = SystemJsonSerializer.Serialize(config, new JsonSerializerOptions { WriteIndented = true });
             txtDax.Text = result;
+            MessageBox.Show($"Read config {txtConfig.Text} completed");
         }
 
         private T ReadConfig<T>() where T: TemplateConfiguration
@@ -194,6 +196,7 @@ namespace TestDaxTemplates
         private void ReadTemplate_Click(object sender, EventArgs e)
         {
             ReadTemplateDefinition();
+            MessageBox.Show($"Read template {txtCustomTemplate.Text} completed");
         }
 
         private HolidaysDefinitionTable.HolidaysDefinitions ReadHolidaysDefinitionConfig()
@@ -249,11 +252,12 @@ namespace TestDaxTemplates
                 // TODO: add a parameter to create a different table copying the existing relationships
             }
             server.Disconnect();
+            MessageBox.Show($"Applied template {holidaysDefinitionTemplateName} and {holidaysTemplateName}");
         }
 
         private void MeasureTemplate_Click(object sender, EventArgs e)
         {
-            string templateJsonFilename = @"..\..\..\TimeIntelligence-05.json";
+            string templateJsonFilename = @"..\..\..\Templates\TimeIntelligence-05.json";
             string templateJson = File.ReadAllText(templateJsonFilename);
             if (SystemJsonSerializer.Deserialize(templateJson, typeof(MeasuresTemplateDefinition)) is not MeasuresTemplateDefinition measuresTemplate) throw new Exception("Invalid configuration");
 
@@ -275,7 +279,7 @@ namespace TestDaxTemplates
                 MessageBox.Show(ex.Message, "Template Exception");
             }
             server.Disconnect();
-
+            MessageBox.Show($"Applied measure template {templateJsonFilename}");
         }
 
         private void Path_TextChanged(object sender, EventArgs e)

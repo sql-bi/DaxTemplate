@@ -1,6 +1,13 @@
 {
-    "_comment": "Reference FY prefix format in DAX expression using the syntax @_FY_@",
-    "FormatPrefixes": [ "Q", "FY", "FQ" ],
+  "_comment": "Reference FY prefix format in DAX expression using the syntax @_FY_@",
+  "CalendarType": "Calendar",
+  "FormatPrefixes": [ "Q", "FY", "FQ" ],
+  "Steps": [
+    {
+      "Name": "__Calendar",
+      "Expression": "@@GETCALENDAR()"
+    }
+  ],
   "GlobalVariables": [
     {
       "Name": "__FirstFiscalMonth",
@@ -19,6 +26,10 @@
     }
   ],
   "RowVariables": [
+    {
+      "Name": "__Date",
+      "Expression": "[Date]"
+    },
     {
       "Name": "__YearNumber",
       "Expression": "YEAR ( __Date )"
@@ -54,9 +65,20 @@
     {
       "Name": "__IsWorkingDay",
       "Expression": "WEEKDAY ( __Date, 1 ) IN __WorkingDays && ISBLANK ( __HolidayName )"
+    },
+    {
+      "Name": "__LastTransactionDate",
+      "Expression": "@@GETMAXDATE()"
     }
   ],
   "Columns": [
+    {
+      "Name": "Date",
+      "DataType": "DateTime",
+      "FormatString": "m/dd/yyyy",
+      "Step": "__Calendar",
+      "AttributeType": "Date"
+    },
     {
       "Name": "Year",
       "Expression": "DATE(__YearNumber, 12, 31)",
@@ -149,42 +171,49 @@
       "Name": "Holiday Name",
       "Expression": "__HolidayName",
       "DataType": "String"
+    },
+    {
+      "Name": "DateWithTransactions",
+      "Expression": "__Date <= __LastTransactionDate",
+      "DataType": "Boolean",
+      "IsHidden": true,
+      "AttributeType": "DateDuration"
     }
   ],
-    "Hierarchies": [
-      {
-        "Name": "Calendar",
-        "Levels": [
-          {
-            "Name": "Year",
-            "Column": "Year"
-          },
-          {
-            "Name": "Month",
-            "Column": "Year Month"
-          },
-          {
-            "Name": "Date",
-            "Column": "Date"
-          }
-        ]
-      },
-      {
-        "Name": "Fiscal",
-        "Levels": [
-          {
-            "Name": "Fiscal Year",
-            "Column": "Year"
-          },
-          {
-            "Name": "Month",
-            "Column": "Year Month"
-          },
-          {
-            "Name": "Date",
-            "Column": "Date"
-          }
-        ]
-      }
-    ]
+  "Hierarchies": [
+    {
+      "Name": "Calendar",
+      "Levels": [
+        {
+          "Name": "Year",
+          "Column": "Year"
+        },
+        {
+          "Name": "Month",
+          "Column": "Year Month"
+        },
+        {
+          "Name": "Date",
+          "Column": "Date"
+        }
+      ]
+    },
+    {
+      "Name": "Fiscal",
+      "Levels": [
+        {
+          "Name": "Fiscal Year",
+          "Column": "Year"
+        },
+        {
+          "Name": "Month",
+          "Column": "Year Month"
+        },
+        {
+          "Name": "Date",
+          "Column": "Date"
+        }
+      ]
+    }
+  ]
 }

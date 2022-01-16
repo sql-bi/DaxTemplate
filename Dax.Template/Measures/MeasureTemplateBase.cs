@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Collections.Generic;
 using Microsoft.AnalysisServices.Tabular;
+using Dax.Template.Interfaces;
 using Dax.Template.Exceptions;
 using System.Text.RegularExpressions;
 using TabularModel = Microsoft.AnalysisServices.Tabular.Model;
@@ -20,6 +21,13 @@ namespace Dax.Template.Measures
             }
         }
 
+        protected readonly MeasuresTemplate Template;
+
+        public MeasureTemplateBase(MeasuresTemplate template) : base()
+        {
+            Template = template;
+        }
+
         public override string? Expression
         {
             get => (ReferenceMeasure != null) 
@@ -34,9 +42,9 @@ namespace Dax.Template.Measures
         /// </summary>
         public string? TemplateExpression { get; set; }
 
-        private readonly static Regex regexFindPlaceholders = new(@"@_(?<entity>.*?)-(?<attribute>.*?)(-(?<value>.*?))?_@", RegexOptions.Compiled);
-        private static readonly Regex regexGetMeasure = new(@"@@GETMEASURE[ \r\n\t]*\([ \r\n\t]*\)", RegexOptions.Compiled);
-        // version with one argument... private static readonly Regex regexGetMeasure = new(@"@@GETMEASURE[ \r\n\t]*\(([^\)]*)\)", RegexOptions.Compiled);
+        private static readonly Regex regexFindPlaceholders = new(@"@_(?<entity>.*?)-(?<attribute>.*?)(-(?<value>.*?))?_@", RegexOptions.Compiled);
+        // private static readonly Regex regexGetMeasure = new(@"@@GETMEASURE[ \r\n\t]*\([ \r\n\t]*\)", RegexOptions.Compiled);
+        private static readonly Regex regexGetMeasure = new(@"@@GETMEASURE[ \r\n\t]*\((?<templateName>[^\)]*?)\)", RegexOptions.Compiled);
 
         private static string? GetGroupValue( Match match, string groupName)
         {
@@ -64,7 +72,7 @@ namespace Dax.Template.Measures
                 measure = new TabularMeasure { Name = Name };
                 targetTable.Measures.Add(measure);
             }
-            measure.FormatString = FormatString;
+            measure.FormatString = FormatString ?? ReferenceMeasure?.FormatString;
             measure.IsHidden = IsHidden;
             measure.DisplayFolder = DisplayFolder;
             measure.Description = Description;
@@ -143,7 +151,15 @@ namespace Dax.Template.Measures
 
             if (originalMeasureName != null)
             {
-                result = regexGetMeasure.Replace(result, $"[{originalMeasureName}]");
+                result = regexGetMeasure.Replace(result, match =>
+                {
+                    string? templateName = GetGroupValue(match, "templateName")?.Trim();
+                    string replaceMeasureName =
+                        string.IsNullOrWhiteSpace(templateName)
+                        ? originalMeasureName
+                        : Template.GetTargetMeasureName(templateName, originalMeasureName);
+                    return $"[{replaceMeasureName}]";
+                });
             }
             else
             {

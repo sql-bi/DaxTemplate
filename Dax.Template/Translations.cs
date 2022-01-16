@@ -67,9 +67,9 @@ namespace Dax.Template
             LanguageDefinitions = definitions;
         }
 
-        public Language GetTranslationIso( string iso )
+        public Language? GetTranslationIso( string iso )
         {
-            return LanguageDefinitions.Translations.First(t => t.Iso == iso); 
+            return LanguageDefinitions.Translations.FirstOrDefault(t => t.Iso == iso); 
         }
 
         public IEnumerable<Language> GetTranslations()

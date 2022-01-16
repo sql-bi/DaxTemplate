@@ -118,10 +118,10 @@ namespace Dax.Template.Measures
             }
             return expression;
         }
-        protected virtual string GetTargetMeasureName(string templateName, string referenceMeasureName)
+        protected internal virtual string GetTargetMeasureName(string templateName, string referenceMeasureName)
         {
             string prefix = (Config.AutoNaming == AutoNamingEnum.Prefix) ? $"{templateName}{Config.AutoNamingSeparator}" : string.Empty;
-            string suffix = (Config.AutoNaming == AutoNamingEnum.Suffix) ? $"{Config.AutoNamingSeparator}{templateName}" : string.Empty; ;
+            string suffix = (Config.AutoNaming == AutoNamingEnum.Suffix) ? $"{Config.AutoNamingSeparator}{templateName}" : string.Empty;
             return $"{prefix}{referenceMeasureName}{suffix}";
         }
         public void ApplyTemplate(TabularModel model, bool overrideExistingMeasures = true)
@@ -176,7 +176,7 @@ namespace Dax.Template.Measures
                     throw new TemplateException("Undefined measure template name");
                 }
                 var x = template.Annotations.Union(Template.TemplateAnnotations);
-                MeasureTemplateBase measureTemplate = new()
+                MeasureTemplateBase measureTemplate = new(this)
                 {
                     Name = (referenceMeasure != null) ? GetTargetMeasureName(template.Name, referenceMeasure.Name) : template.Name,
                     FormatString = template.FormatString,
@@ -221,6 +221,10 @@ namespace Dax.Template.Measures
                 foreach (var tt in Template.TargetTable)
                 {
                     var tables = MeasureTemplateBase.GetTablesFromAnnotations(model, tt.Key, tt.Value);
+                    if (!tables.Any())
+                    {
+                        throw new TemplateException($"No target tables found for attribute {tt.Key}={tt.Value}");
+                    }
                     if (tables.Count() > 1)
                     {
                         string tableList = string.Join(", ", tables.Select(t => $"'{t.Name}'"));
