@@ -23,9 +23,10 @@ namespace Dax.Template.Model
         internal TabularColumn? TabularColumn { get; set; }
         public Dictionary<string, object> Annotations { get; set; } = new();
         /// <summary>
-        /// This attribute is applied as a SQLBI_AttributeType annotation
+        /// This attribute is applied as a SQLBI_AttributeTypes annotation
         /// </summary>
-        public AttributeType? AttributeType { get; set; }
+        public AttributeType[]? AttributeType { get; set; }
+
         public override void Reset()
         {
             SortByColumn = null;

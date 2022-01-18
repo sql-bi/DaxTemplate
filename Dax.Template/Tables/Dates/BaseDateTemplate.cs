@@ -16,7 +16,7 @@ namespace Dax.Template.Tables.Dates
         protected const string DATACATEGORY_TIME = "Time";
         protected const string ANNOTATION_CALENDAR_TYPE = "SQLBI_CalendarType";
 
-        public string? CalendarType { get; init; }
+        public string[]? CalendarType { get; init; }
 
         public BaseDateTemplate(T config) : base(config) { }
         public BaseDateTemplate(T config, CustomTemplateDefinition template, TabularModel? model) : base(config, template, model) { }
@@ -34,18 +34,18 @@ namespace Dax.Template.Tables.Dates
             // Mark as Date table (Date column already set as Key)
             dateTable.DataCategory = DATACATEGORY_TIME;
 
-            if (!string.IsNullOrWhiteSpace(CalendarType))
+            if (CalendarType != null)
             {
+                string calendarTypes = string.Join(", ", CalendarType);
                 Annotation? existingAnnotation = dateTable.Annotations.FirstOrDefault(a => a.Name == ANNOTATION_CALENDAR_TYPE);
                 if (existingAnnotation != null)
                 {
-                    existingAnnotation.Value = CalendarType;
+                    existingAnnotation.Value = string.Join(", ", calendarTypes);
                 }
                 else
                 {
-                    dateTable.Annotations.Add(new Annotation { Name = ANNOTATION_CALENDAR_TYPE, Value = CalendarType });
+                    dateTable.Annotations.Add(new Annotation { Name = ANNOTATION_CALENDAR_TYPE, Value = calendarTypes });
                 }
-                
             }
         }
 

@@ -14,6 +14,7 @@ namespace Dax.Template.Tables.Dates
         /// Define the calendar type for time intelligence calculations
         /// </summary>
         public string? CalendarType { get; set; }
+        public string[]? CalendarTypes { get; set; }
     }
     public class CustomDateTable : BaseDateTemplate<IDateTemplateConfig>
     {
@@ -23,7 +24,13 @@ namespace Dax.Template.Tables.Dates
         public CustomDateTable(IDateTemplateConfig config, CustomDateTemplateDefinition template, TabularModel? model)
             : base(config, template, model)
         {
-            CalendarType = template.CalendarType;
+            if (!string.IsNullOrWhiteSpace(template.CalendarType)) {
+                CalendarType = new string[] { template.CalendarType };
+            }
+            else
+            {
+                CalendarType = template.CalendarTypes;
+            }
         }
         protected override void InitTemplate(IDateTemplateConfig config, CustomTemplateDefinition template, Predicate<CustomTemplateDefinition.Column> skipColumn, TabularModel? model)
         {

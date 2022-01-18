@@ -11,7 +11,7 @@ namespace Dax.Template.Tables
 {
     public abstract class TableTemplateBase
     {
-        public const string ANNOTATION_ATTRIBUTE_TYPE = "SQLBI_AttributeType";
+        public const string ANNOTATION_ATTRIBUTE_TYPE = "SQLBI_AttributeTypes";
 
         public List<Column> Columns { get; set; } = new List<Column>();
         public List<Hierarchy> Hierarchies { get; set; } = new List<Hierarchy>();
@@ -235,7 +235,7 @@ namespace Dax.Template.Tables
                             new Annotation
                             {
                                 Name = ANNOTATION_ATTRIBUTE_TYPE,
-                                Value = column.AttributeType.ToString()
+                                Value = string.Join(", ", column.AttributeType.Select(attr => attr.ToString()))
                             }
                         );
                     }

@@ -200,12 +200,26 @@ namespace Dax.Template.Tables
                 {
                     if (Enum.TryParse<AttributeType>(columnDefinition.AttributeType, true, out AttributeType attributeType))
                     {
-                        column.AttributeType = attributeType;
+                        column.AttributeType = new AttributeType[] { attributeType };
                     }
                     else
                     {
                         throw new InvalidAttributeException(columnDefinition.AttributeType, $"Column: {columnDefinition.Name}");
                     }
+                }
+                else if (columnDefinition.AttributeTypes?.Length > 0)
+                {
+                    column.AttributeType = columnDefinition.AttributeTypes.Select(atName =>
+                       {
+                           if (Enum.TryParse<AttributeType>(atName, true, out AttributeType attributeType))
+                           {
+                               return attributeType;
+                           }
+                           else
+                           {
+                               throw new InvalidAttributeException(atName, $"Column: {columnDefinition.Name}");
+                           }
+                       }).ToArray();
                 }
                 Columns.Add(column);
             });

@@ -51,6 +51,7 @@ namespace Dax.Template
             public string? Description { get; set; }
             public string? Step { get; set; }
             public string? AttributeType { get; set; }
+            public string[]? AttributeTypes { get; set; }
             public Dictionary<string, object> Annotations { get; set; } = new();
         }
         public class HierarchyLevel

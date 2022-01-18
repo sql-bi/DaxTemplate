@@ -1,6 +1,13 @@
 {
   "_comment": "Reference Monthly Calendar",
+  "CalendarTypes": [ "Calendar", "Fiscal" ],
   "FormatPrefixes": [ "M", "Q", "FY", "FQ" ],
+  "Steps": [
+    {
+      "Name": "__Calendar",
+      "Expression": "@@GETCALENDAR()"
+    }
+  ],
   "GlobalVariables": [
     {
       "Name": "__FirstFiscalMonth",
@@ -18,6 +25,10 @@
     }
   ],
   "RowVariables": [
+    {
+      "Name": "__Date",
+      "Expression": "[Date]"
+    },
     {
       "Name": "__YearMonthNumber",
       "Expression": "YEAR ( __Date ) * __MonthsInYear + MONTH ( __Date ) - 1"
@@ -84,6 +95,16 @@
   ],
   "Columns": [
     {
+      "Name": "Date",
+      "DataType": "DateTime",
+      "FormatString": "m/dd/yyyy",
+      "Step": "__Calendar",
+      "AttributeTypes": [
+        "Date",
+        "FiscalDate"
+      ]
+    },
+    {
       "Name": "Year Month Key",
       "Expression": "__YearNumber * 100 + __MonthNumber",
       "DataType": "Int64",
@@ -105,7 +126,8 @@
       "Name": "Month Number",
       "Expression": "__MonthNumber",
       "DataType": "Int64",
-      "IsHidden": true
+      "IsHidden": true,
+      "AttributeType": "MonthOfYear"
     },
     {
       "Name": "Year Month",
@@ -123,13 +145,18 @@
       "Name": "Year Month Number",
       "Expression": "__YearMonthNumber",
       "DataType": "Int64",
-      "IsHidden": true
+      "IsHidden": true,
+      "AttributeTypes": [
+        "Months",
+        "FiscalMonths"
+      ]
     },
     {
       "Name": "Month In Quarter Number",
       "Expression": "__MonthInQuarterNumber",
       "DataType": "Int64",
-      "IsHidden": true
+      "IsHidden": true,
+      "AttributeType": "MonthOfQuarter"
     },
     {
       "Name": "Quarter",
@@ -146,12 +173,14 @@
       "Name": "Year Quarter Number",
       "Expression": "__YearQuarterNumber",
       "DataType": "Int64",
-      "IsHidden": true
+      "IsHidden": true,
+      "AttributeType": "Quarters"
     },
     {
       "Name": "Year",
       "Expression": "__YearNumber",
-      "DataType": "Int64"
+      "DataType": "Int64",
+      "AttributeType": "Years"
     },
     {
       "Name": "Fiscal Month",
@@ -169,13 +198,15 @@
       "Name": "Fiscal Month Number",
       "Expression": "__FiscalMonthNumber",
       "DataType": "Int64",
-      "IsHidden": true
+      "IsHidden": true,
+      "AttributeType": "FiscalMonthOfYear"
     },
     {
       "Name": "Fiscal Month In Quarter Number",
       "Expression": "__FiscalMonthInQuarterNumber",
       "DataType": "Int64",
-      "IsHidden": true
+      "IsHidden": true,
+      "AttributeType": "FiscalMonthOfQuarter"
     },
     {
       "Name": "Fiscal Quarter",
@@ -192,7 +223,8 @@
       "Name": "Fiscal Year Quarter Number",
       "Expression": "__FiscalYearQuarterNumber",
       "DataType": "Int64",
-      "IsHidden": true
+      "IsHidden": true,
+      "AttributeType": "FiscalQuarters"
     },
     {
       "Name": "Fiscal Year",
@@ -204,7 +236,8 @@
       "Name": "Fiscal Year Number",
       "Expression": "__FiscalYearNumber",
       "DataType": "Int64",
-      "IsHidden": true
+      "IsHidden": true,
+      "AttributeType": "FiscalYears"
     }
   ],
   "Hierarchies": [

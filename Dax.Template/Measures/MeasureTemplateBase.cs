@@ -20,7 +20,16 @@ namespace Dax.Template.Measures
                 Matches = matches;
             }
         }
-
+        class AttributeNotFoundException : Exception
+        {
+            public string Attribute { get; init; }
+            public string? Value { get; init; }
+            public AttributeNotFoundException(string attribute, string? value) : base()
+            {
+                Attribute = attribute;
+                Value = value;
+            }
+        }
         protected readonly MeasuresTemplate Template;
 
         public MeasureTemplateBase(MeasuresTemplate template) : base()
@@ -140,6 +149,10 @@ namespace Dax.Template.Measures
                 {
                     throw new InvalidMacroReferenceException(match.Value, ex.Matches, TemplateExpression);
                 }
+                catch (AttributeNotFoundException ex)
+                {
+                    throw new InvalidMacroReferenceException($"{ex.Attribute} : {ex.Value}", TemplateExpression);
+                }
 
                 if (string.IsNullOrWhiteSpace(replace))
                 {
@@ -180,7 +193,7 @@ namespace Dax.Template.Measures
                     where !t.IsHidden
                     from a in t.Annotations
                     where a.Name == attribute
-                          && (value == null || a.Value == value)
+                          && (value == null || a.Value.Split(",").Any(s => s.Trim() == value))
                     select t).Distinct();
         }
 
@@ -191,7 +204,7 @@ namespace Dax.Template.Measures
                     from c in t.Columns
                     from a in c.Annotations
                     where a.Name == attribute
-                          && (value == null || a.Value == value)
+                          && (value == null || a.Value.Split(",").Any(s => s.Trim() == value) )
                     select c).Distinct();
         }
 
@@ -213,9 +226,13 @@ namespace Dax.Template.Measures
         private static string? FindSingleTable(TabularModel model, string attribute, string? value)
         {
             var tables = GetTablesFromAnnotations(model, attribute, value);
-            if (tables.Count() != 1)
+            if (tables.Count() > 1)
             {
                 throw new MultipleMatchesException(tables.Select(t => $"'{t.Name}'").ToArray());
+            }
+            else if (tables.Count() == 0)
+            {
+                throw new AttributeNotFoundException(attribute, value);
             }
             return $"'{tables.First().Name}'";
         }
@@ -223,9 +240,13 @@ namespace Dax.Template.Measures
         private static string? FindSingleColumn(TabularModel model, string attribute, string? value)
         {
             var columns = GetColumnsFromAnnotations(model, attribute, value);
-            if (columns.Count() != 1)
+            if (columns.Count() > 1)
             {
                 throw new MultipleMatchesException(columns.Select(c => $"'{c.Table.Name}'[{c.Name}]").ToArray());
+            }
+            else if (columns.Count() == 0)
+            {
+                throw new AttributeNotFoundException(attribute, value);
             }
             return $"'{columns.First().Table.Name}'[{columns.First().Name}]";
         }
