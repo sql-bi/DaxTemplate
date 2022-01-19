@@ -48,6 +48,7 @@ namespace Dax.Template
             public bool RequiresHolidays { get; set; } = false;
             public string? SortByColumn { get; set; }
             public string? DisplayFolder { get; set; }
+            public string? DataCategory { get; set; }
             public string? Description { get; set; }
             public string? Step { get; set; }
             public string? AttributeType { get; set; }

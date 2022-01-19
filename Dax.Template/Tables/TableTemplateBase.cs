@@ -223,6 +223,7 @@ namespace Dax.Template.Tables
                         FormatString = column.FormatString,
                         IsHidden = column.IsHidden,
                         DisplayFolder = column.DisplayFolder,
+                        DataCategory = column.DataCategory,
                         IsKey = column.IsKey,
                         IsNameInferred = true,
                         IsDataTypeInferred = true,

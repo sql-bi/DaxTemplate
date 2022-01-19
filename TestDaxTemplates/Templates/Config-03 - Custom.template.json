@@ -15,22 +15,21 @@
       "Class": "CustomDateTable",
       "Table": "Date",
       "ReferenceTable": "DateAutoTemplate",
-      "Template": "DateTemplate-04.json",
+      "Template": "DateTemplate-03.json",
       "LocalizationFiles": [
-        "DateLocalization-04.json"
       ]
     },
     {
       "Class": "MeasuresTemplate",
       "Table": null,
-      "Template": "TimeIntelligence-04.json",
+      "Template": "TimeIntelligence-03.json",
       "_comment": "TargetMeasures can override the default setting"
     }
   ],
-  "IsoTranslation": "it-IT", 
-  "IsoFormat": "it-IT", 
+  "IsoTranslation": "en-US",
+  "IsoFormat": "en-US",
   "LocalizationFiles": [
-    "DateLocalization-04.json"
+    "DateLocalization-03.json"
   ],
   "OnlyTablesColumns": [
     "Sales",
@@ -45,7 +44,6 @@
   "DefaultVariables": {
     "__FirstFiscalMonth": "4"
   },
-
   "IsoCountry": "US",
   "InLieuOfPrefix": "(in lieu of ",
   "InLieuOfSuffix": ")",
@@ -58,6 +56,7 @@
     "DateColumnName": "Holiday Date",
     "HolidayColumnName": "Holiday Name"
   },
+  "AutoNaming": "Prefix",
   "TargetMeasures": [
     {
       "Name": "Sales Amount"

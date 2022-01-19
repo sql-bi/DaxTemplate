@@ -99,6 +99,7 @@
       "DataType": "DateTime",
       "FormatString": "m/dd/yyyy",
       "Step": "__Calendar",
+      "DataCategory": "PaddedDateTableDates",
       "AttributeTypes": [
         "Date",
         "FiscalDate"
@@ -120,14 +121,16 @@
         ")"
       ],
       "DataType": "String",
-      "SortByColumn": "Month Number"
+      "SortByColumn": "Month Number",
+      "DataCategory": "MonthOfYear"
     },
     {
       "Name": "Month Number",
       "Expression": "__MonthNumber",
       "DataType": "Int64",
       "IsHidden": true,
-      "AttributeType": "MonthOfYear"
+      "AttributeType": "MonthOfYear",
+      "DataCategory": "MonthOfYear"
     },
     {
       "Name": "Year Month",
@@ -139,13 +142,15 @@
         ")"
       ],
       "DataType": "String",
-      "SortByColumn": "Year Month Number"
+      "SortByColumn": "Year Month Number",
+      "": "Months"
     },
     {
       "Name": "Year Month Number",
       "Expression": "__YearMonthNumber",
       "DataType": "Int64",
       "IsHidden": true,
+      "DataCategory": "Months",
       "AttributeTypes": [
         "Months",
         "FiscalMonths"
@@ -156,31 +161,36 @@
       "Expression": "__MonthInQuarterNumber",
       "DataType": "Int64",
       "IsHidden": true,
-      "AttributeType": "MonthOfQuarter"
+      "AttributeType": "MonthOfQuarter",
+      "DataCategory": "MonthOfQuarter"
     },
     {
       "Name": "Quarter",
       "Expression": "FORMAT( __Date, \"@_Q_@Q\"@@GETISO() )",
-      "DataType": "String"
+      "DataType": "String",
+      "DataCategory": "QuarterOfYear"
     },
     {
       "Name": "Year Quarter",
       "Expression": "FORMAT ( __QuarterNumber, \"@_Q_@0\"@@GETISO() ) & \"-\" & FORMAT ( __YearNumber, \"0000\"@@GETISO() )",
       "DataType": "String",
-      "SortByColumn": "Year Quarter Number"
+      "SortByColumn": "Year Quarter Number",
+      "DataCategory": "Quarters"
     },
     {
       "Name": "Year Quarter Number",
       "Expression": "__YearQuarterNumber",
       "DataType": "Int64",
       "IsHidden": true,
-      "AttributeType": "Quarters"
+      "AttributeType": "Quarters",
+      "DataCategory": "Quarters"
     },
     {
       "Name": "Year",
       "Expression": "__YearNumber",
       "DataType": "Int64",
-      "AttributeType": "Years"
+      "AttributeType": "Years",
+      "DataCategory": "Years"
     },
     {
       "Name": "Fiscal Month",
@@ -192,52 +202,60 @@
         ")"
       ],
       "DataType": "String",
-      "SortByColumn": "Fiscal Month Number"
+      "SortByColumn": "Fiscal Month Number",
+      "DataCategory": "MonthOfYear"
     },
     {
       "Name": "Fiscal Month Number",
       "Expression": "__FiscalMonthNumber",
       "DataType": "Int64",
       "IsHidden": true,
-      "AttributeType": "FiscalMonthOfYear"
+      "AttributeType": "FiscalMonthOfYear",
+      "DataCategory": "MonthOfYear"
     },
     {
       "Name": "Fiscal Month In Quarter Number",
       "Expression": "__FiscalMonthInQuarterNumber",
       "DataType": "Int64",
       "IsHidden": true,
-      "AttributeType": "FiscalMonthOfQuarter"
+      "AttributeType": "FiscalMonthOfQuarter",
+      "DataCategory": "MonthOfQuarter"
     },
     {
       "Name": "Fiscal Quarter",
       "Expression": "FORMAT( __FiscalQuarterNumber, \"@_FQ_@0\"@@GETISO() )",
-      "DataType": "String"
+      "DataType": "String",
+      "DataCategory": "QuarterOfYear"
     },
     {
       "Name": "Fiscal Year Quarter",
       "Expression": "FORMAT ( __FiscalQuarterNumber, \"@_FQ_@0\"@@GETISO() ) & \"-\" & FORMAT ( __FiscalYearNumber, \"0000\"@@GETISO() )",
       "DataType": "String",
-      "SortByColumn": "Fiscal Year Quarter Number"
+      "SortByColumn": "Fiscal Year Quarter Number",
+      "DataCategory": "Quarters"
     },
     {
       "Name": "Fiscal Year Quarter Number",
       "Expression": "__FiscalYearQuarterNumber",
       "DataType": "Int64",
       "IsHidden": true,
-      "AttributeType": "FiscalQuarters"
+      "AttributeType": "FiscalQuarters",
+      "DataCategory": "Quarters"
     },
     {
       "Name": "Fiscal Year",
       "Expression": "FORMAT ( __FiscalYearNumber, \"@_FY_@ 0000\"@@GETISO() )",
       "DataType": "String",
-      "SortByColumn": "Fiscal Year Number"
+      "SortByColumn": "Fiscal Year Number",
+      "DataCategory": "Years"
     },
     {
       "Name": "Fiscal Year Number",
       "Expression": "__FiscalYearNumber",
       "DataType": "Int64",
       "IsHidden": true,
-      "AttributeType": "FiscalYears"
+      "AttributeType": "FiscalYears",
+      "DataCategory": "Years"
     }
   ],
   "Hierarchies": [

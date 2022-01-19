@@ -77,20 +77,26 @@
       "DataType": "DateTime",
       "FormatString": "m/dd/yyyy",
       "Step": "__Calendar",
-      "AttributeType": "Date"
+      "DataCategory": "PaddedDateTableDates",
+      "AttributeTypes": [
+        "Date",
+        "FiscalDate"
+      ]
     },
     {
       "Name": "Year",
       "Expression": "DATE(__YearNumber, 12, 31)",
       "DataType": "DateTime",
-      "FormatString": "yyyy"
+      "FormatString": "yyyy",
+      "DataCategory": "Years"
     },
     {
       "Name": "Year Quarter Date",
       "Expression": "EOMONTH( __Date, 3 - __MonthNumberQ )",
       "DataType": "DateTime",
       "FormatString": "m/dd/yyyy",
-      "IsHidden": true
+      "IsHidden": true,
+      "DataCategory": "Quarters"
     },
     {
       "Name": "Year Quarter",
@@ -102,7 +108,8 @@
     {
       "Name": "Quarter",
       "Expression": "FORMAT( __Date, \"@_Q_@Q\" )",
-      "DataType": "String"
+      "DataType": "String",
+      "DataCategory": "QuarterOfYear"
     },
     {
       "_comment": "Use this version for end-of-month",
@@ -113,19 +120,22 @@
       "Name": "Year Month",
       "Expression": "EOMONTH( __Date, -1 ) + 1",
       "DataType": "DateTime",
-      "FormatString": "mmm yyyy"
+      "FormatString": "mmm yyyy",
+      "DataCategory": "Months"
     },
     {
       "Name": "Month",
       "Expression": "DATE(1900, MONTH( __Date ), 1 )",
       "DataType": "DateTime",
-      "FormatString": "mmm"
+      "FormatString": "mmm",
+      "DataCategory": "MonthOfYear"
     },
     {
       "Name": "Day of Week",
       "Expression": "DATE(1900, 1, 7 + __WeekdayNumber + (7 * (__WeekdayNumber < __FirstDayOfWeek)))",
       "DataType": "DateTime",
       "FormatString": "ddd",
+      "DataCategory": "DayOfWeek",
       "Annotations": {
         "SQLBI_FilterSafe": true
       }
@@ -135,12 +145,14 @@
       "Expression": "DATE(__FiscalYearNumber + (__FirstFiscalMonth = 1), __FirstFiscalMonth, 1) - 1",
       "DataType": "DateTime",
       "FormatString": "@_FY_@ yyyy\"",
-      "DisplayFolder": "Fiscal"
+      "DisplayFolder": "Fiscal",
+      "DataCategory": "FiscalYears"
     },
     {
       "Name": "Fiscal Year Quarter",
       "Expression": "__FiscalQuarterNumber & \"-\" & __FiscalYearNumber",
       "DataType": "String",
+      "SortByColumn": "Fiscal Year Quarter Date",
       "DisplayFolder": "Fiscal"
     },
     {
@@ -149,14 +161,15 @@
       "DataType": "DateTime",
       "FormatString": "m/dd/yyyy",
       "IsHidden": true,
-      "DisplayFolder": "Fiscal"
+      "DisplayFolder": "Fiscal",
+      "DataCategory": "FiscalQuarters"
     },
     {
       "Name": "Fiscal Quarter",
       "Expression": "__FiscalQuarterNumber",
       "DataType": "String",
       "DisplayFolder": "Fiscal",
-      "SortByColumn": "Fiscal Year Quarter Date"
+      "DataCategory": "FiscalQuarterOfYear"
     },
     {
       "Name": "IsWorking",

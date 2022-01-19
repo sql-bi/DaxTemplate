@@ -193,6 +193,7 @@ namespace Dax.Template.Tables
                 column.IsTemporary = columnDefinition.IsTemporary;
                 column.IsHidden = columnDefinition.IsHidden;
                 column.DisplayFolder = columnDefinition.DisplayFolder;
+                column.DataCategory = columnDefinition.DataCategory;
                 column.Description = columnDefinition.Description;
                 column.Comments = columnDefinition.GetComments();
                 column.Annotations = columnDefinition.Annotations;

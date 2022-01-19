@@ -11,6 +11,7 @@ namespace Dax.Template.Model
         public bool IgnoreAutoDependency { get; init; } = false;
         public string? Expression { get; set; } 
         public DataType DataType { get; init; } 
+        public string? DataCategory { get; set; }
         public string? FormatString { get; set; } 
         public string? DisplayFolder { get; set; } 
         public bool IsHidden { get; set; } = false;
