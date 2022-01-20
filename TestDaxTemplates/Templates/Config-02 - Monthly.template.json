@@ -12,6 +12,11 @@
       "Class": "MeasuresTemplate",
       "Table": null,
       "Template": "TimeIntelligence-02.json",
+      "Properties": {
+        "__DisplayFolderRule": "Time intelligence\\@_MEASURE_@\\@_DISPLAYFOLDER_@",
+        "DisplayFolderRule": "Time intelligence\\@_DISPLAYFOLDER_@\\@_TEMPLATE_@",
+        "_DisplayFolderRule": "Time intelligence\\@_DISPLAYFOLDER_@\\@_MEASURE_@"
+      },
       "_comment": "TargetMeasures can override the default setting"
     }
   ],

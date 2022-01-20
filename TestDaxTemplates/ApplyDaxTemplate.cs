@@ -262,7 +262,7 @@ namespace TestDaxTemplates
             if (SystemJsonSerializer.Deserialize(templateJson, typeof(MeasuresTemplateDefinition)) is not MeasuresTemplateDefinition measuresTemplate) throw new Exception("Invalid configuration");
 
             var config = ReadConfig<TemplateConfiguration>();
-            var template = new MeasuresTemplate(config, measuresTemplate);
+            var template = new MeasuresTemplate(config, measuresTemplate,new Dictionary<string, object>());
 
             Server server = new();
             server.Connect(txtServer.Text);

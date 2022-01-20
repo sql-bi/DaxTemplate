@@ -64,7 +64,7 @@ namespace Dax.Template.Measures
         public const string ENTITY_COLUMNS_LIST = "CL";
         public const string ENTITY_SINGLE_TABLE = "T";
         public const string ENTITY_COLUMNS_TABLE = "CT";
-        internal static Measure? FindMeasure(TabularModel model, string measureName)
+        internal static TabularMeasure? FindMeasure(TabularModel model, string measureName)
         {
             return
                 (from t in model.Tables
@@ -72,7 +72,8 @@ namespace Dax.Template.Measures
                  select m).FirstOrDefault(m => m.Name == measureName);
         }
 
-        public virtual Measure ApplyTemplate(TabularModel model, Table targetTable, bool overrideExistingMeasure = true)
+
+        public virtual TabularMeasure ApplyTemplate(TabularModel model, Table targetTable, bool overrideExistingMeasure = true)
         {
             var measure = FindMeasure(model, Name);
             if (measure == null)
@@ -82,7 +83,7 @@ namespace Dax.Template.Measures
             }
             measure.FormatString = FormatString ?? ReferenceMeasure?.FormatString;
             measure.IsHidden = IsHidden;
-            measure.DisplayFolder = DisplayFolder; // TODO we should implement macros/functions to create dynamic folders (e.g. based on measure name and customizable with parameters in config)
+            measure.DisplayFolder = DisplayFolder;
             measure.Description = Description;
             measure.Expression = GetDaxExpression(model, ReferenceMeasure?.Name);
             ApplyAnnotations(measure);

@@ -46,7 +46,7 @@
     },
     {
       "Name": "PY",
-      "DisplayFolder": "",
+      "DisplayFolder": "Growth",
       "MultiLineExpression": [
         "VAR __CurrentYearNumber = SELECTEDVALUE ( @_C-SQLBI_AttributeTypes-Years_@ )",
         "VAR __PreviousYearNumber = __CurrentYearNumber - 1",

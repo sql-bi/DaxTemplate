@@ -51,5 +51,7 @@ namespace Dax.Template.Tables
         public AutoNamingEnum AutoNaming { get; set; } = AutoNamingEnum.Suffix;
         public string AutoNamingSeparator { get; set; } = " ";
         public IMeasureTemplateConfig.TargetMeasure[] TargetMeasures { get; set; } = Array.Empty<IMeasureTemplateConfig.TargetMeasure>();
+
+        public string? DisplayFolderRule { get; set; }
     }
 }

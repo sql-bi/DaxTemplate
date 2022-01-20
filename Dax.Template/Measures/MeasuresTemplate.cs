@@ -6,6 +6,7 @@ using Dax.Template.Exceptions;
 using System.Text.RegularExpressions;
 using Dax.Template.Extensions;
 using TabularModel = Microsoft.AnalysisServices.Tabular.Model;
+using TabularMeasure = Microsoft.AnalysisServices.Tabular.Measure;
 using Dax.Template.Interfaces;
 using Dax.Template.Enums;
 
@@ -53,13 +54,21 @@ namespace Dax.Template.Measures
     public class MeasuresTemplate
     {
         const string SQLBI_TEMPLATE_ATTRIBUTE = "SQLBI_Template";
+        const string PROPERTY_DISPLAYFOLDERRULE = "DisplayFolderRule";
 
-        public IMeasureTemplateConfig Config { get; init; } 
-        public MeasuresTemplateDefinition Template { get; init; } 
-        public MeasuresTemplate(IMeasureTemplateConfig config, MeasuresTemplateDefinition measuresTemplateDefinition)
+        public IMeasureTemplateConfig Config { get; init; }
+        public MeasuresTemplateDefinition Template { get; init; }
+        public Dictionary<string, object> Properties { get; init; }
+        public MeasuresTemplate(IMeasureTemplateConfig config, MeasuresTemplateDefinition measuresTemplateDefinition, Dictionary<string, object> properties)
         {
             Config = config;
             Template = measuresTemplateDefinition;
+            Properties = properties;
+        }
+
+        public string? DisplayFolderRule
+        {
+            get => Properties.GetValueOrDefault(PROPERTY_DISPLAYFOLDERRULE)?.ToString();
         }
 
         /// <summary>
@@ -181,7 +190,7 @@ namespace Dax.Template.Measures
                     Name = (referenceMeasure != null) ? GetTargetMeasureName(template.Name, referenceMeasure.Name) : template.Name,
                     FormatString = template.FormatString,
                     IsHidden = template.IsHidden,
-                    DisplayFolder = template.DisplayFolder,
+                    DisplayFolder = GetDisplayFolder( referenceMeasure, template.DisplayFolder, template.Name),
                     Description = template.Description,
                     Annotations = template.Annotations.Union(Template.TemplateAnnotations),
                     Comments = template.GetComments(),
@@ -190,6 +199,24 @@ namespace Dax.Template.Measures
                 };
                 var modelMeasure = measureTemplate.ApplyTemplate(model, referenceMeasure?.Parent as Table ?? targetTable, overrideExistingMeasures);
                 appliedMeasures.Add(modelMeasure);
+            }
+        }
+
+        private static readonly Regex regexMeasureName = new(@"@_MEASURE_@", RegexOptions.Compiled);
+        private static readonly Regex regexTemplateName = new(@"@_TEMPLATE_@", RegexOptions.Compiled);
+        private static readonly Regex regexDisplayFolder = new(@"@_DISPLAYFOLDER_@", RegexOptions.Compiled);
+        protected virtual string? GetDisplayFolder(TabularMeasure? measure, string? defaultDisplayFolder, string? templateName)
+        {
+            if (string.IsNullOrWhiteSpace(DisplayFolderRule))
+            {
+                return defaultDisplayFolder;
+            }
+            else
+            {
+                string displayFolder = regexMeasureName.Replace(DisplayFolderRule, measure?.Name ?? string.Empty);
+                displayFolder = regexTemplateName.Replace(displayFolder, templateName ?? string.Empty);
+                displayFolder = regexDisplayFolder.Replace(displayFolder, defaultDisplayFolder ?? string.Empty);
+                return displayFolder;
             }
         }
 

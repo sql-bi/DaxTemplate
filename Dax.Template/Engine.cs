@@ -107,7 +107,7 @@ namespace Dax.Template
             void ApplyMeasuresTemplate(ITemplates.TemplateEntry templateEntry)
             {
                 var measuresTemplateDefinition = ReadDefinition<MeasuresTemplateDefinition>(templateEntry.Template);
-                var template = new MeasuresTemplate(Configuration, measuresTemplateDefinition);
+                var template = new MeasuresTemplate(Configuration, measuresTemplateDefinition, templateEntry.Properties);
                 template.ApplyTemplate(model);
             }
         }
