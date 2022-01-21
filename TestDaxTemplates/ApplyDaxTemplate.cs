@@ -369,5 +369,19 @@ namespace TestDaxTemplates
             string debugLine = $"--server=\"{txtServer.Text}\" --database=\"{txtDatabase.Text}\"";
             Clipboard.SetText(debugLine);
         }
+
+        private void CreatePackage_Click(object sender, EventArgs e)
+        {
+            string templatePath = GetSelectedTemplatePath();
+            var config = ReadConfig<TemplateConfiguration>(templatePath);
+            if (config == null)
+            {
+                throw new Exception($"Configuration {templatePath} not loaded.");
+            }
+
+            Engine templateEngine = new(config);
+            templateEngine.PathTemplates = txtPath.Text;
+            templateEngine.SavePackage(@"c:\temp\test.json");
+        }
     }
 }

@@ -10,6 +10,7 @@ using TabularModel = Microsoft.AnalysisServices.Tabular.Model;
 using System.Text.Json;
 using TabularJsonSerializer = Microsoft.AnalysisServices.Tabular.JsonSerializer;
 using SystemJsonSerializer = System.Text.Json.JsonSerializer;
+using System.Collections.Generic;
 
 namespace Dax.Template
 {
@@ -28,6 +29,33 @@ namespace Dax.Template
             return Path.Combine(PathTemplates, filename);
         }
 
+        public void SavePackage(string pathPackage)
+        {
+            // TODO - we should read the JSON file in specific data types to make sure
+            // they are validated and serialized the right way
+            // or check how to correctly read/write characters like && from DAX formulas
+            Dictionary<string, object> package = new();
+            package.Add("Config", Configuration);
+            var filenames =
+                from t in Configuration.Templates
+                where !string.IsNullOrEmpty(t.Template)
+                select t.Template;
+            filenames = filenames.Union(
+                from t in Configuration.Templates
+                from l in t.LocalizationFiles
+                where !string.IsNullOrEmpty(l)
+                select l).Distinct();
+            foreach (var filename in filenames)
+            {
+                string path = Path.Combine(PathTemplates, filename);
+                string json = File.ReadAllText(path);
+                var content = SystemJsonSerializer.Deserialize<dynamic>(json);
+                string stripJsonExt = filename.Replace(".json", "");
+                package.Add(stripJsonExt, content);
+            }
+            string s = SystemJsonSerializer.Serialize(package);
+            File.WriteAllText(pathPackage, s);
+        }
         public void ApplyTemplates(TabularModel model)
         {
             (string className, Action<ITemplates.TemplateEntry> action)[] classes =

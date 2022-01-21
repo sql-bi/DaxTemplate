@@ -204,18 +204,20 @@ namespace Dax.Template.Measures
 
         private static readonly Regex regexMeasureName = new(@"@_MEASURE_@", RegexOptions.Compiled);
         private static readonly Regex regexTemplateName = new(@"@_TEMPLATE_@", RegexOptions.Compiled);
-        private static readonly Regex regexDisplayFolder = new(@"@_DISPLAYFOLDER_@", RegexOptions.Compiled);
-        protected virtual string? GetDisplayFolder(TabularMeasure? measure, string? defaultDisplayFolder, string? templateName)
+        private static readonly Regex regexMeasureFolder = new(@"@_MEASUREFOLDER_@", RegexOptions.Compiled);
+        private static readonly Regex regexTemplateFolder = new(@"@_TEMPLATEFOLDER_@", RegexOptions.Compiled);
+        protected virtual string? GetDisplayFolder(TabularMeasure? measure, string? templateDisplayFolder, string? templateName)
         {
             if (string.IsNullOrWhiteSpace(DisplayFolderRule))
             {
-                return defaultDisplayFolder;
+                return templateDisplayFolder;
             }
             else
             {
                 string displayFolder = regexMeasureName.Replace(DisplayFolderRule, measure?.Name ?? string.Empty);
                 displayFolder = regexTemplateName.Replace(displayFolder, templateName ?? string.Empty);
-                displayFolder = regexDisplayFolder.Replace(displayFolder, defaultDisplayFolder ?? string.Empty);
+                displayFolder = regexMeasureFolder.Replace(displayFolder, measure?.DisplayFolder ?? string.Empty);
+                displayFolder = regexTemplateFolder.Replace(displayFolder, templateDisplayFolder ?? string.Empty);
                 return displayFolder;
             }
         }

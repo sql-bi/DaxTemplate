@@ -55,6 +55,7 @@
             this.txtCustomTemplate = new System.Windows.Forms.TextBox();
             this.btnGenDate = new System.Windows.Forms.Button();
             this.btnUpdate = new System.Windows.Forms.Button();
+            this.btnPackage = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher)).BeginInit();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
@@ -62,7 +63,7 @@
             // txtServer
             // 
             this.txtServer.Location = new System.Drawing.Point(170, 28);
-            this.txtServer.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.txtServer.Margin = new System.Windows.Forms.Padding(4);
             this.txtServer.Name = "txtServer";
             this.txtServer.Size = new System.Drawing.Size(465, 39);
             this.txtServer.TabIndex = 0;
@@ -90,7 +91,7 @@
             // txtDatabase
             // 
             this.txtDatabase.Location = new System.Drawing.Point(170, 79);
-            this.txtDatabase.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.txtDatabase.Margin = new System.Windows.Forms.Padding(4);
             this.txtDatabase.Name = "txtDatabase";
             this.txtDatabase.Size = new System.Drawing.Size(465, 39);
             this.txtDatabase.TabIndex = 4;
@@ -101,7 +102,7 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.txtDax.Location = new System.Drawing.Point(46, 419);
-            this.txtDax.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.txtDax.Margin = new System.Windows.Forms.Padding(4);
             this.txtDax.Multiline = true;
             this.txtDax.Name = "txtDax";
             this.txtDax.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
@@ -122,7 +123,7 @@
             // txtPath
             // 
             this.txtPath.Location = new System.Drawing.Point(170, 138);
-            this.txtPath.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.txtPath.Margin = new System.Windows.Forms.Padding(4);
             this.txtPath.Name = "txtPath";
             this.txtPath.Size = new System.Drawing.Size(910, 39);
             this.txtPath.TabIndex = 23;
@@ -155,7 +156,7 @@
             this.comboTemplates.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboTemplates.FormattingEnabled = true;
             this.comboTemplates.Location = new System.Drawing.Point(169, 191);
-            this.comboTemplates.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.comboTemplates.Margin = new System.Windows.Forms.Padding(4);
             this.comboTemplates.Name = "comboTemplates";
             this.comboTemplates.Size = new System.Drawing.Size(689, 40);
             this.comboTemplates.TabIndex = 24;
@@ -173,7 +174,7 @@
             // btnApplyTemplate
             // 
             this.btnApplyTemplate.Location = new System.Drawing.Point(889, 191);
-            this.btnApplyTemplate.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btnApplyTemplate.Margin = new System.Windows.Forms.Padding(4);
             this.btnApplyTemplate.Name = "btnApplyTemplate";
             this.btnApplyTemplate.Size = new System.Drawing.Size(192, 49);
             this.btnApplyTemplate.TabIndex = 26;
@@ -208,7 +209,7 @@
             this.panel1.Controls.Add(this.btnGenDate);
             this.panel1.Controls.Add(this.btnUpdate);
             this.panel1.Location = new System.Drawing.Point(1123, 32);
-            this.panel1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.panel1.Margin = new System.Windows.Forms.Padding(4);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(855, 366);
             this.panel1.TabIndex = 28;
@@ -217,7 +218,7 @@
             // 
             this.btnMeasureTemplate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.btnMeasureTemplate.Location = new System.Drawing.Point(563, 294);
-            this.btnMeasureTemplate.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btnMeasureTemplate.Margin = new System.Windows.Forms.Padding(4);
             this.btnMeasureTemplate.Name = "btnMeasureTemplate";
             this.btnMeasureTemplate.Size = new System.Drawing.Size(252, 52);
             this.btnMeasureTemplate.TabIndex = 34;
@@ -228,7 +229,7 @@
             // 
             this.btnReadTemplate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.btnReadTemplate.Location = new System.Drawing.Point(252, 294);
-            this.btnReadTemplate.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btnReadTemplate.Margin = new System.Windows.Forms.Padding(4);
             this.btnReadTemplate.Name = "btnReadTemplate";
             this.btnReadTemplate.Size = new System.Drawing.Size(303, 52);
             this.btnReadTemplate.TabIndex = 33;
@@ -239,7 +240,7 @@
             // 
             this.btnReadConfig.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.btnReadConfig.Location = new System.Drawing.Point(20, 294);
-            this.btnReadConfig.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btnReadConfig.Margin = new System.Windows.Forms.Padding(4);
             this.btnReadConfig.Name = "btnReadConfig";
             this.btnReadConfig.Size = new System.Drawing.Size(217, 52);
             this.btnReadConfig.TabIndex = 32;
@@ -249,7 +250,7 @@
             // txtConfig
             // 
             this.txtConfig.Location = new System.Drawing.Point(300, 26);
-            this.txtConfig.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.txtConfig.Margin = new System.Windows.Forms.Padding(4);
             this.txtConfig.Name = "txtConfig";
             this.txtConfig.Size = new System.Drawing.Size(514, 39);
             this.txtConfig.TabIndex = 31;
@@ -271,7 +272,7 @@
             this.chkCustomTemplate.Checked = true;
             this.chkCustomTemplate.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkCustomTemplate.Location = new System.Drawing.Point(20, 84);
-            this.chkCustomTemplate.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.chkCustomTemplate.Margin = new System.Windows.Forms.Padding(4);
             this.chkCustomTemplate.Name = "chkCustomTemplate";
             this.chkCustomTemplate.Size = new System.Drawing.Size(277, 36);
             this.chkCustomTemplate.TabIndex = 24;
@@ -282,7 +283,7 @@
             // 
             this.chkCustomTranslation.AutoSize = true;
             this.chkCustomTranslation.Location = new System.Drawing.Point(20, 134);
-            this.chkCustomTranslation.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.chkCustomTranslation.Margin = new System.Windows.Forms.Padding(4);
             this.chkCustomTranslation.Name = "chkCustomTranslation";
             this.chkCustomTranslation.Size = new System.Drawing.Size(219, 36);
             this.chkCustomTranslation.TabIndex = 29;
@@ -292,7 +293,7 @@
             // txtCustomTranslation
             // 
             this.txtCustomTranslation.Location = new System.Drawing.Point(300, 132);
-            this.txtCustomTranslation.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.txtCustomTranslation.Margin = new System.Windows.Forms.Padding(4);
             this.txtCustomTranslation.Name = "txtCustomTranslation";
             this.txtCustomTranslation.Size = new System.Drawing.Size(514, 39);
             this.txtCustomTranslation.TabIndex = 28;
@@ -301,7 +302,7 @@
             // btnUpdateHolidays
             // 
             this.btnUpdateHolidays.Location = new System.Drawing.Point(252, 237);
-            this.btnUpdateHolidays.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btnUpdateHolidays.Margin = new System.Windows.Forms.Padding(4);
             this.btnUpdateHolidays.Name = "btnUpdateHolidays";
             this.btnUpdateHolidays.Size = new System.Drawing.Size(303, 47);
             this.btnUpdateHolidays.TabIndex = 27;
@@ -311,7 +312,7 @@
             // btnGenHolidaysDax
             // 
             this.btnGenHolidaysDax.Location = new System.Drawing.Point(563, 237);
-            this.btnGenHolidaysDax.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btnGenHolidaysDax.Margin = new System.Windows.Forms.Padding(4);
             this.btnGenHolidaysDax.Name = "btnGenHolidaysDax";
             this.btnGenHolidaysDax.Size = new System.Drawing.Size(252, 47);
             this.btnGenHolidaysDax.TabIndex = 26;
@@ -321,7 +322,7 @@
             // txtCustomTemplate
             // 
             this.txtCustomTemplate.Location = new System.Drawing.Point(300, 84);
-            this.txtCustomTemplate.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.txtCustomTemplate.Margin = new System.Windows.Forms.Padding(4);
             this.txtCustomTemplate.Name = "txtCustomTemplate";
             this.txtCustomTemplate.Size = new System.Drawing.Size(514, 39);
             this.txtCustomTemplate.TabIndex = 25;
@@ -330,7 +331,7 @@
             // btnGenDate
             // 
             this.btnGenDate.Location = new System.Drawing.Point(563, 182);
-            this.btnGenDate.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btnGenDate.Margin = new System.Windows.Forms.Padding(4);
             this.btnGenDate.Name = "btnGenDate";
             this.btnGenDate.Size = new System.Drawing.Size(252, 47);
             this.btnGenDate.TabIndex = 23;
@@ -340,18 +341,30 @@
             // btnUpdate
             // 
             this.btnUpdate.Location = new System.Drawing.Point(252, 182);
-            this.btnUpdate.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btnUpdate.Margin = new System.Windows.Forms.Padding(4);
             this.btnUpdate.Name = "btnUpdate";
             this.btnUpdate.Size = new System.Drawing.Size(303, 47);
             this.btnUpdate.TabIndex = 22;
             this.btnUpdate.Text = "Update date";
             this.btnUpdate.UseVisualStyleBackColor = true;
             // 
+            // btnPackage
+            // 
+            this.btnPackage.Location = new System.Drawing.Point(889, 267);
+            this.btnPackage.Margin = new System.Windows.Forms.Padding(4);
+            this.btnPackage.Name = "btnPackage";
+            this.btnPackage.Size = new System.Drawing.Size(192, 49);
+            this.btnPackage.TabIndex = 29;
+            this.btnPackage.Text = "Create Package";
+            this.btnPackage.UseVisualStyleBackColor = true;
+            this.btnPackage.Click += new System.EventHandler(this.CreatePackage_Click);
+            // 
             // ApplyDaxTemplate
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(13F, 32F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(2012, 1318);
+            this.Controls.Add(this.btnPackage);
             this.Controls.Add(this.btnCopyDebug);
             this.Controls.Add(this.btnApplyTemplate);
             this.Controls.Add(this.label6);
@@ -365,7 +378,7 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.txtServer);
             this.Controls.Add(this.panel1);
-            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "ApplyDaxTemplate";
             this.Text = "Test DAX Templates";
             this.Load += new System.EventHandler(this.ApplyDate_Load);
@@ -406,5 +419,6 @@
         private TextBox txtCustomTemplate;
         private Button btnGenDate;
         private Button btnUpdate;
+        private Button btnPackage;
     }
 }
