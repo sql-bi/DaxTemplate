@@ -338,14 +338,13 @@ namespace TestDaxTemplates
         private void ApplyTemplate_Click(object sender, EventArgs e)
         {
             string templatePath = GetSelectedTemplatePath();
-            var config = ReadConfig<TemplateConfiguration>(templatePath);
-            if (config == null)
+            var package = Package.LoadPackage(templatePath);
+            if (package?.Configuration == null)
             {
                 throw new Exception($"Configuration {templatePath} not loaded.");
             }
 
-            Engine templateEngine = new(config);
-            templateEngine.PathTemplates = txtPath.Text;
+            Engine templateEngine = new(package);
 
             Server server = new();
             server.Connect(txtServer.Text);
@@ -373,14 +372,9 @@ namespace TestDaxTemplates
         private void CreatePackage_Click(object sender, EventArgs e)
         {
             string templatePath = GetSelectedTemplatePath();
-            var config = ReadConfig<TemplateConfiguration>(templatePath);
-            if (config == null)
-            {
-                throw new Exception($"Configuration {templatePath} not loaded.");
-            }
+            var package = Package.LoadPackage(templatePath);
 
-            Engine templateEngine = new(config);
-            templateEngine.PathTemplates = txtPath.Text;
+            Engine templateEngine = new(package);
             templateEngine.SavePackage(@"c:\temp\test.json");
         }
     }

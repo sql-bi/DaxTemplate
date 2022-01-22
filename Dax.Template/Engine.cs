@@ -12,22 +12,19 @@ using TabularJsonSerializer = Microsoft.AnalysisServices.Tabular.JsonSerializer;
 using SystemJsonSerializer = System.Text.Json.JsonSerializer;
 using System.Collections.Generic;
 using System.Text.Encodings.Web;
+using System.Dynamic;
+using Dax.Template.Exceptions;
 
 namespace Dax.Template
 {
     public class Engine
     {
-        public TemplateConfiguration Configuration { get; init; }
-        public string PathTemplates { get; set; } = string.Empty;
+        readonly Package TemplatePackage;
+        public TemplateConfiguration Configuration { get => TemplatePackage.Configuration; }
 
-        public Engine(TemplateConfiguration configuration)
+        public Engine(Package package)
         {
-            Configuration = configuration;
-        }
-
-        private string GetFullPath(string filename)
-        {
-            return Path.Combine(PathTemplates, filename);
+            TemplatePackage = package;
         }
 
         public void SavePackage(string pathPackage)
@@ -45,7 +42,7 @@ namespace Dax.Template
                 select l).Distinct();
             foreach (var filename in filenames)
             {
-                string path = Path.Combine(PathTemplates, filename);
+                string path = Path.Combine(TemplatePackage.Path ?? string.Empty, filename);
                 string json = File.ReadAllText(path);
                 var content = SystemJsonSerializer.Deserialize<dynamic>(json);
                 string stripJsonExt = filename.Replace(".json", "");
@@ -59,6 +56,7 @@ namespace Dax.Template
             string serialized = SystemJsonSerializer.Serialize(package, options);
             File.WriteAllText(pathPackage, serialized);
         }
+
         public void ApplyTemplates(TabularModel model)
         {
             (string className, Action<ITemplates.TemplateEntry> action)[] classes =
@@ -76,19 +74,6 @@ namespace Dax.Template
                 action(template);
             });
 
-            T ReadDefinition<T>(string filename)
-            {
-                string json = File.ReadAllText(GetFullPath(filename));
-                if (SystemJsonSerializer.Deserialize(
-                        json,
-                        typeof(T))
-                    is not T holidaysDefinition)
-                {
-                    throw new Exception("Invalid configuration");
-                }
-                return holidaysDefinition;
-            }
-
             void ApplyHolidaysDefinitionTable(ITemplates.TemplateEntry templateEntry)
             {
                 Table tableHolidaysDefinition = model.Tables.Find(templateEntry.Table);
@@ -98,7 +83,11 @@ namespace Dax.Template
                     model.Tables.Add(tableHolidaysDefinition);
                 }
                 CalculatedTableTemplateBase template;
-                template = new HolidaysDefinitionTable(ReadDefinition<HolidaysDefinitionTable.HolidaysDefinitions>(templateEntry.Template));
+                if (string.IsNullOrWhiteSpace(templateEntry.Template))
+                {
+                    throw new InvalidConfigurationException($"Undefined Template in class {templateEntry.Class} configuration");
+                }
+                template = new HolidaysDefinitionTable(TemplatePackage.ReadDefinition<HolidaysDefinitionTable.HolidaysDefinitions>(templateEntry.Template));
                 template.ApplyTemplate(tableHolidaysDefinition, templateEntry.IsHidden);
                 tableHolidaysDefinition.RequestRefresh(RefreshType.Full);
             }
@@ -118,13 +107,24 @@ namespace Dax.Template
             void ApplyCustomDateTable(ITemplates.TemplateEntry templateEntry)
             {
                 bool translationsEnabled = !string.IsNullOrWhiteSpace(Configuration.IsoTranslation);
-                bool createReferenceTable = !string.IsNullOrWhiteSpace(templateEntry.ReferenceTable);
-                ReferenceCalculatedTable? hiddenDateTemplate = createReferenceTable ? CreateDateTable(
-                    templateEntry.ReferenceTable, 
-                    templateEntry.Template, 
-                    model, 
-                    hideTable: true, 
-                    isoFormat: Configuration.IsoFormat) : null;
+                ReferenceCalculatedTable? hiddenDateTemplate = null;
+                if (string.IsNullOrWhiteSpace(templateEntry.Template))
+                {
+                    throw new InvalidConfigurationException($"Undefined Template in class {templateEntry.Class} configuration");
+                }
+                if (string.IsNullOrWhiteSpace(templateEntry.Table))
+                {
+                    throw new InvalidConfigurationException($"Undefined Table property in class {templateEntry.Class} configuration");
+                }
+                if (!string.IsNullOrWhiteSpace(templateEntry.ReferenceTable))
+                {
+                    hiddenDateTemplate = CreateDateTable(
+                        templateEntry.ReferenceTable,
+                        templateEntry.Template,
+                        model,
+                        hideTable: true,
+                        isoFormat: Configuration.IsoFormat);
+                }
                 ReferenceCalculatedTable visibleDateTemplate = CreateDateTable(
                     templateEntry.Table, 
                     templateEntry.Template, 
@@ -137,7 +137,11 @@ namespace Dax.Template
             }
             void ApplyMeasuresTemplate(ITemplates.TemplateEntry templateEntry)
             {
-                var measuresTemplateDefinition = ReadDefinition<MeasuresTemplateDefinition>(templateEntry.Template);
+                if (string.IsNullOrWhiteSpace(templateEntry.Template))
+                {
+                    throw new InvalidConfigurationException($"Undefined Template in class {templateEntry.Class} configuration");
+                }
+                var measuresTemplateDefinition = TemplatePackage.ReadDefinition<MeasuresTemplateDefinition>(templateEntry.Template);
                 var template = new MeasuresTemplate(Configuration, measuresTemplateDefinition, templateEntry.Properties);
                 template.ApplyTemplate(model);
             }
@@ -147,25 +151,15 @@ namespace Dax.Template
             Translations.Definitions translations = new();
             foreach (var localizationFile in Configuration.LocalizationFiles)
             {
-                string translationsJsonFilename = GetFullPath(localizationFile);
-                string translationsJson = File.ReadAllText(translationsJsonFilename);
-                if (SystemJsonSerializer.Deserialize(translationsJson, typeof(Translations.Definitions)) is not Translations.Definitions definitions) throw new Exception("Invalid translations");
+                Translations.Definitions definitions = TemplatePackage.ReadDefinition<Translations.Definitions>(localizationFile);
+                //string translationsJsonFilename = GetFullPath(localizationFile);
+                //string translationsJson = File.ReadAllText(translationsJsonFilename);
+                //if (SystemJsonSerializer.Deserialize(translationsJson, typeof(Translations.Definitions)) is not Translations.Definitions definitions) throw new Exception("Invalid translations");
                 translations.Translations = translations.Translations.Union(definitions.Translations).ToArray();
             }
             return translations;
         }
-        private T ReadTemplateDefinition<T>(string templateFilename) where T : CustomTemplateDefinition
-        {
-            string json = File.ReadAllText(GetFullPath(templateFilename));
-            if (SystemJsonSerializer.Deserialize(
-                    json,
-                    typeof(T))
-                is not T templateDefinition)
-            {
-                throw new Exception("Invalid configuration");
-            }
-            return templateDefinition;
-        }
+
         private ReferenceCalculatedTable CreateDateTable(
             string dateTableName, 
             string templateFilename,
@@ -189,7 +183,8 @@ namespace Dax.Template
             }
             ReferenceCalculatedTable template;
 
-            template = new CustomDateTable(Configuration, ReadTemplateDefinition<CustomDateTemplateDefinition>(templateFilename), model)
+            //template = new CustomDateTable(Configuration, ReadTemplateDefinition<CustomDateTemplateDefinition>(templateFilename), model)
+            template = new CustomDateTable(Configuration, TemplatePackage.ReadDefinition<CustomDateTemplateDefinition>(templateFilename), model)
             {
                 Translation = translations,
                 HiddenTable = referenceTable,

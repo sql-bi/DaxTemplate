@@ -174,7 +174,7 @@
             // btnCopyDebug
             // 
             this.btnCopyDebug.Location = new System.Drawing.Point(494, 22);
-            this.btnCopyDebug.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnCopyDebug.Margin = new System.Windows.Forms.Padding(2);
             this.btnCopyDebug.Name = "btnCopyDebug";
             this.btnCopyDebug.Size = new System.Drawing.Size(90, 70);
             this.btnCopyDebug.TabIndex = 27;
@@ -239,7 +239,7 @@
             this.txtConfig.Name = "txtConfig";
             this.txtConfig.Size = new System.Drawing.Size(396, 31);
             this.txtConfig.TabIndex = 31;
-            this.txtConfig.Text = "..\\..\\..\\Templates\\Config-05.template.json";
+            this.txtConfig.Text = "..\\..\\..\\Templates\\Config-01 - Standard.template.json";
             // 
             // label5
             // 
@@ -304,7 +304,7 @@
             this.txtCustomTemplate.Name = "txtCustomTemplate";
             this.txtCustomTemplate.Size = new System.Drawing.Size(396, 31);
             this.txtCustomTemplate.TabIndex = 25;
-            this.txtCustomTemplate.Text = "..\\..\\..\\Templates\\DateTemplate-05.json";
+            this.txtCustomTemplate.Text = "..\\..\\..\\Templates\\DateTemplate-04.json";
             // 
             // btnGenDate
             // 
