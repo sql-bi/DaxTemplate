@@ -45,7 +45,4 @@ API:
 
 Fiscal Year is wrong on template 01
 
-Implement format with all-in-one-file (Config:{}, TimeIntelligence-01:{}}...
-
-
  * */

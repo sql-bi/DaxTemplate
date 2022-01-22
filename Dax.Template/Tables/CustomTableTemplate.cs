@@ -37,8 +37,9 @@ namespace Dax.Template.Tables
             public string PrefixSearch => _prefixSearch;        
             public string PrefixFormat => _prefixFormat;
         }
-        protected static string ReplacePrefixes( string expression, List<FormatPrefix> prefixes )
+        protected static string? ReplacePrefixes( string? expression, List<FormatPrefix> prefixes )
         {
+            if (expression == null) return expression;
             prefixes.ForEach(prefix =>
             {
                 expression = expression.Replace(prefix.PrefixSearch, prefix.PrefixFormat);
@@ -188,7 +189,7 @@ namespace Dax.Template.Tables
 
                 column.Expression = expression;
                 column.Comments = columnDefinition.GetComments();
-                column.FormatString = columnDefinition.FormatString;
+                column.FormatString = ReplacePrefixes(columnDefinition.FormatString, Prefixes); 
                 column.Dependencies = columnDependencies;
                 column.IsTemporary = columnDefinition.IsTemporary;
                 column.IsHidden = columnDefinition.IsHidden;

@@ -144,7 +144,7 @@
       "Name": "Fiscal Year",
       "Expression": "DATE(__FiscalYearNumber + (__FirstFiscalMonth = 1), __FirstFiscalMonth, 1) - 1",
       "DataType": "DateTime",
-      "FormatString": "@_FY_@ yyyy\"",
+      "FormatString": "@_FY_@ yyyy",
       "DisplayFolder": "Fiscal",
       "DataCategory": "FiscalYears"
     },
@@ -227,8 +227,8 @@
       "Name": "Fiscal",
       "Levels": [
         {
-          "Name": "Fiscal Year",
-          "Column": "Year"
+          "Name": "Year",
+          "Column": "Fiscal Year"
         },
         {
           "Name": "Month",
