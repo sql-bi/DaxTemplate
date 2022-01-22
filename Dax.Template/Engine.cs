@@ -11,6 +11,7 @@ using System.Text.Json;
 using TabularJsonSerializer = Microsoft.AnalysisServices.Tabular.JsonSerializer;
 using SystemJsonSerializer = System.Text.Json.JsonSerializer;
 using System.Collections.Generic;
+using System.Text.Encodings.Web;
 
 namespace Dax.Template
 {
@@ -31,9 +32,6 @@ namespace Dax.Template
 
         public void SavePackage(string pathPackage)
         {
-            // TODO - we should read the JSON file in specific data types to make sure
-            // they are validated and serialized the right way
-            // or check how to correctly read/write characters like && from DAX formulas
             Dictionary<string, object> package = new();
             package.Add("Config", Configuration);
             var filenames =
@@ -53,8 +51,13 @@ namespace Dax.Template
                 string stripJsonExt = filename.Replace(".json", "");
                 package.Add(stripJsonExt, content);
             }
-            string s = SystemJsonSerializer.Serialize(package);
-            File.WriteAllText(pathPackage, s);
+            var options = new JsonSerializerOptions
+            {
+                Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+                WriteIndented = true
+            };
+            string serialized = SystemJsonSerializer.Serialize(package, options);
+            File.WriteAllText(pathPackage, serialized);
         }
         public void ApplyTemplates(TabularModel model)
         {
