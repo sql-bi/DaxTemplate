@@ -50,6 +50,7 @@ namespace Dax.Template.Model
             public MeasureChanges(string name) : base(name) { }
             public bool IsHidden { get; set; }
             public string? Expression { get; set; }
+            public string? DisplayFolder { get; set; }
         }
         public class HierarchyChanges : ItemChanges
         {
@@ -118,6 +119,7 @@ namespace Dax.Template.Model
             var measureChanges = new MeasureChanges(measure.Name)
             {
                 IsHidden = measure.IsHidden,
+                DisplayFolder = measure.DisplayFolder,
                 Expression = measure.Expression
             };
             tableChanges.Measures.Add(measureChanges);
