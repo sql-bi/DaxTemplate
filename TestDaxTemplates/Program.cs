@@ -41,8 +41,5 @@ API:
     - Extract modified entities (added tables, added measures)
     - Preview of added tables (first 50, visible/hidden flag, using the translated name for reference table)
     - List of measures from template with full path + DAX
- 
-
-Fiscal Year is wrong on template 01
 
  * */

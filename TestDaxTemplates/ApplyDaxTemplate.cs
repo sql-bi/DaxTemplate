@@ -9,6 +9,10 @@ using System.Text.Json;
 using TabularJsonSerializer = Microsoft.AnalysisServices.Tabular.JsonSerializer;
 using SystemJsonSerializer = System.Text.Json.JsonSerializer;
 using Dax.Template.Interfaces;
+using System.Reflection;
+using System.Collections;
+using Microsoft.AnalysisServices.AdomdClient;
+using System.Text.Encodings.Web;
 
 namespace TestDaxTemplates
 {
@@ -335,7 +339,18 @@ namespace TestDaxTemplates
             UpdateTemplateList();
         }
 
-        private void ApplyTemplate_Click(object sender, EventArgs e)
+        private void DisplayChanges(Dax.Template.Model.ModelChanges modelChanges) 
+        {
+            var options = new JsonSerializerOptions
+            {
+                Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+                WriteIndented = true
+            };
+            var result = SystemJsonSerializer.Serialize(modelChanges, options);
+            txtDax.Text = result;
+        }
+
+        private void ApplyTemplate(bool commitChanges)
         {
             string templatePath = GetSelectedTemplatePath();
             var package = Package.LoadPackage(templatePath);
@@ -354,13 +369,30 @@ namespace TestDaxTemplates
             try
             {
                 templateEngine.ApplyTemplates(model);
-                model.SaveChanges();
+                var modelChanges = Engine.GetModelChanges(model);
+
+                // Only for preview data
+                string adomdConnectionString = $"Data Source={txtServer.Text};Catalog={txtDatabase.Text};";
+                AdomdConnection connection = new(adomdConnectionString);
+                int previewRows = 5;
+                modelChanges.PopulatePreview(connection, model, previewRows);
+
+                DisplayChanges(modelChanges);
+                if (commitChanges)
+                {
+                    model.SaveChanges();
+                }
             }
             catch (TemplateException ex)
             {
                 MessageBox.Show(ex.Message, "Template Exception");
             }
             server.Disconnect();
+        }
+
+        private void ApplyTemplate_Click(object sender, EventArgs e)
+        {
+            ApplyTemplate(commitChanges:true);
         }
 
         private void CopyDebug_Click(object sender, EventArgs e)
@@ -376,6 +408,11 @@ namespace TestDaxTemplates
 
             Engine templateEngine = new(package);
             templateEngine.SavePackage(@"c:\temp\test.json");
+        }
+
+        private void PreviewTemplate_Click(object sender, EventArgs e)
+        {
+            ApplyTemplate(commitChanges: false);
         }
     }
 }

@@ -56,6 +56,7 @@
             this.btnGenDate = new System.Windows.Forms.Button();
             this.btnUpdate = new System.Windows.Forms.Button();
             this.btnPackage = new System.Windows.Forms.Button();
+            this.btnPreviewTemplate = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher)).BeginInit();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
@@ -118,7 +119,7 @@
             // 
             this.txtPath.Location = new System.Drawing.Point(131, 108);
             this.txtPath.Name = "txtPath";
-            this.txtPath.Size = new System.Drawing.Size(701, 31);
+            this.txtPath.Size = new System.Drawing.Size(719, 31);
             this.txtPath.TabIndex = 23;
             this.txtPath.Text = "C:\\Users\\MarcoRusso\\source\\repos\\sql-bi\\DaxTemplate\\TestDaxTemplates\\Templates\\";
             this.txtPath.TextChanged += new System.EventHandler(this.Path_TextChanged);
@@ -165,7 +166,7 @@
             // 
             this.btnApplyTemplate.Location = new System.Drawing.Point(684, 149);
             this.btnApplyTemplate.Name = "btnApplyTemplate";
-            this.btnApplyTemplate.Size = new System.Drawing.Size(148, 38);
+            this.btnApplyTemplate.Size = new System.Drawing.Size(166, 38);
             this.btnApplyTemplate.TabIndex = 26;
             this.btnApplyTemplate.Text = "Apply Template";
             this.btnApplyTemplate.UseVisualStyleBackColor = true;
@@ -326,19 +327,30 @@
             // 
             // btnPackage
             // 
-            this.btnPackage.Location = new System.Drawing.Point(684, 209);
+            this.btnPackage.Location = new System.Drawing.Point(684, 255);
             this.btnPackage.Name = "btnPackage";
-            this.btnPackage.Size = new System.Drawing.Size(148, 38);
+            this.btnPackage.Size = new System.Drawing.Size(166, 38);
             this.btnPackage.TabIndex = 29;
             this.btnPackage.Text = "Create Package";
             this.btnPackage.UseVisualStyleBackColor = true;
             this.btnPackage.Click += new System.EventHandler(this.CreatePackage_Click);
+            // 
+            // btnPreviewTemplate
+            // 
+            this.btnPreviewTemplate.Location = new System.Drawing.Point(684, 193);
+            this.btnPreviewTemplate.Name = "btnPreviewTemplate";
+            this.btnPreviewTemplate.Size = new System.Drawing.Size(166, 38);
+            this.btnPreviewTemplate.TabIndex = 30;
+            this.btnPreviewTemplate.Text = "Preview Template";
+            this.btnPreviewTemplate.UseVisualStyleBackColor = true;
+            this.btnPreviewTemplate.Click += new System.EventHandler(this.PreviewTemplate_Click);
             // 
             // ApplyDaxTemplate
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1548, 1030);
+            this.Controls.Add(this.btnPreviewTemplate);
             this.Controls.Add(this.btnPackage);
             this.Controls.Add(this.btnCopyDebug);
             this.Controls.Add(this.btnApplyTemplate);
@@ -394,5 +406,6 @@
         private Button btnGenDate;
         private Button btnUpdate;
         private Button btnPackage;
+        private Button btnPreviewTemplate;
     }
 }

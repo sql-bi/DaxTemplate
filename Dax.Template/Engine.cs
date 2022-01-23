@@ -6,6 +6,7 @@ using Dax.Template.Measures;
 using Dax.Template.Tables;
 using Dax.Template.Tables.Dates;
 using Dax.Template.Interfaces;
+using Dax.Template.Extensions;
 using TabularModel = Microsoft.AnalysisServices.Tabular.Model;
 using System.Text.Json;
 using TabularJsonSerializer = Microsoft.AnalysisServices.Tabular.JsonSerializer;
@@ -14,9 +15,11 @@ using System.Collections.Generic;
 using System.Text.Encodings.Web;
 using System.Dynamic;
 using Dax.Template.Exceptions;
+using System.Collections;
 
 namespace Dax.Template
 {
+
     public class Engine
     {
         readonly Package TemplatePackage;
@@ -27,6 +30,32 @@ namespace Dax.Template
             TemplatePackage = package;
         }
 
+        public static Model.ModelChanges GetModelChanges( TabularModel model )
+        {
+            object? txManager = model.GetPropertyValue("TxManager");
+            object? currentSavePoint = txManager?.GetPropertyValue("CurrentSavepoint");
+            object? allBodies = currentSavePoint?.GetPropertyValue("AllBodies");
+            Model.ModelChanges modelChanges = new();
+            if (allBodies != null)
+            {
+                var collection = (IEnumerable)allBodies;
+                foreach (var item in collection)
+                {
+                    var owner = item?.GetPropertyValue("Owner");
+                    Table? lastParent = item?.GetPropertyValue("LastParent", false) as Table;
+                    Table? parent = lastParent ?? owner?.GetPropertyValue("Parent", false) as Table;
+                    switch (owner)
+                    {
+                        case Table table: modelChanges.AddTable(table, table.IsRemoved); break;
+                        case Measure measure: modelChanges.AddMeasure(measure, parent, measure.IsRemoved); break;
+                        case Column column: modelChanges.AddColumn(column, parent, column.IsRemoved); break;
+                        case Hierarchy hierarchy: modelChanges.AddHierarchy(hierarchy, parent, hierarchy.IsRemoved); break;
+                    }
+                }
+            }
+            modelChanges.SimplifyRemovedObjects();
+            return modelChanges;
+        }
         public void SavePackage(string pathPackage)
         {
             Dictionary<string, object> package = new();
@@ -152,9 +181,6 @@ namespace Dax.Template
             foreach (var localizationFile in Configuration.LocalizationFiles)
             {
                 Translations.Definitions definitions = TemplatePackage.ReadDefinition<Translations.Definitions>(localizationFile);
-                //string translationsJsonFilename = GetFullPath(localizationFile);
-                //string translationsJson = File.ReadAllText(translationsJsonFilename);
-                //if (SystemJsonSerializer.Deserialize(translationsJson, typeof(Translations.Definitions)) is not Translations.Definitions definitions) throw new Exception("Invalid translations");
                 translations.Translations = translations.Translations.Union(definitions.Translations).ToArray();
             }
             return translations;
@@ -183,7 +209,6 @@ namespace Dax.Template
             }
             ReferenceCalculatedTable template;
 
-            //template = new CustomDateTable(Configuration, ReadTemplateDefinition<CustomDateTemplateDefinition>(templateFilename), model)
             template = new CustomDateTable(Configuration, TemplatePackage.ReadDefinition<CustomDateTemplateDefinition>(templateFilename), model)
             {
                 Translation = translations,
