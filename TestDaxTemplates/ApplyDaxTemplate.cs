@@ -371,16 +371,19 @@ namespace TestDaxTemplates
                 templateEngine.ApplyTemplates(model);
                 var modelChanges = Engine.GetModelChanges(model);
 
-                // Only for preview data
-                string adomdConnectionString = $"Data Source={txtServer.Text};Catalog={txtDatabase.Text};";
-                AdomdConnection connection = new(adomdConnectionString);
-                int previewRows = 5;
-                modelChanges.PopulatePreview(connection, model, previewRows);
 
-                DisplayChanges(modelChanges);
                 if (commitChanges)
                 {
                     model.SaveChanges();
+                }
+                else
+                {
+                    // Only for preview data
+                    string adomdConnectionString = $"Data Source={txtServer.Text};Catalog={txtDatabase.Text};";
+                    AdomdConnection connection = new(adomdConnectionString);
+                    int previewRows = 5;
+
+                    modelChanges.PopulatePreview(connection, model, previewRows); DisplayChanges(modelChanges);
                 }
             }
             catch (TemplateException ex)
