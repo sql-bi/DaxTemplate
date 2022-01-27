@@ -140,10 +140,10 @@ namespace TestDaxTemplates
             var config = builder.Build();
             txtServer.Text = config["server"];
             txtDatabase.Text = config["database"];
-
+            txtPath.Text = config["path"] ?? Path.Combine(new DirectoryInfo(Environment.CurrentDirectory).Parent!.Parent!.Parent!.FullName, "Templates");
             fileSystemWatcher.Path = txtPath.Text;
             UpdateTemplateList();
-            comboTemplates.SelectedIndex = 0;
+            comboTemplates.SelectedIndex = comboTemplates.Items.Count == 0 ? -1 : 0;
         }
 
         private void GenerateDax_Click(object sender, EventArgs e)
@@ -401,7 +401,7 @@ namespace TestDaxTemplates
 
         private void CopyDebug_Click(object sender, EventArgs e)
         {
-            string debugLine = $"--server=\"{txtServer.Text}\" --database=\"{txtDatabase.Text}\"";
+            string debugLine = $"--server=\"{txtServer.Text}\" --database=\"{txtDatabase.Text}\" --path=\"{txtPath.Text}\"";
             Clipboard.SetText(debugLine);
         }
 

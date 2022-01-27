@@ -91,6 +91,7 @@ namespace Dax.Template
                 Package package = new() { Configuration = configuration, Content = content };
                 return package;
             }
+            else
             {
                 // The file is config only, mapping external files
                 var configUnchecked = JsonSerializer.Deserialize<TemplateConfiguration>(json);

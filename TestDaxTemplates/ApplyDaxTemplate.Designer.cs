@@ -129,7 +129,6 @@
             this.txtPath.Name = "txtPath";
             this.txtPath.Size = new System.Drawing.Size(933, 39);
             this.txtPath.TabIndex = 23;
-            this.txtPath.Text = "C:\\Dev\\DaxTemplate\\TestDaxTemplates\\Templates\\";
             this.txtPath.TextChanged += new System.EventHandler(this.Path_TextChanged);
             // 
             // label3
