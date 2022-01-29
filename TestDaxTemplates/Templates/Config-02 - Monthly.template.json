@@ -38,17 +38,7 @@
     "__FirstFiscalMonth": "4"
   },
   "IsoCountry": "US",
-  "InLieuOfPrefix": "(in lieu of ",
-  "InLieuOfSuffix": ")",
-  "WorkingDays": "{ 2, 3, 4, 5, 6 }",
-  "HolidaysDefinitionTable": "HolidaysDefinition",
-  "HolidaysDefinitionTemplate": "HolidaysDefinition.json",
 
-  "HolidaysReference": {
-    "TableName": "Holidays",
-    "DateColumnName": "Holiday Date",
-    "HolidayColumnName": "Holiday Name"
-  },
   "AutoNaming": "Prefix",
   "TargetMeasures": [
     {

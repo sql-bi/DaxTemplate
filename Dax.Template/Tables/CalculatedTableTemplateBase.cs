@@ -224,7 +224,6 @@ VAR {stepName} =
                 }
                 result += ProcessDaxExpression(replacedExpression, (!string.IsNullOrEmpty(previousStepName) ? previousStepName : lastStepName), model);
                 previousStepName = stepName;
-
             }
             result += $"\r\nRETURN\r\n    {previousStepName}";
             return result;

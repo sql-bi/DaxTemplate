@@ -63,38 +63,34 @@
             // 
             // txtServer
             // 
-            this.txtServer.Location = new System.Drawing.Point(170, 28);
-            this.txtServer.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.txtServer.Location = new System.Drawing.Point(131, 22);
             this.txtServer.Name = "txtServer";
-            this.txtServer.Size = new System.Drawing.Size(465, 39);
+            this.txtServer.Size = new System.Drawing.Size(359, 31);
             this.txtServer.TabIndex = 0;
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(46, 32);
-            this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label1.Location = new System.Drawing.Point(35, 25);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(86, 32);
+            this.label1.Size = new System.Drawing.Size(65, 25);
             this.label1.TabIndex = 1;
             this.label1.Text = "Server:";
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(46, 83);
-            this.label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label2.Location = new System.Drawing.Point(35, 65);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(117, 32);
+            this.label2.Size = new System.Drawing.Size(90, 25);
             this.label2.TabIndex = 3;
             this.label2.Text = "Database:";
             // 
             // txtDatabase
             // 
-            this.txtDatabase.Location = new System.Drawing.Point(170, 79);
-            this.txtDatabase.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.txtDatabase.Location = new System.Drawing.Point(131, 62);
             this.txtDatabase.Name = "txtDatabase";
-            this.txtDatabase.Size = new System.Drawing.Size(465, 39);
+            this.txtDatabase.Size = new System.Drawing.Size(359, 31);
             this.txtDatabase.TabIndex = 4;
             // 
             // txtDax
@@ -102,42 +98,38 @@
             this.txtDax.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtDax.Location = new System.Drawing.Point(46, 419);
-            this.txtDax.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.txtDax.Location = new System.Drawing.Point(35, 327);
             this.txtDax.Multiline = true;
             this.txtDax.Name = "txtDax";
             this.txtDax.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.txtDax.Size = new System.Drawing.Size(1945, 868);
+            this.txtDax.Size = new System.Drawing.Size(1497, 679);
             this.txtDax.TabIndex = 6;
             // 
             // label4
             // 
             this.label4.AutoSize = true;
             this.label4.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.label4.Location = new System.Drawing.Point(46, 366);
-            this.label4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label4.Location = new System.Drawing.Point(35, 286);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(65, 32);
+            this.label4.Size = new System.Drawing.Size(50, 25);
             this.label4.TabIndex = 11;
             this.label4.Text = "DAX";
             // 
             // txtPath
             // 
-            this.txtPath.Location = new System.Drawing.Point(170, 138);
-            this.txtPath.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.txtPath.Location = new System.Drawing.Point(131, 108);
             this.txtPath.Name = "txtPath";
-            this.txtPath.Size = new System.Drawing.Size(933, 39);
+            this.txtPath.Size = new System.Drawing.Size(719, 31);
             this.txtPath.TabIndex = 23;
-            this.txtPath.Text = "C:\\Dev\\DaxTemplate\\TestDaxTemplates\\Templates\\";
+            this.txtPath.Text = "C:\\Users\\MarcoRusso\\source\\repos\\sql-bi\\DaxTemplate\\TestDaxTemplates\\Templates\\";
             this.txtPath.TextChanged += new System.EventHandler(this.Path_TextChanged);
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(46, 142);
-            this.label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label3.Location = new System.Drawing.Point(35, 111);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(65, 32);
+            this.label3.Size = new System.Drawing.Size(50, 25);
             this.label3.TabIndex = 22;
             this.label3.Text = "Path:";
             // 
@@ -156,28 +148,25 @@
             // 
             this.comboTemplates.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboTemplates.FormattingEnabled = true;
-            this.comboTemplates.Location = new System.Drawing.Point(169, 191);
-            this.comboTemplates.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.comboTemplates.Location = new System.Drawing.Point(130, 149);
             this.comboTemplates.Name = "comboTemplates";
-            this.comboTemplates.Size = new System.Drawing.Size(689, 40);
+            this.comboTemplates.Size = new System.Drawing.Size(531, 33);
             this.comboTemplates.TabIndex = 24;
             // 
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(46, 195);
-            this.label6.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label6.Location = new System.Drawing.Point(35, 152);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(117, 32);
+            this.label6.Size = new System.Drawing.Size(87, 25);
             this.label6.TabIndex = 25;
             this.label6.Text = "Template:";
             // 
             // btnApplyTemplate
             // 
-            this.btnApplyTemplate.Location = new System.Drawing.Point(889, 191);
-            this.btnApplyTemplate.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btnApplyTemplate.Location = new System.Drawing.Point(684, 149);
             this.btnApplyTemplate.Name = "btnApplyTemplate";
-            this.btnApplyTemplate.Size = new System.Drawing.Size(216, 49);
+            this.btnApplyTemplate.Size = new System.Drawing.Size(166, 38);
             this.btnApplyTemplate.TabIndex = 26;
             this.btnApplyTemplate.Text = "Apply Template";
             this.btnApplyTemplate.UseVisualStyleBackColor = true;
@@ -185,9 +174,10 @@
             // 
             // btnCopyDebug
             // 
-            this.btnCopyDebug.Location = new System.Drawing.Point(642, 28);
+            this.btnCopyDebug.Location = new System.Drawing.Point(494, 22);
+            this.btnCopyDebug.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.btnCopyDebug.Name = "btnCopyDebug";
-            this.btnCopyDebug.Size = new System.Drawing.Size(117, 90);
+            this.btnCopyDebug.Size = new System.Drawing.Size(90, 70);
             this.btnCopyDebug.TabIndex = 27;
             this.btnCopyDebug.Text = "Copy debug";
             this.btnCopyDebug.UseVisualStyleBackColor = true;
@@ -209,19 +199,17 @@
             this.panel1.Controls.Add(this.txtCustomTemplate);
             this.panel1.Controls.Add(this.btnGenDate);
             this.panel1.Controls.Add(this.btnUpdate);
-            this.panel1.Location = new System.Drawing.Point(1123, 32);
-            this.panel1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.panel1.Location = new System.Drawing.Point(864, 25);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(855, 366);
+            this.panel1.Size = new System.Drawing.Size(658, 286);
             this.panel1.TabIndex = 28;
             // 
             // btnMeasureTemplate
             // 
             this.btnMeasureTemplate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btnMeasureTemplate.Location = new System.Drawing.Point(563, 294);
-            this.btnMeasureTemplate.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btnMeasureTemplate.Location = new System.Drawing.Point(433, 230);
             this.btnMeasureTemplate.Name = "btnMeasureTemplate";
-            this.btnMeasureTemplate.Size = new System.Drawing.Size(252, 52);
+            this.btnMeasureTemplate.Size = new System.Drawing.Size(194, 41);
             this.btnMeasureTemplate.TabIndex = 34;
             this.btnMeasureTemplate.Text = "Measure Template";
             this.btnMeasureTemplate.UseVisualStyleBackColor = true;
@@ -229,10 +217,9 @@
             // btnReadTemplate
             // 
             this.btnReadTemplate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btnReadTemplate.Location = new System.Drawing.Point(252, 294);
-            this.btnReadTemplate.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btnReadTemplate.Location = new System.Drawing.Point(194, 230);
             this.btnReadTemplate.Name = "btnReadTemplate";
-            this.btnReadTemplate.Size = new System.Drawing.Size(303, 52);
+            this.btnReadTemplate.Size = new System.Drawing.Size(233, 41);
             this.btnReadTemplate.TabIndex = 33;
             this.btnReadTemplate.Text = "Read Template";
             this.btnReadTemplate.UseVisualStyleBackColor = true;
@@ -240,30 +227,27 @@
             // btnReadConfig
             // 
             this.btnReadConfig.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btnReadConfig.Location = new System.Drawing.Point(20, 294);
-            this.btnReadConfig.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btnReadConfig.Location = new System.Drawing.Point(15, 230);
             this.btnReadConfig.Name = "btnReadConfig";
-            this.btnReadConfig.Size = new System.Drawing.Size(217, 52);
+            this.btnReadConfig.Size = new System.Drawing.Size(167, 41);
             this.btnReadConfig.TabIndex = 32;
             this.btnReadConfig.Text = "Read Config";
             this.btnReadConfig.UseVisualStyleBackColor = true;
             // 
             // txtConfig
             // 
-            this.txtConfig.Location = new System.Drawing.Point(300, 26);
-            this.txtConfig.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.txtConfig.Location = new System.Drawing.Point(231, 20);
             this.txtConfig.Name = "txtConfig";
-            this.txtConfig.Size = new System.Drawing.Size(514, 39);
+            this.txtConfig.Size = new System.Drawing.Size(396, 31);
             this.txtConfig.TabIndex = 31;
             this.txtConfig.Text = "..\\..\\..\\Templates\\Config-01 - Standard.template.json";
             // 
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(176, 29);
-            this.label5.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label5.Location = new System.Drawing.Point(135, 23);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(90, 32);
+            this.label5.Size = new System.Drawing.Size(69, 25);
             this.label5.TabIndex = 30;
             this.label5.Text = "Config:";
             // 
@@ -272,10 +256,9 @@
             this.chkCustomTemplate.AutoSize = true;
             this.chkCustomTemplate.Checked = true;
             this.chkCustomTemplate.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkCustomTemplate.Location = new System.Drawing.Point(20, 84);
-            this.chkCustomTemplate.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.chkCustomTemplate.Location = new System.Drawing.Point(15, 66);
             this.chkCustomTemplate.Name = "chkCustomTemplate";
-            this.chkCustomTemplate.Size = new System.Drawing.Size(277, 36);
+            this.chkCustomTemplate.Size = new System.Drawing.Size(210, 29);
             this.chkCustomTemplate.TabIndex = 24;
             this.chkCustomTemplate.Text = "Use custom template:";
             this.chkCustomTemplate.UseVisualStyleBackColor = true;
@@ -283,78 +266,70 @@
             // chkCustomTranslation
             // 
             this.chkCustomTranslation.AutoSize = true;
-            this.chkCustomTranslation.Location = new System.Drawing.Point(20, 134);
-            this.chkCustomTranslation.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.chkCustomTranslation.Location = new System.Drawing.Point(15, 105);
             this.chkCustomTranslation.Name = "chkCustomTranslation";
-            this.chkCustomTranslation.Size = new System.Drawing.Size(219, 36);
+            this.chkCustomTranslation.Size = new System.Drawing.Size(167, 29);
             this.chkCustomTranslation.TabIndex = 29;
             this.chkCustomTranslation.Text = "Use translations:";
             this.chkCustomTranslation.UseVisualStyleBackColor = true;
             // 
             // txtCustomTranslation
             // 
-            this.txtCustomTranslation.Location = new System.Drawing.Point(300, 132);
-            this.txtCustomTranslation.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.txtCustomTranslation.Location = new System.Drawing.Point(231, 103);
             this.txtCustomTranslation.Name = "txtCustomTranslation";
-            this.txtCustomTranslation.Size = new System.Drawing.Size(514, 39);
+            this.txtCustomTranslation.Size = new System.Drawing.Size(396, 31);
             this.txtCustomTranslation.TabIndex = 28;
             this.txtCustomTranslation.Text = "..\\..\\..\\Templates\\DateLocalization-04.json";
             // 
             // btnUpdateHolidays
             // 
-            this.btnUpdateHolidays.Location = new System.Drawing.Point(252, 237);
-            this.btnUpdateHolidays.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btnUpdateHolidays.Location = new System.Drawing.Point(194, 185);
             this.btnUpdateHolidays.Name = "btnUpdateHolidays";
-            this.btnUpdateHolidays.Size = new System.Drawing.Size(303, 47);
+            this.btnUpdateHolidays.Size = new System.Drawing.Size(233, 37);
             this.btnUpdateHolidays.TabIndex = 27;
             this.btnUpdateHolidays.Text = "Update holidays";
             this.btnUpdateHolidays.UseVisualStyleBackColor = true;
             // 
             // btnGenHolidaysDax
             // 
-            this.btnGenHolidaysDax.Location = new System.Drawing.Point(563, 237);
-            this.btnGenHolidaysDax.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btnGenHolidaysDax.Location = new System.Drawing.Point(433, 185);
             this.btnGenHolidaysDax.Name = "btnGenHolidaysDax";
-            this.btnGenHolidaysDax.Size = new System.Drawing.Size(252, 47);
+            this.btnGenHolidaysDax.Size = new System.Drawing.Size(194, 37);
             this.btnGenHolidaysDax.TabIndex = 26;
             this.btnGenHolidaysDax.Text = "Gen. Holidays DAX";
             this.btnGenHolidaysDax.UseVisualStyleBackColor = true;
             // 
             // txtCustomTemplate
             // 
-            this.txtCustomTemplate.Location = new System.Drawing.Point(300, 84);
-            this.txtCustomTemplate.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.txtCustomTemplate.Location = new System.Drawing.Point(231, 66);
             this.txtCustomTemplate.Name = "txtCustomTemplate";
-            this.txtCustomTemplate.Size = new System.Drawing.Size(514, 39);
+            this.txtCustomTemplate.Size = new System.Drawing.Size(396, 31);
             this.txtCustomTemplate.TabIndex = 25;
             this.txtCustomTemplate.Text = "..\\..\\..\\Templates\\DateTemplate-04.json";
             // 
             // btnGenDate
             // 
-            this.btnGenDate.Location = new System.Drawing.Point(563, 182);
-            this.btnGenDate.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btnGenDate.Location = new System.Drawing.Point(433, 142);
             this.btnGenDate.Name = "btnGenDate";
-            this.btnGenDate.Size = new System.Drawing.Size(252, 47);
+            this.btnGenDate.Size = new System.Drawing.Size(194, 37);
             this.btnGenDate.TabIndex = 23;
             this.btnGenDate.Text = "Generate DAX";
             this.btnGenDate.UseVisualStyleBackColor = true;
             // 
             // btnUpdate
             // 
-            this.btnUpdate.Location = new System.Drawing.Point(252, 182);
-            this.btnUpdate.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btnUpdate.Location = new System.Drawing.Point(194, 142);
             this.btnUpdate.Name = "btnUpdate";
-            this.btnUpdate.Size = new System.Drawing.Size(303, 47);
+            this.btnUpdate.Size = new System.Drawing.Size(233, 37);
             this.btnUpdate.TabIndex = 22;
             this.btnUpdate.Text = "Update date";
             this.btnUpdate.UseVisualStyleBackColor = true;
             // 
             // btnPackage
             // 
-            this.btnPackage.Location = new System.Drawing.Point(889, 326);
-            this.btnPackage.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btnPackage.Location = new System.Drawing.Point(684, 255);
             this.btnPackage.Name = "btnPackage";
-            this.btnPackage.Size = new System.Drawing.Size(216, 49);
+            this.btnPackage.Size = new System.Drawing.Size(166, 38);
             this.btnPackage.TabIndex = 29;
             this.btnPackage.Text = "Create Package";
             this.btnPackage.UseVisualStyleBackColor = true;
@@ -362,10 +337,9 @@
             // 
             // btnPreviewTemplate
             // 
-            this.btnPreviewTemplate.Location = new System.Drawing.Point(889, 247);
-            this.btnPreviewTemplate.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btnPreviewTemplate.Location = new System.Drawing.Point(684, 193);
             this.btnPreviewTemplate.Name = "btnPreviewTemplate";
-            this.btnPreviewTemplate.Size = new System.Drawing.Size(216, 49);
+            this.btnPreviewTemplate.Size = new System.Drawing.Size(166, 38);
             this.btnPreviewTemplate.TabIndex = 30;
             this.btnPreviewTemplate.Text = "Preview Template";
             this.btnPreviewTemplate.UseVisualStyleBackColor = true;
@@ -373,9 +347,9 @@
             // 
             // ApplyDaxTemplate
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(13F, 32F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(2012, 1318);
+            this.ClientSize = new System.Drawing.Size(1548, 1030);
             this.Controls.Add(this.btnPreviewTemplate);
             this.Controls.Add(this.btnPackage);
             this.Controls.Add(this.btnCopyDebug);
@@ -391,7 +365,6 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.txtServer);
             this.Controls.Add(this.panel1);
-            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.Name = "ApplyDaxTemplate";
             this.Text = "Test DAX Templates";
             this.Load += new System.EventHandler(this.ApplyDate_Load);

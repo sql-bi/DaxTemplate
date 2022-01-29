@@ -174,11 +174,65 @@ namespace Dax.Template.Model
 
             }
         }
+        private const string PREVIEW_PREFIX = "__PREVIEW__";
 
-        private static object? GetPreviewData(AdomdConnection connection, string? tableExpression, int previewRows )
+        private static string GetQueryTablesDefinition(
+            TabularModel model,
+            List<(string tableName, string expression, List<(string tableName, string expression)> innerTables)>? previewQueryTables)
+        {
+            string queryTablesDefinition = string.Empty;
+            if (previewQueryTables?.Any() == true)
+            {
+                var internalTableNames = previewQueryTables.Select(qt => qt.tableName);
+                var tableDefinitions =
+                    from qt in previewQueryTables
+                    select $"TABLE '{PREVIEW_PREFIX}{qt.tableName}' =\r\n{AddInnerVar(qt.innerTables)}{RenameTableReferences(qt.expression, internalTableNames.Union(qt.innerTables.Select(t=>t.tableName)).ToArray())}";
+
+                queryTablesDefinition =
+                    $"DEFINE\r\n{string.Join("\r\n", tableDefinitions)}";
+            }
+            return queryTablesDefinition;
+
+            string AddInnerVar(List<(string tableName, string expression)> innerTables)
+            {
+                var internalTableNames = innerTables.Select(qt => qt.tableName).ToArray();
+                var varDefinitions =
+                    from it in innerTables
+                    select $"VAR {PREVIEW_PREFIX}{it.tableName} =\r\n{RenameColumns(it.tableName, RenameTableReferences(it.expression, internalTableNames))}";
+                return varDefinitions.Any() ? $"{string.Join("\r\n", varDefinitions)}\r\nRETURN\r\n" : string.Empty;
+            }
+
+            string RenameColumns(string tableName, string tableExpression)
+            {
+                var table = model.Tables[tableName];
+                string columns = string.Join(
+                    ",\r\n    ",
+                    table.Columns.Select(column => $"\"'{PREVIEW_PREFIX}{tableName}'[{column.Name}]\", [{column.Name}]"));
+                var renamedTableExpression = $"SELECTCOLUMNS (\r\n    {tableExpression},\r\n    {columns}\r\n)";
+                return renamedTableExpression;
+            }
+        }
+        
+        static string RenameTableReferences(string queryExpression, string[] renameTableNames)
+        {
+            foreach (var tableName in renameTableNames)
+            {
+                queryExpression = queryExpression.Replace($"'{tableName}'", $"'{PREVIEW_PREFIX}{tableName}'");
+            }
+            return queryExpression;
+        }
+
+        private static object? GetPreviewData(
+            AdomdConnection connection,
+            string? tableExpression,
+            int previewRows,
+            string? queryTablesDefinition)
         {
             if (string.IsNullOrWhiteSpace(tableExpression)) return null;
-            string daxQuery = $"EVALUATE TOPNSKIP ( {previewRows}, 0, {tableExpression} )";
+            queryTablesDefinition ??= string.Empty;
+
+            string daxQuery = $"{queryTablesDefinition}\r\nEVALUATE TOPNSKIP ( {previewRows}, 0, {tableExpression} )";
+            System.IO.File.WriteAllText(@"c:\temp\query.dax", daxQuery);
             if (connection.State != System.Data.ConnectionState.Open) connection.Open();
             using AdomdCommand command = new(daxQuery, connection);
             using var reader = command.ExecuteReader();
@@ -207,20 +261,54 @@ namespace Dax.Template.Model
                 // table has the column definitions
                 // tableReference has the desired expression
                 var table = model.Tables[tableChanges.Name];
-                var tableReference = 
-                    string.IsNullOrWhiteSpace(tableChanges.Expression) 
-                    ? table 
-                    : model.Tables.Find(tableChanges.Expression) ?? table;
-                string? tableExpression = null;
-                if (tableReference.Partitions.Count == 1)
-                {
-                    CalculatedPartitionSource? existingPartition = tableReference.Partitions[0].Source as CalculatedPartitionSource;
-                    tableExpression = existingPartition?.Expression;
-                }
+                string? tableExpression = GetTableExpression(model, tableChanges, table);
                 // Skip table if it is not a calculated table
                 if (tableExpression == null) continue;
 
-                string columns = string.Join(",\r\n    ", table.Columns.Select( column =>
+                // Search dependencies on other modified tables
+                var referencedTables =
+                    from t in ModifiedObjects
+                    where t != tableChanges && tableExpression.Contains($"'{t.Name}'")
+                    select t;
+
+                List<(string tableName, string expression, List<(string tableName, string expression)> innerTables)> previewQueryTables = new();
+                if (referencedTables.Any())
+                {
+                    // For each reference table prepare the expression to include in the DEFINE TABLE statement
+                    foreach (var referencedTable in referencedTables)
+                    {
+                        var modelTable = model.Tables[referencedTable.Name];
+                        var referenceTableExpression = GetTableExpression(model, referencedTable, modelTable);
+                        // Skip table if it is not a calculated table
+                        if (referenceTableExpression == null) continue;
+                        // Skip table if it is already in query tables
+                        if (previewQueryTables.Any(t => t.tableName == referencedTable.Name)) continue;
+
+                        var innerTables =
+                            from t in ModifiedObjects
+                            where t != tableChanges 
+                                && t != referencedTable
+                                && referenceTableExpression.Contains($"'{t.Name}'")
+                            select t;
+
+                        List<(string tableName, string expression)> innerQueryTables = new();
+                        foreach (var innerTable in innerTables )
+                        {
+                            var innerModelTable = model.Tables[innerTable.Name];
+                            var innerReferenceTableExpression = GetTableExpression(model, innerTable, innerModelTable);
+                            // Skip table if it is not a calculated table
+                            if (innerReferenceTableExpression == null) continue;
+                            // Skip table if it is already in query tables
+                            if (innerQueryTables.Any(t => t.tableName == innerTable.Name)) continue;
+                            innerQueryTables.Add( (tableName: innerTable.Name, expression: innerReferenceTableExpression) );
+                        }
+
+                        // Add the table to the query tables for preview
+                        previewQueryTables.Add( (tableName: referencedTable.Name, expression: referenceTableExpression, innerTables: innerQueryTables) );
+                    }
+                }
+
+                string columns = string.Join(",\r\n    ", table.Columns.Select(column =>
                 {
                     var calcColumn = column as CalculatedTableColumn;
                     var sourceColumn = calcColumn?.SourceColumn ?? column.Name;
@@ -235,9 +323,27 @@ namespace Dax.Template.Model
                         : sourceColumn;
                     string result = $"\"{column.Name}\", {columnExpression}";
                     return result;
-                } ));
-                var previewQuery = $"SELECTCOLUMNS (\r\n    {tableExpression},\r\n    {columns}\r\n)";
-                tableChanges.Preview = GetPreviewData(connection, previewQuery, previewRows);
+                }));
+                var internalTableNames = previewQueryTables.Select(qt => qt.tableName).ToArray();
+                var previewQuery = $"SELECTCOLUMNS (\r\n    {RenameTableReferences(tableExpression, internalTableNames)},\r\n    {columns}\r\n)";
+                string queryTablesDefinition = GetQueryTablesDefinition(model, previewQueryTables);
+                tableChanges.Preview = GetPreviewData(connection, previewQuery, previewRows, queryTablesDefinition);
+            }
+
+            static string? GetTableExpression(TabularModel model, TableChanges tableChanges, Table table)
+            {
+                var tableReference =
+                    string.IsNullOrWhiteSpace(tableChanges.Expression)
+                    ? table
+                    : model.Tables.Find(tableChanges.Expression) ?? table;
+                string? tableExpression = null;
+                if (tableReference.Partitions.Count == 1)
+                {
+                    CalculatedPartitionSource? existingPartition = tableReference.Partitions[0].Source as CalculatedPartitionSource;
+                    tableExpression = existingPartition?.Expression;
+                }
+
+                return tableExpression;
             }
         }
     }
