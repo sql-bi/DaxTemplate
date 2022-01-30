@@ -19,15 +19,13 @@ namespace TestDaxTemplates
 /*
 TODO
 
-copy format original measure
 combine different time intelligence into the same date table
 wildcard for measure selection
-override table for measures of template
 DISPLAYFOLDER of original measure
 Cascading match for IsoTranslation (support region only for translations files?)
 Add flag to expose parameters to Bravo UI
 
-CHeck DISPLAYFOLDERRULE for fixed measure (e.g. _ShowValueForDates)
+Check DISPLAYFOLDERRULE for fixed measure (e.g. _ShowValueForDates)
 Include multiple measure template files (calendar+fiscal) with different DisplayFolderRule
 API: 
 - List of available templates

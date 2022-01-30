@@ -151,11 +151,14 @@ namespace Dax.Template.Measures
 
             List<Measure> appliedMeasures = new();
             Table targetTable = GetTargetTable(model);
-            
+
+            Table targetTableSingleInstanceMeasures = (!string.IsNullOrEmpty(Config.TableSingleInstanceMeasures))
+                ? FindTable(model, Config.TableSingleInstanceMeasures) ?? targetTable : targetTable;
+
             // Create the individual measures of the template (not applied to single measures)
             foreach (var template in singleInstanceMeasures)
             {
-                ApplyMeasureTemplate(template, targetTable, referenceMeasure: null);
+                ApplyMeasureTemplate(template, targetTableSingleInstanceMeasures, referenceMeasure: null);
             }
 
             // Apply the templates to each target measure

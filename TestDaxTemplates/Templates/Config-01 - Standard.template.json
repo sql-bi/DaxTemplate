@@ -62,6 +62,7 @@
     "DateColumnName": "Holiday Date",
     "HolidayColumnName": "Holiday Name"
   },
+  "TableSingleInstanceMeasures": "Sales",
   "AutoNaming": "Prefix",
   "TargetMeasures": [
     {

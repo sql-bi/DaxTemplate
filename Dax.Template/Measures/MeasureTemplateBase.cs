@@ -81,6 +81,13 @@ namespace Dax.Template.Measures
                 measure = new TabularMeasure { Name = Name };
                 targetTable.Measures.Add(measure);
             }
+            else if ((measure.Parent as Table)?.Name != targetTable.Name)
+            {
+                var clonedMeasure = measure.Clone();
+                (measure.Parent as Table)?.Measures.Remove(measure);
+                measure = clonedMeasure;
+                targetTable.Measures.Add(measure);
+            }
             measure.FormatString = FormatString ?? ReferenceMeasure?.FormatString;
             measure.IsHidden = IsHidden;
             measure.DisplayFolder = DisplayFolder;
