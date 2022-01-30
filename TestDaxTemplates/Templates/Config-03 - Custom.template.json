@@ -1,4 +1,5 @@
 {
+  "Description": "Custom calendar based on months with custom time intelligence",
   "Templates": [
     {
       "Class": "HolidaysDefinitionTable",

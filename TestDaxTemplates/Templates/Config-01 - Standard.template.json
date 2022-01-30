@@ -1,4 +1,5 @@
 {
+  "Description": "Standard calendar with holidays and standard time intelligence",
   "Templates": [
     {
       "Class": "HolidaysDefinitionTable",

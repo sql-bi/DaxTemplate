@@ -1,4 +1,5 @@
 {
+  "Description": "Weekly calendars with weekly-based time intelligence",
   "Templates": [
     {
       "Class": "HolidaysDefinitionTable",

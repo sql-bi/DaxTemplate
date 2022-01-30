@@ -84,6 +84,10 @@ namespace Dax.Template
                 {
                     throw new TemplateException("Invalid package, missing configuration");
                 }
+                if (string.IsNullOrEmpty(configuration.Name))
+                {
+                    configuration.Name = System.IO.Path.GetFileNameWithoutExtension(pathPackage);
+                }
                 Package package = new() { Configuration = configuration, Content = content };
                 return package;
             }
@@ -91,6 +95,10 @@ namespace Dax.Template
                 // The file is config only, mapping external files
                 var configUnchecked = JsonSerializer.Deserialize<TemplateConfiguration>(json);
                 if (configUnchecked is not TemplateConfiguration config) throw new TemplateException("Invalid configuration");
+                if (string.IsNullOrEmpty(configUnchecked.Name))
+                {
+                    configUnchecked.Name = System.IO.Path.GetFileNameWithoutExtension(pathPackage);
+                }
                 Package package = new() { Path = pathRoot, Configuration = config };
                 return package;
             }

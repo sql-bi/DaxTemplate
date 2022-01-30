@@ -10,6 +10,9 @@ namespace Dax.Template.Tables
 
     public class TemplateConfiguration: IScanConfig, IDateTemplateConfig, IMeasureTemplateConfig, IHolidaysConfig, ICustomTableConfig, ITemplates, ILocalization
     {
+        public string? Name { get; set; }
+        public string? Description { get; set; }
+
         // ITemplates implementation
         public ITemplates.TemplateEntry[] Templates { get; set; } = Array.Empty<ITemplates.TemplateEntry>();
 
