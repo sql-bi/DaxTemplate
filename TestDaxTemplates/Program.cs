@@ -21,11 +21,9 @@ TODO
 
 combine different time intelligence into the same date table
 wildcard for measure selection
-DISPLAYFOLDER of original measure
 Cascading match for IsoTranslation (support region only for translations files?)
 Add flag to expose parameters to Bravo UI
 
-Check DISPLAYFOLDERRULE for fixed measure (e.g. _ShowValueForDates)
 Include multiple measure template files (calendar+fiscal) with different DisplayFolderRule
 API: 
 - List of available templates

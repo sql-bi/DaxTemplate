@@ -55,6 +55,7 @@ namespace Dax.Template.Measures
     {
         const string SQLBI_TEMPLATE_ATTRIBUTE = "SQLBI_Template";
         const string PROPERTY_DISPLAYFOLDERRULE = "DisplayFolderRule";
+        const string PROPERTY_DISPLAYFOLDERRULESINGLEINSTANCEMEASURES = "DisplayFolderRuleSingleInstanceMeasures";
 
         public IMeasureTemplateConfig Config { get; init; }
         public MeasuresTemplateDefinition Template { get; init; }
@@ -69,6 +70,10 @@ namespace Dax.Template.Measures
         public string? DisplayFolderRule
         {
             get => Properties.GetValueOrDefault(PROPERTY_DISPLAYFOLDERRULE)?.ToString();
+        }
+        public string? DisplayFolderRuleSingleInstanceMeasures
+        {
+            get => Properties.GetValueOrDefault(PROPERTY_DISPLAYFOLDERRULESINGLEINSTANCEMEASURES)?.ToString();
         }
 
         /// <summary>
@@ -211,13 +216,17 @@ namespace Dax.Template.Measures
         private static readonly Regex regexTemplateFolder = new(@"@_TEMPLATEFOLDER_@", RegexOptions.Compiled);
         protected virtual string? GetDisplayFolder(TabularMeasure? measure, string? templateDisplayFolder, string? templateName)
         {
-            if (string.IsNullOrWhiteSpace(DisplayFolderRule))
+            string? folderRule = 
+                (measure != null) 
+                ? DisplayFolderRule 
+                : DisplayFolderRuleSingleInstanceMeasures ?? DisplayFolderRule;
+            if (string.IsNullOrWhiteSpace(folderRule))
             {
                 return templateDisplayFolder;
             }
             else
             {
-                string displayFolder = regexMeasureName.Replace(DisplayFolderRule, measure?.Name ?? string.Empty);
+                string displayFolder = regexMeasureName.Replace(folderRule, measure?.Name ?? string.Empty);
                 displayFolder = regexTemplateName.Replace(displayFolder, templateName ?? string.Empty);
                 displayFolder = regexMeasureFolder.Replace(displayFolder, measure?.DisplayFolder ?? string.Empty);
                 displayFolder = regexTemplateFolder.Replace(displayFolder, templateDisplayFolder ?? string.Empty);
