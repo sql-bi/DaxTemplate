@@ -353,11 +353,8 @@ namespace TestDaxTemplates
         private void ApplyTemplate(bool commitChanges)
         {
             string templatePath = GetSelectedTemplatePath();
-            var package = Package.LoadPackage(templatePath);
-            if (package?.Configuration == null)
-            {
-                throw new Exception($"Configuration {templatePath} not loaded.");
-            }
+
+            var package = Package.Load(templatePath);
 
             Engine templateEngine = new(package);
 
@@ -407,11 +404,9 @@ namespace TestDaxTemplates
 
         private void CreatePackage_Click(object sender, EventArgs e)
         {
-            string templatePath = GetSelectedTemplatePath();
-            var package = Package.LoadPackage(templatePath);
-
-            Engine templateEngine = new(package);
-            templateEngine.SavePackage(@"c:\temp\test.json");
+            var path = GetSelectedTemplatePath();
+            var package = Package.Load(path);
+            package.SaveTo(@"c:\temp\test.json");
         }
 
         private void PreviewTemplate_Click(object sender, EventArgs e)

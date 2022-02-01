@@ -103,11 +103,7 @@ namespace TestDaxTemplates.Bravo
         /// <exception cref="Exception">Errors executing template</exception>
         public static ModelChanges? ApplyTemplate(DaxTemplateConfig config, Model model, string connectionString, bool commitChanges, int previewRows = 5) 
         {
-            var package = Package.LoadPackage(config.TemplatePath);
-            if (package?.Configuration == null)
-            {
-                throw new Exception($"Configuration {config.TemplatePath} not loaded.");
-            }
+            var package = Package.Load(config.TemplatePath);
 
             CopyConfiguration();
             Engine templateEngine = new(package);
@@ -209,7 +205,7 @@ namespace TestDaxTemplates.Bravo
             var templateFiles = Directory.EnumerateFiles(path, TEMPLATEJSON_WILDCARD );
             foreach( var templatePath in templateFiles)
             {
-                var package = Package.LoadPackage(templatePath);
+                var package = Package.Load(templatePath);
                 if (package?.Configuration == null)
                 {
                     throw new Exception($"Configuration {templatePath} not loaded.");

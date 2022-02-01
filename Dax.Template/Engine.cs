@@ -1,34 +1,27 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using Microsoft.AnalysisServices.Tabular;
+﻿using Dax.Template.Exceptions;
+using Dax.Template.Extensions;
+using Dax.Template.Interfaces;
 using Dax.Template.Measures;
 using Dax.Template.Tables;
 using Dax.Template.Tables.Dates;
-using Dax.Template.Interfaces;
-using Dax.Template.Extensions;
-using TabularModel = Microsoft.AnalysisServices.Tabular.Model;
-using System.Text.Json;
-using TabularJsonSerializer = Microsoft.AnalysisServices.Tabular.JsonSerializer;
-using SystemJsonSerializer = System.Text.Json.JsonSerializer;
-using System.Collections.Generic;
-using System.Text.Encodings.Web;
-using System.Dynamic;
-using Dax.Template.Exceptions;
+using Microsoft.AnalysisServices.Tabular;
+using System;
 using System.Collections;
+using System.Linq;
+using TabularModel = Microsoft.AnalysisServices.Tabular.Model;
 
 namespace Dax.Template
 {
-
     public class Engine
     {
-        readonly Package TemplatePackage;
-        public TemplateConfiguration Configuration { get => TemplatePackage.Configuration; }
+        private readonly Package _package;
 
         public Engine(Package package)
         {
-            TemplatePackage = package;
+            _package = package;
         }
+
+        public TemplateConfiguration Configuration => _package.Configuration;
 
         public static Model.ModelChanges GetModelChanges( TabularModel model )
         {
@@ -55,35 +48,6 @@ namespace Dax.Template
             }
             modelChanges.SimplifyRemovedObjects();
             return modelChanges;
-        }
-        public void SavePackage(string pathPackage)
-        {
-            Dictionary<string, object> package = new();
-            package.Add("Config", Configuration);
-            var filenames =
-                from t in Configuration.Templates
-                where !string.IsNullOrEmpty(t.Template)
-                select t.Template;
-            filenames = filenames.Union(
-                from t in Configuration.Templates
-                from l in t.LocalizationFiles
-                where !string.IsNullOrEmpty(l)
-                select l).Distinct();
-            foreach (var filename in filenames)
-            {
-                string path = Path.Combine(TemplatePackage.Path ?? string.Empty, filename);
-                string json = File.ReadAllText(path);
-                var content = SystemJsonSerializer.Deserialize<dynamic>(json);
-                string stripJsonExt = filename.Replace(".json", "");
-                package.Add(stripJsonExt, content);
-            }
-            var options = new JsonSerializerOptions
-            {
-                Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
-                WriteIndented = true
-            };
-            string serialized = SystemJsonSerializer.Serialize(package, options);
-            File.WriteAllText(pathPackage, serialized);
         }
 
         public void ApplyTemplates(TabularModel model)
@@ -116,7 +80,7 @@ namespace Dax.Template
                 {
                     throw new InvalidConfigurationException($"Undefined Template in class {templateEntry.Class} configuration");
                 }
-                template = new HolidaysDefinitionTable(TemplatePackage.ReadDefinition<HolidaysDefinitionTable.HolidaysDefinitions>(templateEntry.Template));
+                template = new HolidaysDefinitionTable(_package.ReadDefinition<HolidaysDefinitionTable.HolidaysDefinitions>(templateEntry.Template));
                 template.ApplyTemplate(tableHolidaysDefinition, templateEntry.IsHidden);
                 tableHolidaysDefinition.RequestRefresh(RefreshType.Full);
             }
@@ -170,17 +134,18 @@ namespace Dax.Template
                 {
                     throw new InvalidConfigurationException($"Undefined Template in class {templateEntry.Class} configuration");
                 }
-                var measuresTemplateDefinition = TemplatePackage.ReadDefinition<MeasuresTemplateDefinition>(templateEntry.Template);
+                var measuresTemplateDefinition = _package.ReadDefinition<MeasuresTemplateDefinition>(templateEntry.Template);
                 var template = new MeasuresTemplate(Configuration, measuresTemplateDefinition, templateEntry.Properties);
                 template.ApplyTemplate(model);
             }
         }
+
         private Translations.Definitions ReadTranslations()
         {
             Translations.Definitions translations = new();
             foreach (var localizationFile in Configuration.LocalizationFiles)
             {
-                Translations.Definitions definitions = TemplatePackage.ReadDefinition<Translations.Definitions>(localizationFile);
+                Translations.Definitions definitions = _package.ReadDefinition<Translations.Definitions>(localizationFile);
                 translations.Translations = translations.Translations.Union(definitions.Translations).ToArray();
             }
             return translations;
@@ -209,7 +174,7 @@ namespace Dax.Template
             }
             ReferenceCalculatedTable template;
 
-            template = new CustomDateTable(Configuration, TemplatePackage.ReadDefinition<CustomDateTemplateDefinition>(templateFilename), model)
+            template = new CustomDateTable(Configuration, _package.ReadDefinition<CustomDateTemplateDefinition>(templateFilename), model)
             {
                 Translation = translations,
                 HiddenTable = referenceTable,
