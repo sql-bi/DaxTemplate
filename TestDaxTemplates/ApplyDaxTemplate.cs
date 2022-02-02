@@ -417,5 +417,13 @@ namespace TestDaxTemplates
         {
             ApplyTemplate(commitChanges: false);
         }
+
+        private void BravoConfig_Click(object sender, EventArgs e)
+        {
+            string templatePath = txtPath.Text;
+            var bravoTemplates = Bravo.BravoDaxTemplate.GetTemplates(templatePath);
+            var result = SystemJsonSerializer.Serialize(bravoTemplates, new JsonSerializerOptions { WriteIndented = true });
+            txtDax.Text = result;
+        }
     }
 }
