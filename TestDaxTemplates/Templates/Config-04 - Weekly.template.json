@@ -61,7 +61,12 @@
   "AutoScan": "Full",
   "DefaultVariables": {
     "__FirstFiscalMonth": "4",
+    "__FirstDayOfWeek": "0",
+    "__TypeStartFiscalYear": "1",
     "__QuarterWeekType": "\"445\"",
+    "__WeeklyType": "\"Last\"",
+    "__WorkingDayType": "\"Working day\"",
+    "__NonWorkingDayType": "\"Non-working day\"",
     "__OffsetYears": "1"
   },
 

@@ -24,9 +24,9 @@ namespace TestDaxTemplates.Bravo
         }
         public enum QuarterWeekTypeEnum
         {
-            Weekly445,
-            Weekly454,
-            Weekly544
+            Weekly445 = 445,
+            Weekly454 = 454,
+            Weekly544 = 544
         }
         public enum DayOfWeekEnum
         {
@@ -43,7 +43,6 @@ namespace TestDaxTemplates.Bravo
             [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
             public int? FirstFiscalMonth { get; set; }
             [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-            [JsonConverter(typeof(JsonStringEnumConverter))]
             public DayOfWeekEnum? FirstDayOfWeek { get; set; }
             [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
             public int? MonthsInYear { get; set; }
@@ -85,9 +84,15 @@ namespace TestDaxTemplates.Bravo
         const string TEMPLATEJSON_EXTENSION = TEMPLATE_EXTENSION + JSON_EXTENSION;
         const string TEMPLATEJSON_WILDCARD = "*" + TEMPLATEJSON_EXTENSION;
 
+        // TODO: implement preview for selected config
+        public static object? Preview() 
+        {
+            return null;
+
+        }
+
         public static DaxTemplateConfig[] GetTemplates(string path)
         {
-
             List<DaxTemplateConfig> daxTemplateConfigs = new ();
             var templateFiles = Directory.EnumerateFiles(path, TEMPLATEJSON_WILDCARD );
             foreach( var templatePath in templateFiles)
@@ -109,14 +114,14 @@ namespace TestDaxTemplates.Bravo
                 templateConfig.Defaults.FirstFiscalMonth = GetIntParameter(nameof(templateConfig.Defaults.FirstFiscalMonth));
                 templateConfig.Defaults.FirstDayOfWeek = (DaxTemplateConfig.DayOfWeekEnum?)GetIntParameter(nameof(templateConfig.Defaults.FirstDayOfWeek));
                 templateConfig.Defaults.MonthsInYear = GetIntParameter(nameof(templateConfig.Defaults.MonthsInYear));
-                templateConfig.Defaults.WorkingDayType = GetStringParameter(nameof(templateConfig.Defaults.WorkingDayType));
-                templateConfig.Defaults.NonWorkingDayType = GetStringParameter(nameof(templateConfig.Defaults.NonWorkingDayType));
+                templateConfig.Defaults.WorkingDayType = GetQuotedStringParameter(nameof(templateConfig.Defaults.WorkingDayType));
+                templateConfig.Defaults.NonWorkingDayType = GetQuotedStringParameter(nameof(templateConfig.Defaults.NonWorkingDayType));
                 templateConfig.Defaults.TypeStartFiscalYear = (DaxTemplateConfig.TypeStartFiscalYear?)GetIntParameter(nameof(templateConfig.Defaults.TypeStartFiscalYear));
-                if (Enum.TryParse(GetStringParameter(nameof(templateConfig.Defaults.QuarterWeekType)), out DaxTemplateConfig.QuarterWeekTypeEnum qwtValue))
+                if (Enum.TryParse(GetQuotedStringParameter(nameof(templateConfig.Defaults.QuarterWeekType)), out DaxTemplateConfig.QuarterWeekTypeEnum qwtValue))
                 {
                     templateConfig.Defaults.QuarterWeekType = qwtValue;
                 }
-                if (Enum.TryParse(GetStringParameter(nameof(templateConfig.Defaults.WeeklyType)), out DaxTemplateConfig.WeeklyTypeEnum wtValue))
+                if (Enum.TryParse(GetQuotedStringParameter(nameof(templateConfig.Defaults.WeeklyType)), out DaxTemplateConfig.WeeklyTypeEnum wtValue))
                 {
                     templateConfig.Defaults.WeeklyType = wtValue;
                 }
@@ -138,6 +143,17 @@ namespace TestDaxTemplates.Bravo
                         return value;
                     }
                     return null;
+                }
+
+                string? GetQuotedStringParameter(string? parameterName)
+                {
+                    var value = GetStringParameter(parameterName);
+                    if (string.IsNullOrEmpty(value)) return null;
+                    if ((value[0] == '"') && (value[^1] == '"'))
+                    {
+                        value = value[1..^1];
+                    } 
+                    return value;
                 }
             }
             return daxTemplateConfigs.ToArray();

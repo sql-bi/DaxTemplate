@@ -383,7 +383,8 @@ namespace TestDaxTemplates
                     AdomdConnection connection = new(adomdConnectionString);
                     int previewRows = 5;
 
-                    modelChanges.PopulatePreview(connection, model, previewRows); DisplayChanges(modelChanges);
+                    modelChanges.PopulatePreview(connection, model, previewRows);
+                    DisplayChanges(modelChanges);
                 }
             }
             catch (TemplateException ex)

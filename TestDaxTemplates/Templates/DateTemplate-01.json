@@ -21,7 +21,7 @@
     },
     {
       "Name": "__WorkingDays",
-      "Expression": "{ 2, 3, 4, 5, 6 }",
+      "Expression": "@@GETCONFIG( WorkingDays )",
       "IsConfigurable": true
     }
   ],

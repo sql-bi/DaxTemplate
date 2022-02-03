@@ -36,7 +36,10 @@
   "LastYearMax": null,
   "AutoScan": "Full",
   "DefaultVariables": {
-    "__FirstFiscalMonth": "4"
+    "__FirstFiscalMonth": "4",
+    "__MonthsInYear": "12",
+    "__WorkingDayType": "\"Working day\"",
+    "__NonWorkingDayType": "\"Non-working day\""
   },
   "IsoCountry": "US",
 
