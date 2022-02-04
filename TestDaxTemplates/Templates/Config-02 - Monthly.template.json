@@ -37,9 +37,7 @@
   "AutoScan": "Full",
   "DefaultVariables": {
     "__FirstFiscalMonth": "4",
-    "__MonthsInYear": "12",
-    "__WorkingDayType": "\"Working day\"",
-    "__NonWorkingDayType": "\"Non-working day\""
+    "__MonthsInYear": "12"
   },
   "IsoCountry": "US",
 

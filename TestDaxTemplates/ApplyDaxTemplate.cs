@@ -421,10 +421,36 @@ namespace TestDaxTemplates
 
         private void BravoConfig_Click(object sender, EventArgs e)
         {
+            #region read all available template configurations
             string templatePath = txtPath.Text;
             var bravoTemplates = Bravo.BravoDaxTemplate.GetTemplates(templatePath);
             var result = SystemJsonSerializer.Serialize(bravoTemplates, new JsonSerializerOptions { WriteIndented = true });
             txtDax.Text = result;
+            #endregion
+
+            #region Loop over all configuration and apply preview
+            Server server = new();
+            server.Connect(txtServer.Text);
+            try
+            {
+                // loop preview
+                foreach (var config in bravoTemplates)
+                {
+                    Database db = server.Databases[txtDatabase.Text];
+                    Model model = db.Model;
+
+                    var modelChanges = Bravo.BravoDaxTemplate.ApplyTemplate(config, model, $"Data Source={txtServer.Text};Catalog={txtDatabase.Text};", false);
+                    if (modelChanges != null)
+                    {
+                        DisplayChanges(modelChanges);
+                    }
+                }
+            }
+            finally
+            {
+                server.Disconnect();
+            }
+            #endregion
         }
     }
 }

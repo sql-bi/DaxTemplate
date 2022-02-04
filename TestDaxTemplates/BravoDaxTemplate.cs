@@ -1,5 +1,8 @@
 ﻿using Dax.Template;
 using Dax.Template.Enums;
+using Dax.Template.Model;
+using Microsoft.AnalysisServices.AdomdClient;
+using Microsoft.AnalysisServices.Tabular;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -58,8 +61,16 @@ namespace TestDaxTemplates.Bravo
             public WeeklyTypeEnum? WeeklyType { get; set; }
 
         }
-        public string? Name { get; set; }
-        public string? Description { get; set; }
+
+        public DaxTemplateConfig(string templatePath)
+            => TemplatePath = templatePath;
+
+        /// <summary>
+        /// This property is for internal use, it must not be shown in Bravo UI
+        /// </summary>
+        public string TemplatePath { get; init; }
+        public string? Name { get; init; }
+        public string? Description { get; init; }
         public string? IsoCountry { get; set; }
         public string? IsoTranslation { get; set; }
         public string? IsoFormat { get; set; }
@@ -85,10 +96,100 @@ namespace TestDaxTemplates.Bravo
         const string TEMPLATEJSON_WILDCARD = "*" + TEMPLATEJSON_EXTENSION;
 
         // TODO: implement preview for selected config
-        public static object? Preview() 
+        public static ModelChanges? ApplyTemplate(DaxTemplateConfig config, Model model, string connectionString, bool commitChanges, int previewRows = 5) 
         {
-            return null;
+            var package = Package.LoadPackage(config.TemplatePath);
+            if (package?.Configuration == null)
+            {
+                throw new Exception($"Configuration {config.TemplatePath} not loaded.");
+            }
 
+            CopyConfiguration();
+            Engine templateEngine = new(package);
+            templateEngine.ApplyTemplates(model);
+            var modelChanges = Engine.GetModelChanges(model);
+            
+            if (commitChanges)
+            {
+                model.SaveChanges();
+            }
+            else
+            {
+                // Only for preview data
+                AdomdConnection connection = new(connectionString);
+                modelChanges.PopulatePreview(connection, model, previewRows);
+            }
+            return modelChanges;
+
+            void CopyConfiguration()
+            {
+                package.Configuration.IsoCountry = config.IsoCountry ?? package.Configuration.IsoCountry;
+                package.Configuration.IsoFormat = config.IsoFormat ?? package.Configuration.IsoFormat;
+                package.Configuration.IsoTranslation = config.IsoTranslation ?? package.Configuration.IsoTranslation;
+                package.Configuration.AutoScan = config.AutoScan ?? package.Configuration.AutoScan;
+                package.Configuration.AutoNaming = config.AutoNaming ?? package.Configuration.AutoNaming;
+
+                SetIntVariable(nameof(config.Defaults.FirstFiscalMonth), config.Defaults.FirstFiscalMonth);
+                SetIntVariable(nameof(config.Defaults.FirstDayOfWeek), (int?)config.Defaults.FirstDayOfWeek);
+                SetIntVariable(nameof(config.Defaults.MonthsInYear), config.Defaults.MonthsInYear);
+                SetStringVariable(nameof(config.Defaults.WorkingDayType), config.Defaults.WorkingDayType);
+                SetStringVariable(nameof(config.Defaults.NonWorkingDayType), config.Defaults.NonWorkingDayType);
+                SetIntVariable(nameof(config.Defaults.TypeStartFiscalYear), (int?)config.Defaults.TypeStartFiscalYear);
+                SetStringVariable(nameof(config.Defaults.QuarterWeekType), (int?)config.Defaults.QuarterWeekType);
+                SetStringVariable(nameof(config.Defaults.WeeklyType), config.Defaults.WeeklyType);
+
+                if (config.FirstYear != null)
+                {
+                    package.Configuration.FirstYear = (int)config.FirstYear;
+                    package.Configuration.FirstYearMin = (int)config.FirstYear;
+                    package.Configuration.FirstYearMax = (int)config.FirstYear;
+                }
+                if (config.LastYear != null)
+                {
+                    package.Configuration.LastYear = (int)config.LastYear;
+                    package.Configuration.LastYearMin = (int)config.LastYear;
+                    package.Configuration.LastYearMax = (int)config.LastYear;
+                }
+                if (config.OnlyTablesColumns?.Length > 0)
+                {
+                    package.Configuration.OnlyTablesColumns = config.OnlyTablesColumns.ToArray();
+                }
+                if (config.ExceptTablesColumns?.Length > 0)
+                {
+                    package.Configuration.ExceptTablesColumns = config.ExceptTablesColumns.ToArray();
+                }
+                if (config.TargetMeasures?.Length > 0)
+                {
+                    var targetMeasures =
+                        from measureName in config.TargetMeasures
+                        select new Dax.Template.Interfaces.IMeasureTemplateConfig.TargetMeasure() { Name = measureName };
+                    package.Configuration.TargetMeasures = targetMeasures.ToArray();
+                }
+            }
+
+            void SetStringVariable<T>(string parameterName, T? value)
+            {
+                SetVariable(parameterName, value, "\"");
+            }
+            void SetIntVariable<T>(string parameterName, T? value)
+            {
+                SetVariable(parameterName, value, "");
+            }
+            void SetVariable<T>(string parameterName, T? value, string quote)
+            {
+                if ((value == null) || (package == null)) return;
+                string key = $"__{parameterName}";
+                if (!package.Configuration.DefaultVariables.ContainsKey(key))
+                {
+                    throw new Exception($"Invalid {key} variable.");
+                }
+                string? variableValue = value.ToString();
+                if (variableValue == null)
+                {
+                    throw new Exception($"Null value for {key} variable.");
+                }
+                package.Configuration.DefaultVariables[key] = $"{quote}{variableValue}{quote}";
+            }
         }
 
         public static DaxTemplateConfig[] GetTemplates(string path)
@@ -102,7 +203,7 @@ namespace TestDaxTemplates.Bravo
                 {
                     throw new Exception($"Configuration {templatePath} not loaded.");
                 }
-                DaxTemplateConfig templateConfig = new() {
+                DaxTemplateConfig templateConfig = new(templatePath) {
                     Name = package.Configuration.Name,
                     Description = package.Configuration.Description,
                     IsoCountry = package.Configuration.IsoCountry,
