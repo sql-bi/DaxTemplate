@@ -53,6 +53,7 @@ namespace TestDaxTemplates.Bravo
             [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
             public QuarterWeekTypeEnum? QuarterWeekType { get; set; }
             [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+            [JsonConverter(typeof(JsonStringEnumConverter))]
             public WeeklyTypeEnum? WeeklyType { get; set; }
 
         }
