@@ -3,12 +3,7 @@ using Dax.Template.Enums;
 using Dax.Template.Model;
 using Microsoft.AnalysisServices.AdomdClient;
 using Microsoft.AnalysisServices.Tabular;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
 namespace TestDaxTemplates.Bravo
 {
@@ -95,7 +90,16 @@ namespace TestDaxTemplates.Bravo
         const string TEMPLATEJSON_EXTENSION = TEMPLATE_EXTENSION + JSON_EXTENSION;
         const string TEMPLATEJSON_WILDCARD = "*" + TEMPLATEJSON_EXTENSION;
 
-        // TODO: implement preview for selected config
+        /// <summary>
+        /// Apply template or just preview result for a template with a specific configuration
+        /// </summary>
+        /// <param name="config">Template and configuration</param>
+        /// <param name="model">Model on which the template is applied</param>
+        /// <param name="connectionString">Connection string for Adomd used to preview changes</param>
+        /// <param name="commitChanges">TRUE to commit changes</param>
+        /// <param name="previewRows">Number of rows to include in data preview</param>
+        /// <returns>Changes applied to the model</returns>
+        /// <exception cref="Exception">Errors executing template</exception>
         public static ModelChanges? ApplyTemplate(DaxTemplateConfig config, Model model, string connectionString, bool commitChanges, int previewRows = 5) 
         {
             var package = Package.LoadPackage(config.TemplatePath);
@@ -192,6 +196,12 @@ namespace TestDaxTemplates.Bravo
             }
         }
 
+        /// <summary>
+        /// Retrieve the templates available scanning all the files in the provided path
+        /// </summary>
+        /// <param name="path">Path to scan for template configuration files</param>
+        /// <returns>Array of template configurations</returns>
+        /// <exception cref="Exception">Error retrieving template configuration</exception>
         public static DaxTemplateConfig[] GetTemplates(string path)
         {
             List<DaxTemplateConfig> daxTemplateConfigs = new ();
