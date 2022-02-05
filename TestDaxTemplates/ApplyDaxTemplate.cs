@@ -354,7 +354,7 @@ namespace TestDaxTemplates
         {
             string templatePath = GetSelectedTemplatePath();
 
-            var package = Package.Load(templatePath);
+            var package = Package.LoadFromFile(templatePath);
 
             Engine templateEngine = new(package);
 
@@ -405,7 +405,7 @@ namespace TestDaxTemplates
         private void CreatePackage_Click(object sender, EventArgs e)
         {
             var path = GetSelectedTemplatePath();
-            var package = Package.Load(path);
+            var package = Package.LoadFromFile(path);
             package.SaveTo(@"c:\temp\test.json");
         }
 

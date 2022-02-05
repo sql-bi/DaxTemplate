@@ -11,20 +11,30 @@ namespace Dax.Template
 {
     public class Package
     {
-        private const string PACKAGE_CONFIG_KEY = "Config";
+        internal const string TEMPLATE_FILE_EXTENSION = ".template.json";
+        internal const string PACKAGE_CONFIG = "Config";
 
-        public static Package Load(string path)
+        private readonly string _path;
+        private readonly JsonElement _content;
+        private readonly TemplateConfiguration _configuration;
+        private readonly string _directoryName;
+
+        /// <summary>
+        /// Load a <see cref="Package"/> from a template file
+        /// </summary>
+        /// <param name="path">Full path to the template file</param>
+        public static Package LoadFromFile(string path)
         {
             var packageFile = new FileInfo(path);
-            var packageText = System.IO.File.ReadAllText(path);
+            var packageText = File.ReadAllText(path);
             var packageDocument = JsonDocument.Parse(packageText);
 
             string configurationText;
 
-            if (packageDocument.RootElement.TryGetProperty(PACKAGE_CONFIG_KEY, out var configurationElement))
+            if (packageDocument.RootElement.TryGetProperty(PACKAGE_CONFIG, out var configurationElement))
             {
                 if (configurationElement.ValueKind != JsonValueKind.Object)
-                    throw new TemplateConfigurationException($"Invalid json object [{ PACKAGE_CONFIG_KEY }]");
+                    throw new TemplateConfigurationException($"Invalid json value kind [{ PACKAGE_CONFIG }]");
 
                 // File is a packaged template which contains the config and all referenced templates as embeded objects
                 configurationText = configurationElement.GetRawText();
@@ -36,49 +46,59 @@ namespace Dax.Template
             }
 
             var templateConfiguration = JsonSerializer.Deserialize<TemplateConfiguration>(configurationText) ?? throw new TemplateUnexpectedException("Deserialized configurationText is null");
-            if (templateConfiguration.Name.IsNullOrEmpty())
-                templateConfiguration.Name = Path.GetFileNameWithoutExtension(packageFile.Name);
+            {
+                templateConfiguration.TemplateUri = packageFile.ToTemplateUri();
+                
+                if (templateConfiguration.Name.IsNullOrEmpty())
+                    templateConfiguration.Name = Path.GetFileNameWithoutExtension(Path.GetFileNameWithoutExtension(packageFile.Name));
+            }
 
             var package = new Package(packageFile, packageDocument, templateConfiguration);
             return package;
         }
 
-        private Package(FileInfo file, JsonDocument document, TemplateConfiguration configuration) 
+        /// <summary>
+        /// Search for existing templates within local path
+        /// </summary>
+        /// <param name="path">The relative or absolute path to the directory to search</param>
+        public static IEnumerable<string> FindTemplateFiles(string path)
         {
-            File = file;
-            Content = document.RootElement;
-            Configuration = configuration;
+            var templateFiles = Directory.EnumerateFiles(path, searchPattern: $"*{ TEMPLATE_FILE_EXTENSION }");
+            return templateFiles;
         }
 
-        public FileInfo File { get; private set; }
+        private Package(FileInfo file, JsonDocument document, TemplateConfiguration configuration) 
+        {
+            _path = file.FullName;
+            _content = document.RootElement;
+            _configuration = configuration;
 
-        public JsonElement Content { get; private set; }
+            _directoryName = file.DirectoryName ?? throw new TemplateUnexpectedException($"DirectoryName is null");
+        }
 
-        public TemplateConfiguration Configuration { get; private set; }
-
-        public string PackagePath => File.DirectoryName ?? throw new TemplateUnexpectedException($"DirectoryName is null");
+        public TemplateConfiguration Configuration => _configuration;
 
         public T ReadDefinition<T>(string name)
         {
             string definitionName = Path.GetExtension(name).EqualsI(".json") ? Path.GetFileNameWithoutExtension(name) : name;
             string definitionText;
 
-            if (Content.TryGetProperty(definitionName, out var element))
+            if (_content.TryGetProperty(definitionName, out var element))
             {
                 definitionText = element.GetRawText();
             }
             else
             {
-                definitionText = System.IO.File.ReadAllText(path: Path.Combine(PackagePath, name));
+                definitionText = File.ReadAllText(path: Path.Combine(_directoryName, name));
             }
 
-            return JsonSerializer.Deserialize<T>(definitionText) ?? throw new TemplateUnexpectedException($"Deserialized json is null [{ definitionName }]");
+            return JsonSerializer.Deserialize<T>(definitionText) ?? throw new TemplateUnexpectedException($"Deserialized definition is null [{ definitionName }]");
         }
 
         public void SaveTo(string path)
         {
             Dictionary<string, object> package = new();
-            package.Add(PACKAGE_CONFIG_KEY, Configuration);
+            package.Add(PACKAGE_CONFIG, Configuration);
 
             var fileNames =
                 from t in Configuration.Templates
@@ -93,8 +113,8 @@ namespace Dax.Template
 
             foreach (var fileName in fileNames)
             {
-                string filePath = Path.Combine(PackagePath, fileName);
-                string fileText = System.IO.File.ReadAllText(filePath);
+                var filePath = Path.Combine(_directoryName, fileName);
+                var fileText = File.ReadAllText(filePath);
 
                 var content = JsonSerializer.Deserialize<dynamic>(fileText);
                 var name = Path.GetFileNameWithoutExtension(fileName);
@@ -110,7 +130,7 @@ namespace Dax.Template
 
             var packageText = JsonSerializer.Serialize(package, options);
 
-            System.IO.File.WriteAllText(path, packageText);
+            File.WriteAllText(path, packageText);
         }
     }
 }
