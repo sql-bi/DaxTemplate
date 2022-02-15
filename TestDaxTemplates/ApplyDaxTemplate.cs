@@ -206,7 +206,7 @@ namespace TestDaxTemplates
         private HolidaysDefinitionTable.HolidaysDefinitions ReadHolidaysDefinitionConfig()
         {
             IHolidaysConfig config = ReadConfig<TemplateConfiguration>();
-            string holidaysJsonFilename = $@"..\..\..\{config.HolidaysDefinitionTemplate}";
+            string holidaysJsonFilename = $@"..\..\..\HolidaysDefinitionTemplate.json";
             string holidaysJson = File.ReadAllText(holidaysJsonFilename);
             if (SystemJsonSerializer.Deserialize(holidaysJson, typeof(HolidaysDefinitionTable.HolidaysDefinitions)) is not HolidaysDefinitionTable.HolidaysDefinitions holidaysDefinition) throw new Exception("Invalid configuration");
             return holidaysDefinition;

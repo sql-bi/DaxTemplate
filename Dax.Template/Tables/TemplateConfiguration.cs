@@ -47,7 +47,6 @@ namespace Dax.Template.Tables
         public int FirstYear { get; set; } = 2000;
         public int LastYear { get; set; } = 2050;
         public string? WorkingDays { get; set; } = "{ 2, 3, 4, 5, 6 }";
-        public string? HolidaysDefinitionTemplate { get; set; } = "HolidaysDefinition";
 
         public HolidaysConfig? HolidaysReference { get; set; }
 
