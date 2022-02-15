@@ -176,6 +176,7 @@
       "Expression": "__IsWorkingDay",
       "DataType": "Boolean",
       "IsHidden": true,
+      "RequiresHolidays": true,
       "Annotations": {
         "SQLBI_FilterSafe": true
       }
@@ -185,6 +186,7 @@
       "Expression": "IF ( __IsWorkingDay, 1 )",
       "DataType": "Int64",
       "IsHidden": true,
+      "RequiresHolidays": true,
       "Annotations": {
         "SQLBI_FilterSafe": true
       }
@@ -193,6 +195,7 @@
       "Name": "Holiday Name",
       "Expression": "__HolidayName",
       "DataType": "String",
+      "RequiresHolidays": true,
       "Annotations": {
         "SQLBI_FilterSafe": true
       }
