@@ -69,7 +69,9 @@ namespace Dax.Template
 
         private void FixExcludedTables()
         {
-            var templateTables = from item in Configuration.Templates select item.Table;
+            var templateTables = from item in Configuration.Templates 
+                                 where !string.IsNullOrWhiteSpace(item.Table)
+                                 select item.Table;
             Configuration.ExceptTablesColumns = Configuration.ExceptTablesColumns.Union(templateTables).Distinct().ToArray();
         }
         private Package(FileInfo file, JsonDocument document, TemplateConfiguration configuration) 
