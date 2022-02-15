@@ -1,0 +1,51 @@
+{
+  "Description": "Standard calendar with holidays and standard time intelligence",
+  "Templates": [
+    {
+      "Class": "HolidaysDefinitionTable",
+      "Table": "HolidaysDefinition",
+      "Template": "HolidaysDefinition.json",
+      "IsHidden": true
+    },
+    {
+      "Class": "HolidaysTable",
+      "Table": "Holidays",
+      "Template": null
+    },
+    {
+      "Class": "CustomDateTable",
+      "Table": "Date",
+      "ReferenceTable": "DateAutoTemplate",
+      "Template": "DateTemplate-98.json",
+      "LocalizationFiles": [
+      ]
+    }
+  ],
+  "IsoTranslation": "en-US",
+  "IsoFormat": "en-US",
+  "LocalizationFiles": [],
+  "OnlyTablesColumns": [
+  ],
+  "ExceptTablesColumns": [],
+  "FirstYearMin": null,
+  "FirstYearMax": null,
+  "LastYearMin": null,
+  "LastYearMax": null,
+  "AutoScan": "Full",
+  "DefaultVariables": {
+    "__FirstFiscalMonth": "4",
+    "__FirstDayOfWeek": "0"
+  },
+  "IsoCountry": "US",
+  "InLieuOfPrefix": "(in lieu of ",
+  "InLieuOfSuffix": ")",
+  "WorkingDays": "{ 2, 3, 4, 5, 6 }",
+  "HolidaysDefinitionTable": "HolidaysDefinition",
+  "HolidaysDefinitionTemplate": "HolidaysDefinition.json",
+
+  "HolidaysReference": {
+    "TableName": "Holidays",
+    "DateColumnName": "Holiday Date",
+    "HolidayColumnName": "Holiday Name"
+  }
+}
