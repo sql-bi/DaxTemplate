@@ -259,7 +259,7 @@ $@"
             if (string.IsNullOrEmpty(firstYear) && scanColumns != null)
             {
                 var listMin = string.Join(", ", scanColumns.Select(col => $"MIN ( '{col.Table.Name}'[{col.Name}] )"));
-                firstYear = $"YEAR ( MINX ( {{ {listMin} }}, [Value] ) )";
+                firstYear = $"YEAR ( MINX ( {{ {listMin} }}, ''[Value] ) )";
             }
             firstYear =
                 (string.IsNullOrEmpty(firstYear)) ?
@@ -280,7 +280,7 @@ $@"
             {
                 // TODO: remove Table?.Name
                 var listMax = string.Join(", ", scanColumns.Select(col => $"MAX ( '{col.Table?.Name}'[{col.Name}] )"));
-                lastYear = $" YEAR ( MAXX ( {{ {listMax} }}, [Value] ) )";
+                lastYear = $" YEAR ( MAXX ( {{ {listMax} }}, ''[Value] ) )";
             }
             lastYear =
                 (string.IsNullOrEmpty(lastYear)) ?
