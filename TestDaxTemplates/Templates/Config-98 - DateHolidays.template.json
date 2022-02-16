@@ -1,5 +1,5 @@
 {
-  "Description": "Standard calendar with holidays and standard time intelligence",
+  "Description": "Standard calendar with holidays",
   "Templates": [
     {
       "Class": "HolidaysDefinitionTable",
@@ -15,36 +15,30 @@
     {
       "Class": "CustomDateTable",
       "Table": "Date",
-      "ReferenceTable": "DateAutoTemplate",
-      "Template": "DateTemplate-98.json",
-      "LocalizationFiles": [
-      ]
+      "ReferenceTable": "DateTemplate",
+      "Template": "DateTemplate-01.json"
     }
   ],
-  "IsoTranslation": "en-US",
-  "IsoFormat": "en-US",
-  "LocalizationFiles": [],
-  "OnlyTablesColumns": [
-  ],
-  "ExceptTablesColumns": [],
-  "FirstYearMin": null,
-  "FirstYearMax": null,
-  "LastYearMin": null,
-  "LastYearMax": null,
+  "FirstYear": 0,
+  "LastYear": 9999,
+
   "AutoScan": "Full",
-  "DefaultVariables": {
-    "__FirstFiscalMonth": "4",
-    "__FirstDayOfWeek": "0"
-  },
+  "OnlyTablesColumns": [],
+  "ExceptTablesColumns": [],
+
   "IsoCountry": "US",
   "InLieuOfPrefix": "(in lieu of ",
   "InLieuOfSuffix": ")",
   "WorkingDays": "{ 2, 3, 4, 5, 6 }",
   "HolidaysDefinitionTable": "HolidaysDefinition",
-
   "HolidaysReference": {
     "TableName": "Holidays",
     "DateColumnName": "Holiday Date",
     "HolidayColumnName": "Holiday Name"
+  },
+
+  "DefaultVariables": {
+    "__FirstFiscalMonth": "4",
+    "__FirstDayOfWeek": "0"
   }
 }

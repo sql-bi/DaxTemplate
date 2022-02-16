@@ -1,4 +1,5 @@
-﻿using Dax.Template.Exceptions;
+﻿using Dax.Template.Enums;
+using Dax.Template.Exceptions;
 using Dax.Template.Extensions;
 using Dax.Template.Interfaces;
 using Dax.Template.Measures;
@@ -20,6 +21,8 @@ namespace Dax.Template
         public Engine(Package package)
         {
             _package = package;
+
+            ApplyConfigurationDefaults();
         }
 
         public TemplateConfiguration Configuration => _package.Configuration;
@@ -151,7 +154,7 @@ namespace Dax.Template
         private Translations.Definitions ReadTranslations()
         {
             Translations.Definitions translations = new();
-            foreach (var localizationFile in Configuration.LocalizationFiles)
+            foreach (var localizationFile in Configuration.LocalizationFiles!)
             {
                 Translations.Definitions definitions = _package.ReadDefinition<Translations.Definitions>(localizationFile);
                 translations.Translations = translations.Translations.Union(definitions.Translations).ToArray();
@@ -194,6 +197,40 @@ namespace Dax.Template
             tableDate.RequestRefresh(RefreshType.Full);
 
             return template;
+        }
+
+        private void ApplyConfigurationDefaults()
+        {
+            //
+            // ITemplates
+            //
+            Configuration.Templates ??= Array.Empty<ITemplates.TemplateEntry>();
+            //
+            // ILocalization
+            //
+            Configuration.LocalizationFiles ??= Array.Empty<string>();
+            //
+            // IScanConfig
+            //
+            Configuration.OnlyTablesColumns ??= Array.Empty<string>();
+            Configuration.ExceptTablesColumns ??= Array.Empty<string>();
+            // Add template tables to excluded tables
+            var templateTables = from item in Configuration.Templates
+                                 where !string.IsNullOrWhiteSpace(item.Table)
+                                 select item.Table;
+            Configuration.ExceptTablesColumns = Configuration.ExceptTablesColumns.Union(templateTables).Distinct().ToArray();
+            //
+            // IHolidaysConfig
+            //
+            Configuration.WorkingDays ??= "{ 2, 3, 4, 5, 6 }";
+            Configuration.InLieuOfPrefix ??= "(in lieu of ";
+            Configuration.InLieuOfSuffix ??= ")";
+            //
+            // IMeasureTemplateConfig
+            //
+            Configuration.AutoNaming ??= AutoNamingEnum.Suffix;
+            Configuration.AutoNamingSeparator ??= " ";
+            Configuration.TargetMeasures ??= Array.Empty<IMeasureTemplateConfig.TargetMeasure>();
         }
     }
 }

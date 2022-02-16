@@ -67,13 +67,6 @@ namespace Dax.Template
             return templateFiles;
         }
 
-        private void FixExcludedTables()
-        {
-            var templateTables = from item in Configuration.Templates 
-                                 where !string.IsNullOrWhiteSpace(item.Table)
-                                 select item.Table;
-            Configuration.ExceptTablesColumns = Configuration.ExceptTablesColumns.Union(templateTables).Distinct().ToArray();
-        }
         private Package(FileInfo file, JsonDocument document, TemplateConfiguration configuration) 
         {
             _path = file.FullName;
@@ -81,9 +74,6 @@ namespace Dax.Template
             _configuration = configuration;
 
             _directoryName = file.DirectoryName ?? throw new TemplateUnexpectedException($"DirectoryName is null");
-
-            // Add template tables to excluded tables
-            FixExcludedTables();
         }
 
         public TemplateConfiguration Configuration => _configuration;
