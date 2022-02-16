@@ -15,7 +15,7 @@ namespace Dax.Template
         internal const string PACKAGE_CONFIG = "Config";
 
         private readonly string _path;
-        private readonly JsonElement _content;
+        private readonly JsonDocument _document;
         private readonly TemplateConfiguration _configuration;
         private readonly string _directoryName;
 
@@ -77,7 +77,7 @@ namespace Dax.Template
         private Package(FileInfo file, JsonDocument document, TemplateConfiguration configuration) 
         {
             _path = file.FullName;
-            _content = document.RootElement;
+            _document = document;
             _configuration = configuration;
 
             _directoryName = file.DirectoryName ?? throw new TemplateUnexpectedException($"DirectoryName is null");
@@ -88,12 +88,14 @@ namespace Dax.Template
 
         public TemplateConfiguration Configuration => _configuration;
 
-        public T ReadDefinition<T>(string name)
+        public JsonDocument JsonConfiguration => _document;
+
+        internal T ReadDefinition<T>(string name)
         {
             string definitionName = Path.GetExtension(name).EqualsI(".json") ? Path.GetFileNameWithoutExtension(name) : name;
             string definitionText;
 
-            if (_content.TryGetProperty(definitionName, out var element))
+            if (_document.RootElement.TryGetProperty(definitionName, out var element))
             {
                 definitionText = element.GetRawText();
             }
