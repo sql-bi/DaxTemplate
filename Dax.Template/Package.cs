@@ -11,8 +11,8 @@ namespace Dax.Template
 {
     public class Package
     {
-        internal const string TEMPLATE_FILE_EXTENSION = ".template.json";
-        internal const string PACKAGE_CONFIG = "Config";
+        public const string TEMPLATE_FILE_EXTENSION = ".template.json";
+        public const string PACKAGE_CONFIG = "Config";
 
         private readonly string _path;
         private readonly JsonDocument _document;
@@ -110,7 +110,7 @@ namespace Dax.Template
         public void SaveTo(string path)
         {
             Dictionary<string, object> package = new();
-            package.Add(PACKAGE_CONFIG, Configuration);
+            package.Add(PACKAGE_CONFIG, JsonConfiguration);
 
             var fileNames =
                 from t in Configuration.Templates
