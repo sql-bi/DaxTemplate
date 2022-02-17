@@ -8,6 +8,7 @@ using Microsoft.AnalysisServices.Tabular;
 using System;
 using System.Collections;
 using System.Linq;
+using System.Threading;
 using TabularModel = Microsoft.AnalysisServices.Tabular.Model;
 
 namespace Dax.Template
@@ -23,7 +24,7 @@ namespace Dax.Template
 
         public TemplateConfiguration Configuration => _package.Configuration;
 
-        public static Model.ModelChanges GetModelChanges( TabularModel model )
+        public static Model.ModelChanges GetModelChanges(TabularModel model, CancellationToken cancellationToken = default)
         {
             object? txManager = model.GetPropertyValue("TxManager");
             object? currentSavePoint = txManager?.GetPropertyValue("CurrentSavepoint");
@@ -34,6 +35,8 @@ namespace Dax.Template
                 var collection = (IEnumerable)allBodies;
                 foreach (var item in collection)
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
+
                     var owner = item?.GetPropertyValue("Owner");
                     Table? lastParent = item?.GetPropertyValue("LastParent", false) as Table;
                     Table? parent = lastParent ?? owner?.GetPropertyValue("Parent", false) as Table;
@@ -46,11 +49,11 @@ namespace Dax.Template
                     }
                 }
             }
-            modelChanges.SimplifyRemovedObjects();
+            modelChanges.SimplifyRemovedObjects(cancellationToken);
             return modelChanges;
         }
 
-        public void ApplyTemplates(TabularModel model)
+        public void ApplyTemplates(TabularModel model, CancellationToken cancellationToken = default)
         {
             (string className, Action<ITemplates.TemplateEntry> action)[] classes =
                 new (string, Action<ITemplates.TemplateEntry>)[]
@@ -61,11 +64,16 @@ namespace Dax.Template
                 ( nameof(MeasuresTemplate), ApplyMeasuresTemplate )
             };
 
-            Configuration.Templates.ToList().ForEach(template =>
+            if (Configuration.Templates != null)
             {
-                var (className, action) = classes.First(c => c.className == template.Class);
-                action(template);
-            });
+                Configuration.Templates.ToList().ForEach(template =>
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    var (className, action) = classes.First(c => c.className == template.Class);
+                    action(template);
+                });
+            }
 
             void ApplyHolidaysDefinitionTable(ITemplates.TemplateEntry templateEntry)
             {
