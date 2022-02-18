@@ -235,7 +235,7 @@ namespace Dax.Template.Model
             queryTablesDefinition ??= string.Empty;
 
             string daxQuery = $"{queryTablesDefinition}\r\nEVALUATE TOPNSKIP ( {previewRows}, 0, {tableExpression} )";
-            System.IO.File.WriteAllText(@"c:\temp\query.dax", daxQuery);
+            System.Diagnostics.Debug.WriteLine(daxQuery);
             if (connection.State != System.Data.ConnectionState.Open) connection.Open();
             using AdomdCommand command = new(daxQuery, connection);
             using var reader = command.ExecuteReader();
