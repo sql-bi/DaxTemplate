@@ -71,6 +71,12 @@
     },
     {
       "Name": "Total Cost"
+    },
+    {
+      "Name": "Margin"
+    },
+    {
+      "Name": "Margin %"
     }
   ]
 }

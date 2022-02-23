@@ -48,7 +48,8 @@
   "LastYearMax": null,
   "AutoScan": "Full",
   "DefaultVariables": {
-    "__FirstFiscalMonth": "4"
+    "__FirstFiscalMonth": "4",
+    "__FirstDayOfWeek": "0"
   },
   "IsoCountry": "US",
   "InLieuOfPrefix": "(in lieu of ",
