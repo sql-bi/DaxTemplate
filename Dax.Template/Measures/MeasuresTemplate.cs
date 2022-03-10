@@ -230,6 +230,7 @@ namespace Dax.Template.Measures
                 displayFolder = regexTemplateName.Replace(displayFolder, templateName ?? string.Empty);
                 displayFolder = regexMeasureFolder.Replace(displayFolder, measure?.DisplayFolder ?? string.Empty);
                 displayFolder = regexTemplateFolder.Replace(displayFolder, templateDisplayFolder ?? string.Empty);
+                displayFolder = displayFolder.Replace(@"\\", @"\");
                 return displayFolder;
             }
         }
