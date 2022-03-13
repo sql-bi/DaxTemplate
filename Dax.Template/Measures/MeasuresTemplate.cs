@@ -120,13 +120,13 @@ namespace Dax.Template.Measures
                 if (matchGetMinDates.Success)
                 {
                     var listMin = string.Join(", ", scanColumns.Select(col => $"MIN ( '{col.Table.Name}'[{col.Name}] )"));
-                    string replace = $"MINX ( {{ {listMin} }}, ''[Value] )";
+                    string replace = listMin.IsNullOrEmpty() ? "TODAY()" : $"MINX ( {{ {listMin} }}, ''[Value] )";
                     expression = regexGetMinDates.Replace(expression, replace);
                 }
                 if (matchGetMaxDates.Success)
                 {
                     var listMax = string.Join(", ", scanColumns.Select(col => $"MAX ( '{col.Table.Name}'[{col.Name}] )"));
-                    string replace = $"MAXX ( {{ {listMax} }}, ''[Value] )";
+                    string replace = listMax.IsNullOrEmpty() ? "TODAY()" : $"MAXX ( {{ {listMax} }}, ''[Value] )";
                     expression = regexGetMaxDates.Replace(expression, replace);
                 }
             }
