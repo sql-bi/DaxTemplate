@@ -78,8 +78,6 @@ namespace Dax.Template
 
         public TemplateConfiguration Configuration => _configuration;
 
-        public JsonDocument JsonConfiguration => _document;
-
         internal T ReadDefinition<T>(string name)
         {
             string definitionName = Path.GetExtension(name).EqualsI(".json") ? Path.GetFileNameWithoutExtension(name) : name;
@@ -100,7 +98,7 @@ namespace Dax.Template
         public void SaveTo(string path)
         {
             Dictionary<string, object> package = new();
-            package.Add(PACKAGE_CONFIG, JsonConfiguration);
+            package.Add(PACKAGE_CONFIG, Configuration);
 
             var fileNames =
                 from t in Configuration.Templates
