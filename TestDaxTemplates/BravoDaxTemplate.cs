@@ -107,7 +107,7 @@ namespace TestDaxTemplates.Bravo
 
             CopyConfiguration();
             Engine templateEngine = new(package);
-            templateEngine.ApplyTemplates(model);
+            templateEngine.ApplyTemplates(model, null);
             var modelChanges = Engine.GetModelChanges(model);
             
             if (commitChanges)

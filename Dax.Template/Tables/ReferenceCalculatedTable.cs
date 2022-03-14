@@ -7,7 +7,7 @@ namespace Dax.Template.Tables
     {
         public string? HiddenTable { get; init; } 
 
-        public override string? GetDaxTableExpression(Microsoft.AnalysisServices.Tabular.Model? model, CancellationToken cancellationToken)
+        public override string? GetDaxTableExpression(Microsoft.AnalysisServices.Tabular.Model? model, CancellationToken? cancellationToken)
         {
             return QuotedHiddenTable ?? base.GetDaxTableExpression(model, cancellationToken);
         }

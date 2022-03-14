@@ -165,7 +165,7 @@ DATATABLE (
             Columns.AddRange(columns);
         }
 
-        public override string? GetDaxTableExpression(TabularModel? model, CancellationToken cancellationToken)
+        public override string? GetDaxTableExpression(TabularModel? model, CancellationToken? cancellationToken)
         {
             return __HolidaysDefinition.Expression;
         }

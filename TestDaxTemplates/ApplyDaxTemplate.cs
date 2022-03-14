@@ -47,7 +47,7 @@ namespace TestDaxTemplates
                 //File.WriteAllText(@"c:\temp\changes1.json", modelBim);
 
                 // Show DAX for debug purposes
-                txtDax.Text = hiddenDateTemplate.GetDaxTableExpression(model);
+                txtDax.Text = hiddenDateTemplate.GetDaxTableExpression(model,null);
 
                 model.SaveChanges();
             }
@@ -71,7 +71,7 @@ namespace TestDaxTemplates
             }
             CalculatedTableTemplateBase template;
             template = new HolidaysDefinitionTable(ReadHolidaysDefinitionConfig());
-            template.ApplyTemplate(tableHolidays, hideTable);
+            template.ApplyTemplate(tableHolidays, null, hideTable);
             tableHolidays.RequestRefresh(RefreshType.Full);
 
             return template;
@@ -87,7 +87,7 @@ namespace TestDaxTemplates
             }
             CalculatedTableTemplateBase template;
             template = new HolidaysTable(ReadConfig<TemplateConfiguration>());
-            template.ApplyTemplate(tableHolidays, hideTable);
+            template.ApplyTemplate(tableHolidays, null, hideTable);
             tableHolidays.RequestRefresh(RefreshType.Full);
 
             return template;
@@ -125,7 +125,7 @@ namespace TestDaxTemplates
                 };
             }
 
-            template.ApplyTemplate(tableDate, hideTable);
+            template.ApplyTemplate(tableDate, null, hideTable);
 
             tableDate.RequestRefresh(RefreshType.Full);
 
@@ -152,11 +152,11 @@ namespace TestDaxTemplates
             if (chkCustomTemplate.Checked)
             {
                 var template = new CustomDateTable(ReadConfig<TemplateConfiguration>(), ReadTemplateDefinition(), null);
-                result = template?.GetDaxTableExpression(null);
+                result = template?.GetDaxTableExpression(null, null);
             }
             else { 
                 var template = new SimpleDateTable(ReadConfig<SimpleDateTemplateConfig>(),null);
-                result = template.GetDaxTableExpression(null);
+                result = template.GetDaxTableExpression(null, null);
             }
             txtDax.Text = result;
         }
@@ -215,7 +215,7 @@ namespace TestDaxTemplates
         private void GenerateHolidays_Click(object sender, EventArgs e)
         {
             var template = new HolidaysDefinitionTable(ReadHolidaysDefinitionConfig());
-            var result = template.GetDaxTableExpression(null);
+            var result = template.GetDaxTableExpression(null, null);
             txtDax.Text = result;
         }
 
@@ -245,7 +245,7 @@ namespace TestDaxTemplates
                 File.WriteAllText(@"c:\temp\changes.json", modelBim);
 
                 // Show DAX for debug purposes
-                txtDax.Text = hiddenHolidaysDefinitionTemplate.GetDaxTableExpression(model);
+                txtDax.Text = hiddenHolidaysDefinitionTemplate.GetDaxTableExpression(model, null);
 
                 model.SaveChanges();
             }
@@ -275,7 +275,7 @@ namespace TestDaxTemplates
 
             try
             {
-                template.ApplyTemplate(model);
+                template.ApplyTemplate(model, null);
                 model.SaveChanges();
             }
             catch (TemplateException ex)
@@ -365,7 +365,7 @@ namespace TestDaxTemplates
 
             try
             {
-                templateEngine.ApplyTemplates(model);
+                templateEngine.ApplyTemplates(model, null);
                 var modelChanges = Engine.GetModelChanges(model);
 
 

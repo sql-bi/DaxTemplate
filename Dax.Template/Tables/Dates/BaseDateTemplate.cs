@@ -23,7 +23,7 @@ namespace Dax.Template.Tables.Dates
         public BaseDateTemplate(T config, CustomTemplateDefinition template, TabularModel? model) : base(config, template, model) { }
         public BaseDateTemplate(T config, CustomTemplateDefinition template, Predicate<CustomTemplateDefinition.Column>? skipColumn, TabularModel? model) : base(config, template, skipColumn, model) { }
 
-        public override void ApplyTemplate(Table dateTable, CancellationToken cancellationToken)
+        public override void ApplyTemplate(Table dateTable, CancellationToken? cancellationToken)
         {
             foreach (var column in Columns.Where(c => c is Model.DateColumn))
             {
@@ -64,9 +64,9 @@ namespace Dax.Template.Tables.Dates
         /// </summary>
         /// <param name="expression"></param>
         /// <returns></returns>
-        protected override string? ProcessDaxExpression( string? expression, string lastStep, CancellationToken cancellationToken, TabularModel? model = null )
+        protected override string? ProcessDaxExpression( string? expression, string lastStep, CancellationToken? cancellationToken, TabularModel? model = null )
         {
-            cancellationToken.ThrowIfCancellationRequested();
+            cancellationToken?.ThrowIfCancellationRequested();
             expression = base.ProcessDaxExpression(expression, lastStep, cancellationToken, model);
             if (string.IsNullOrEmpty(expression)) return expression;
 

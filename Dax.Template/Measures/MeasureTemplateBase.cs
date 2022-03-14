@@ -74,7 +74,7 @@ namespace Dax.Template.Measures
         }
 
 
-        public virtual TabularMeasure ApplyTemplate(TabularModel model, Table targetTable, CancellationToken cancellationToken, bool overrideExistingMeasure = true)
+        public virtual TabularMeasure ApplyTemplate(TabularModel model, Table targetTable, CancellationToken? cancellationToken, bool overrideExistingMeasure = true)
         {
             var measure = FindMeasure(model, Name);
             if (measure == null)
@@ -98,12 +98,12 @@ namespace Dax.Template.Measures
 
             return measure;
 
-            void ApplyAnnotations(TabularMeasure measure, CancellationToken cancellationToken)
+            void ApplyAnnotations(TabularMeasure measure, CancellationToken? cancellationToken)
             {
                 if (Annotations == null) return;
                 foreach (var annotation in Annotations)
                 {
-                    cancellationToken.ThrowIfCancellationRequested();
+                    cancellationToken?.ThrowIfCancellationRequested();
 
                     var annotationName = annotation.Key;
                     var annotationValue = annotation.Value.ToString();
@@ -241,7 +241,7 @@ namespace Dax.Template.Measures
             {
                 throw new MultipleMatchesException(tables.Select(t => $"'{t.Name}'").ToArray());
             }
-            else if (tables.Count() == 0)
+            else if (!tables.Any())
             {
                 throw new AttributeNotFoundException(attribute, value);
             }
@@ -255,7 +255,7 @@ namespace Dax.Template.Measures
             {
                 throw new MultipleMatchesException(columns.Select(c => $"'{c.Table.Name}'[{c.Name}]").ToArray());
             }
-            else if (columns.Count() == 0)
+            else if (!columns.Any())
             {
                 throw new AttributeNotFoundException(attribute, value);
             }

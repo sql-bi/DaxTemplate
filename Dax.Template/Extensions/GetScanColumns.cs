@@ -47,7 +47,7 @@ namespace Dax.Template.Extensions
             if ((Config.AutoScan & AutoScanEnum.SelectedTablesColumns) == AutoScanEnum.SelectedTablesColumns)
             {
                 List<Column> columnsToScan = new();
-                bool scanAll = Config.OnlyTablesColumns.Length == 0;
+                bool scanAll = (Config.OnlyTablesColumns == null) || Config.OnlyTablesColumns.Length == 0;
 
                 var onlyTables = scanTargets.Where(x => string.IsNullOrEmpty(x.columnName)).ToList();
                 var onlyColumns = scanTargets.Where(x => !string.IsNullOrEmpty(x.columnName)).ToList();
