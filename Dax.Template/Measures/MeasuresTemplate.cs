@@ -100,6 +100,7 @@ namespace Dax.Template.Measures
                     from t in model.Tables
                     from m in t.Measures
                     where m.Name == tm.Name    // TODO - modify the matching algorithm to manage wildcards and/or attributes
+                       && !m.Annotations.Any(a => a.Name == SQLBI_TEMPLATE_ATTRIBUTE)
                     select m
                 );
             }
