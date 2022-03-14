@@ -7,6 +7,7 @@ using Dax.Template.Exceptions;
 using System.Text.RegularExpressions;
 using TabularModel = Microsoft.AnalysisServices.Tabular.Model;
 using TabularMeasure = Microsoft.AnalysisServices.Tabular.Measure;
+using System.Threading;
 
 namespace Dax.Template.Measures
 {
@@ -73,7 +74,7 @@ namespace Dax.Template.Measures
         }
 
 
-        public virtual TabularMeasure ApplyTemplate(TabularModel model, Table targetTable, bool overrideExistingMeasure = true)
+        public virtual TabularMeasure ApplyTemplate(TabularModel model, Table targetTable, CancellationToken cancellationToken, bool overrideExistingMeasure = true)
         {
             var measure = FindMeasure(model, Name);
             if (measure == null)
@@ -93,15 +94,17 @@ namespace Dax.Template.Measures
             measure.DisplayFolder = DisplayFolder;
             measure.Description = Description;
             measure.Expression = GetDaxExpression(model, ReferenceMeasure?.Name);
-            ApplyAnnotations(measure);
+            ApplyAnnotations(measure, cancellationToken);
 
             return measure;
 
-            void ApplyAnnotations(TabularMeasure measure)
+            void ApplyAnnotations(TabularMeasure measure, CancellationToken cancellationToken)
             {
                 if (Annotations == null) return;
                 foreach (var annotation in Annotations)
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
+
                     var annotationName = annotation.Key;
                     var annotationValue = annotation.Value.ToString();
 

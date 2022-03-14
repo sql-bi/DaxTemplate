@@ -3,6 +3,7 @@ using TabularModel = Microsoft.AnalysisServices.Tabular.Model;
 using Dax.Template.Syntax;
 using Column = Dax.Template.Model.Column;
 using Dax.Template.Interfaces;
+using System.Threading;
 
 namespace Dax.Template.Tables.Dates
 {
@@ -336,9 +337,9 @@ RETURN
             Columns.AddRange(columns);
         }
 
-        public override string? GetDaxTableExpression(TabularModel? model)
+        public override string? GetDaxTableExpression(TabularModel? model, CancellationToken cancellationToken)
         {
-            return ProcessDaxExpression(__HolidaysTable.Expression, string.Empty, model);
+            return ProcessDaxExpression(__HolidaysTable.Expression, string.Empty, cancellationToken, model);
         }
     }
 }

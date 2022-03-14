@@ -11,11 +11,11 @@ namespace Dax.Template
 {
     public class Package
     {
-        internal const string TEMPLATE_FILE_EXTENSION = ".template.json";
-        internal const string PACKAGE_CONFIG = "Config";
+        public const string TEMPLATE_FILE_EXTENSION = ".template.json";
+        public const string PACKAGE_CONFIG = "Config";
 
         private readonly string _path;
-        private readonly JsonElement _content;
+        private readonly JsonDocument _document;
         private readonly TemplateConfiguration _configuration;
         private readonly string _directoryName;
 
@@ -67,33 +67,23 @@ namespace Dax.Template
             return templateFiles;
         }
 
-        private void FixExcludedTables()
-        {
-            var templateTables = from item in Configuration.Templates 
-                                 where !string.IsNullOrWhiteSpace(item.Table)
-                                 select item.Table;
-            Configuration.ExceptTablesColumns = Configuration.ExceptTablesColumns.Union(templateTables).Distinct().ToArray();
-        }
         private Package(FileInfo file, JsonDocument document, TemplateConfiguration configuration) 
         {
             _path = file.FullName;
-            _content = document.RootElement;
+            _document = document;
             _configuration = configuration;
 
             _directoryName = file.DirectoryName ?? throw new TemplateUnexpectedException($"DirectoryName is null");
-
-            // Add template tables to excluded tables
-            FixExcludedTables();
         }
 
         public TemplateConfiguration Configuration => _configuration;
 
-        public T ReadDefinition<T>(string name)
+        internal T ReadDefinition<T>(string name)
         {
             string definitionName = Path.GetExtension(name).EqualsI(".json") ? Path.GetFileNameWithoutExtension(name) : name;
             string definitionText;
 
-            if (_content.TryGetProperty(definitionName, out var element))
+            if (_document.RootElement.TryGetProperty(definitionName, out var element))
             {
                 definitionText = element.GetRawText();
             }

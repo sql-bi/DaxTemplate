@@ -6,6 +6,7 @@ using Column = Dax.Template.Model.Column;
 using Hierarchy = Dax.Template.Model.Hierarchy;
 using TabularHierarchy = Microsoft.AnalysisServices.Tabular.Hierarchy;
 using TabularLevel = Microsoft.AnalysisServices.Tabular.Level;
+using System.Threading;
 
 namespace Dax.Template.Tables
 {
@@ -19,11 +20,15 @@ namespace Dax.Template.Tables
         public Translations? Translation { get; set; }
 
         private bool templateApplied = false;
-        private void ResetTabularReferences()
+        private void ResetTabularReferences(CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             foreach (var column in Columns) column.Reset();
+
             foreach (var hierarchy in Hierarchies)
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 hierarchy.Reset();
                 foreach (var level in hierarchy.Levels)
                 {
@@ -37,13 +42,14 @@ namespace Dax.Template.Tables
             templateApplied = false;
         }
 
-        protected virtual void RenameWithTranslation(Table tabularTable, Translations.Language language)
+        protected virtual void RenameWithTranslation(Table tabularTable, Translations.Language language, CancellationToken cancellationToken)
         {
             // if (!string.IsNullOrEmpty(language.Table.Name)) tabularTable.Name = language.Table.Name;
             if (!string.IsNullOrEmpty(language.Table?.Description)) tabularTable.Description = language.Table.Description;
             
             foreach(var column in tabularTable.Columns)
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 var columnTranslation = language.Columns.FirstOrDefault(c => c.OriginalName == column.Name);
                 if (columnTranslation != null)
                 {
@@ -55,6 +61,7 @@ namespace Dax.Template.Tables
             }
             foreach (var measure in tabularTable.Measures)
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 var measureTranslation = language.Measures.FirstOrDefault(c => c.OriginalName == measure.Name);
                 if (measureTranslation != null)
                 {
@@ -66,6 +73,7 @@ namespace Dax.Template.Tables
             }
             foreach (var hierarchy in tabularTable.Hierarchies)
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 var hierarchyTranslation = language.Hierarchies.FirstOrDefault(h => h.OriginalName == hierarchy.Name);
                 if (hierarchyTranslation != null)
                 {
@@ -74,6 +82,7 @@ namespace Dax.Template.Tables
                     if (hierarchyTranslation.DisplayFolders != null) hierarchy.DisplayFolder = hierarchyTranslation.DisplayFolders;
                     foreach(var level in hierarchy.Levels)
                     {
+                        cancellationToken.ThrowIfCancellationRequested();
                         var levelTranslation = hierarchyTranslation.Levels.FirstOrDefault(l => l.OriginalName == level.Name);
                         if (levelTranslation != null)
                         {
@@ -90,7 +99,7 @@ namespace Dax.Template.Tables
             throw new NotImplementedException();
         }
 
-        protected virtual void ApplyTranslations(Table tabularTable)
+        protected virtual void ApplyTranslations(Table tabularTable, CancellationToken cancellationToken)
         {
             if (Translation == null) return;
 
@@ -100,22 +109,22 @@ namespace Dax.Template.Tables
                 var t = Translation.GetTranslationIso(Translation.DefaultIso);
                 if (t != null)
                 {
-                    RenameWithTranslation(tabularTable, t);
+                    RenameWithTranslation(tabularTable, t, cancellationToken);
                 }
             }
 
             // Apply required translations
-            Translation
-                .GetTranslations()
-                .Where(t => Translation.ApplyAllIso || Translation.ApplyIso.Contains(t.Iso))
-                .ToList()
-                .ForEach(t => AddTranslation(tabularTable, t));
+            Translation.GetTranslations().Where(t => Translation.ApplyAllIso || Translation.ApplyIso.Contains(t.Iso)).ToList().ForEach(t => 
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                AddTranslation(tabularTable, t);
+            });
         }
-        public void ApplyTemplate(Table tabularTable, bool hideTable = false)
+        public void ApplyTemplate(Table tabularTable, CancellationToken cancellationToken, bool hideTable = false)
         {
-            ApplyTemplate(tabularTable);
+            ApplyTemplate(tabularTable, cancellationToken);
 
-            ApplyTranslations(tabularTable);
+            ApplyTranslations(tabularTable, cancellationToken);
 
             if (hideTable)
             {
@@ -134,29 +143,31 @@ namespace Dax.Template.Tables
         protected IEnumerable<(SingleColumnRelationship relationshipTo, string columnName)>? FixRelationshipsTo = null;
         protected IEnumerable<(SingleColumnRelationship relationshipFrom, string columnName)>? FixRelationshipsFrom = null;
 
-        public virtual void ApplyTemplate(Table tabularTable)
+        public virtual void ApplyTemplate(Table tabularTable, CancellationToken cancellationToken)
         {
             if (templateApplied)
             {
-                ResetTabularReferences();
+                ResetTabularReferences(cancellationToken);
             }
             templateApplied = true;
 
-            SaveAffectedRelationships(tabularTable);
+            SaveAffectedRelationships(tabularTable, cancellationToken);
 
-            RemoveExistingElements(tabularTable);
+            RemoveExistingElements(tabularTable, cancellationToken);
 
-            AddPartitions(tabularTable);
+            AddPartitions(tabularTable, cancellationToken);
 
-            AddColumns(tabularTable);
+            AddColumns(tabularTable, cancellationToken);
 
-            AddHierarchies(tabularTable);
+            AddHierarchies(tabularTable, cancellationToken);
 
-            RestoreAffectedRelationships(tabularTable);
+            RestoreAffectedRelationships(tabularTable, cancellationToken);
         }
 
-        private void SaveAffectedRelationships(Table tabularTable)
+        private void SaveAffectedRelationships(Table tabularTable, CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             if (tabularTable.Model != null)
             {
                 // Save relationships
@@ -177,7 +188,7 @@ namespace Dax.Template.Tables
             }
         }
 
-        private void RestoreAffectedRelationships(Table tabularTable)
+        private void RestoreAffectedRelationships(Table tabularTable, CancellationToken cancellationToken)
         {
             if (FixRelationshipsTo != null)
             {
@@ -187,6 +198,9 @@ namespace Dax.Template.Tables
                     relationshipTo.ToColumn = column;
                 }
             }
+
+            cancellationToken.ThrowIfCancellationRequested();
+
             if (FixRelationshipsFrom != null)
             {
                 foreach (var (relationshipFrom, columnName) in FixRelationshipsFrom)
@@ -203,7 +217,7 @@ namespace Dax.Template.Tables
             return $"[{column.Name}]";
         }
 
-        protected virtual void AddColumns(Table dateTable)
+        protected virtual void AddColumns(Table dateTable, CancellationToken cancellationToken)
         {
             // Save existing columns (like calculated columns)
             var existingColumns = dateTable.Columns.Select(c => c.Clone()).ToList();
@@ -214,6 +228,7 @@ namespace Dax.Template.Tables
                 // Add the columns
                 foreach (var column in this.Columns.Where(c=>!c.IsTemporary))
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
                     column.TabularColumn = new CalculatedTableColumn
                     {
                         Name = column.Name,
@@ -271,12 +286,13 @@ namespace Dax.Template.Tables
             }
         }
 
-        protected virtual void AddHierarchies(Table dateTable)
+        protected virtual void AddHierarchies(Table dateTable, CancellationToken cancellationToken)
         {
             // Create Tabular level for hierarchies
             var levels = from h in Hierarchies from l in h.Levels select l;
             foreach (var level in levels)
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 level.TabularLevel = new TabularLevel
                 {
                     Name = level.Name,
@@ -287,6 +303,7 @@ namespace Dax.Template.Tables
             // Set the hierarchies
             foreach (var hierarchy in this.Hierarchies)
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 var tabularHierarchy = new TabularHierarchy
                 {
                     Name = hierarchy.Name,
@@ -308,8 +325,10 @@ namespace Dax.Template.Tables
             }
         }
 
-        protected virtual void RemoveExistingElements(Table dateTable)
+        protected virtual void RemoveExistingElements(Table dateTable, CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             if (RemoveExistingPartitions(dateTable))
             {
                 RemoveExistingColumns(dateTable);
@@ -342,7 +361,7 @@ namespace Dax.Template.Tables
         }
 
         protected abstract bool RemoveExistingPartitions(Table dateTable);
-        protected abstract void AddPartitions(Table dateTable);
+        protected abstract void AddPartitions(Table dateTable, CancellationToken cancellationToken);
 
     }
 }

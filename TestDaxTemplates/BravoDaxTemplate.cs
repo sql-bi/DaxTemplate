@@ -141,15 +141,15 @@ namespace TestDaxTemplates.Bravo
 
                 if (config.FirstYear != null)
                 {
-                    package.Configuration.FirstYear = (int)config.FirstYear;
-                    package.Configuration.FirstYearMin = (int)config.FirstYear;
-                    package.Configuration.FirstYearMax = (int)config.FirstYear;
+                    package.Configuration.FirstYear = config.FirstYear;
+                    package.Configuration.FirstYearMin = config.FirstYear;
+                    package.Configuration.FirstYearMax = config.FirstYear;
                 }
                 if (config.LastYear != null)
                 {
-                    package.Configuration.LastYear = (int)config.LastYear;
-                    package.Configuration.LastYearMin = (int)config.LastYear;
-                    package.Configuration.LastYearMax = (int)config.LastYear;
+                    package.Configuration.LastYear = config.LastYear;
+                    package.Configuration.LastYearMin = config.LastYear;
+                    package.Configuration.LastYearMax = config.LastYear;
                 }
                 if (config.OnlyTablesColumns?.Length > 0)
                 {

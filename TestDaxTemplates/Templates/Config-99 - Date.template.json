@@ -1,0 +1,22 @@
+{
+  "Description": "Standard calendar",
+  "Templates": [
+    {
+      "Class": "CustomDateTable",
+      "Table": "Date",
+      "ReferenceTable": "DateTemplate",
+      "Template": "DateTemplate-01.json",
+      "LocalizationFiles": [
+      ]
+    }
+  ],
+  "FirstYear": null,
+  "LastYear": null,
+  "AutoScan": "Full",
+  "OnlyTablesColumns": [],
+  "ExceptTablesColumns": [],
+  "DefaultVariables": {
+    "__FirstFiscalMonth": "4",
+    "__FirstDayOfWeek": "0"
+  }
+}

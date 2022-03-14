@@ -17,6 +17,6 @@ namespace Dax.Template.Interfaces
             public Dictionary<string, object> Properties { get; set; } = new();
         }
 
-        public TemplateEntry[] Templates { get; set; }
+        public TemplateEntry[]? Templates { get; set; }
     }
 }

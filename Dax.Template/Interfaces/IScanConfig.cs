@@ -5,8 +5,8 @@ namespace Dax.Template.Interfaces
 {
     public interface IScanConfig
     {
-        public string[] OnlyTablesColumns { get; set; }
-        public string[] ExceptTablesColumns { get; set; }
+        public string[]? OnlyTablesColumns { get; set; }
+        public string[]? ExceptTablesColumns { get; set; }
 
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public AutoScanEnum? AutoScan { get; set; }

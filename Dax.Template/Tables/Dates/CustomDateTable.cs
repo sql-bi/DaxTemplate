@@ -39,7 +39,7 @@ namespace Dax.Template.Tables.Dates
             {
                 if (model?.Tables.FirstOrDefault(t => t.Name == config.HolidaysReference?.TableName) == null)
                 {
-                    throw new TemplateException("Holidays table '{config.HolidaysReference.TableName}' not found.");
+                    throw new TemplateException($"Holidays table '{config.HolidaysReference?.TableName}' not found.");
                 }
             }
             base.InitTemplate(

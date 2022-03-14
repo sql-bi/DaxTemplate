@@ -1,4 +1,5 @@
-﻿using Dax.Template.Exceptions;
+﻿using Dax.Template.Enums;
+using Dax.Template.Exceptions;
 using Dax.Template.Extensions;
 using Dax.Template.Interfaces;
 using Dax.Template.Measures;
@@ -8,6 +9,7 @@ using Microsoft.AnalysisServices.Tabular;
 using System;
 using System.Collections;
 using System.Linq;
+using System.Threading;
 using TabularModel = Microsoft.AnalysisServices.Tabular.Model;
 
 namespace Dax.Template
@@ -19,11 +21,13 @@ namespace Dax.Template
         public Engine(Package package)
         {
             _package = package;
+
+            ApplyConfigurationDefaults();
         }
 
         public TemplateConfiguration Configuration => _package.Configuration;
 
-        public static Model.ModelChanges GetModelChanges( TabularModel model )
+        public static Model.ModelChanges GetModelChanges(TabularModel model, CancellationToken cancellationToken = default)
         {
             object? txManager = model.GetPropertyValue("TxManager");
             object? currentSavePoint = txManager?.GetPropertyValue("CurrentSavepoint");
@@ -34,6 +38,8 @@ namespace Dax.Template
                 var collection = (IEnumerable)allBodies;
                 foreach (var item in collection)
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
+
                     var owner = item?.GetPropertyValue("Owner");
                     Table? lastParent = item?.GetPropertyValue("LastParent", false) as Table;
                     Table? parent = lastParent ?? owner?.GetPropertyValue("Parent", false) as Table;
@@ -46,14 +52,13 @@ namespace Dax.Template
                     }
                 }
             }
-            modelChanges.SimplifyRemovedObjects();
+            modelChanges.SimplifyRemovedObjects(cancellationToken);
             return modelChanges;
         }
 
-        public void ApplyTemplates(TabularModel model)
+        public void ApplyTemplates(TabularModel model, CancellationToken cancellationToken)
         {
-            (string className, Action<ITemplates.TemplateEntry> action)[] classes =
-                new (string, Action<ITemplates.TemplateEntry>)[]
+            (string className, Action<ITemplates.TemplateEntry, CancellationToken> action)[] classes = new (string, Action<ITemplates.TemplateEntry, CancellationToken>)[]
             {
                 ( nameof(HolidaysDefinitionTable), ApplyHolidaysDefinitionTable ),
                 ( nameof(HolidaysTable), ApplyHolidaysTable ),
@@ -61,13 +66,17 @@ namespace Dax.Template
                 ( nameof(MeasuresTemplate), ApplyMeasuresTemplate )
             };
 
-            Configuration.Templates.ToList().ForEach(template =>
+            if (Configuration.Templates != null)
             {
-                var (className, action) = classes.First(c => c.className == template.Class);
-                action(template);
-            });
+                Configuration.Templates.ToList().ForEach(template =>
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    var (className, action) = classes.First(c => c.className == template.Class);
+                    action(template, cancellationToken);
+                });
+            }
 
-            void ApplyHolidaysDefinitionTable(ITemplates.TemplateEntry templateEntry)
+            void ApplyHolidaysDefinitionTable(ITemplates.TemplateEntry templateEntry, CancellationToken cancellationToken)
             {
                 Table tableHolidaysDefinition = model.Tables.Find(templateEntry.Table);
                 if (tableHolidaysDefinition == null)
@@ -81,10 +90,10 @@ namespace Dax.Template
                     throw new InvalidConfigurationException($"Undefined Template in class {templateEntry.Class} configuration");
                 }
                 template = new HolidaysDefinitionTable(_package.ReadDefinition<HolidaysDefinitionTable.HolidaysDefinitions>(templateEntry.Template));
-                template.ApplyTemplate(tableHolidaysDefinition, templateEntry.IsHidden);
+                template.ApplyTemplate(tableHolidaysDefinition, cancellationToken, templateEntry.IsHidden);
                 tableHolidaysDefinition.RequestRefresh(RefreshType.Full);
             }
-            void ApplyHolidaysTable(ITemplates.TemplateEntry templateEntry)
+            void ApplyHolidaysTable(ITemplates.TemplateEntry templateEntry, CancellationToken cancellationToken)
             {
                 Table tableHolidays = model.Tables.Find(templateEntry.Table);
                 if (tableHolidays == null)
@@ -94,10 +103,10 @@ namespace Dax.Template
                 }
                 CalculatedTableTemplateBase template;
                 template = new HolidaysTable(Configuration);
-                template.ApplyTemplate(tableHolidays, templateEntry.IsHidden);
+                template.ApplyTemplate(tableHolidays, cancellationToken, templateEntry.IsHidden);
                 tableHolidays.RequestRefresh(RefreshType.Full);
             }
-            void ApplyCustomDateTable(ITemplates.TemplateEntry templateEntry)
+            void ApplyCustomDateTable(ITemplates.TemplateEntry templateEntry, CancellationToken cancellationToken)
             {
                 bool translationsEnabled = !string.IsNullOrWhiteSpace(Configuration.IsoTranslation);
                 ReferenceCalculatedTable? hiddenDateTemplate = null;
@@ -116,19 +125,21 @@ namespace Dax.Template
                         templateEntry.Template,
                         model,
                         hideTable: true,
-                        isoFormat: Configuration.IsoFormat);
+                        isoFormat: Configuration.IsoFormat,
+                        cancellationToken);
                 }
                 ReferenceCalculatedTable visibleDateTemplate = CreateDateTable(
                     templateEntry.Table, 
                     templateEntry.Template, 
                     model, 
                     hideTable: templateEntry.IsHidden, 
-                    isoFormat: Configuration.IsoFormat, 
+                    isoFormat: Configuration.IsoFormat,
+                    cancellationToken,
                     referenceTable: templateEntry.ReferenceTable, 
                     applyTranslations: translationsEnabled);
 
             }
-            void ApplyMeasuresTemplate(ITemplates.TemplateEntry templateEntry)
+            void ApplyMeasuresTemplate(ITemplates.TemplateEntry templateEntry, CancellationToken cancellationToken)
             {
                 if (string.IsNullOrWhiteSpace(templateEntry.Template))
                 {
@@ -136,15 +147,16 @@ namespace Dax.Template
                 }
                 var measuresTemplateDefinition = _package.ReadDefinition<MeasuresTemplateDefinition>(templateEntry.Template);
                 var template = new MeasuresTemplate(Configuration, measuresTemplateDefinition, templateEntry.Properties);
-                template.ApplyTemplate(model);
+                template.ApplyTemplate(model, cancellationToken);
             }
         }
 
-        private Translations.Definitions ReadTranslations()
+        private Translations.Definitions ReadTranslations(CancellationToken cancellationToken)
         {
             Translations.Definitions translations = new();
-            foreach (var localizationFile in Configuration.LocalizationFiles)
+            foreach (var localizationFile in Configuration.LocalizationFiles!)
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 Translations.Definitions definitions = _package.ReadDefinition<Translations.Definitions>(localizationFile);
                 translations.Translations = translations.Translations.Union(definitions.Translations).ToArray();
             }
@@ -157,6 +169,7 @@ namespace Dax.Template
             TabularModel model, 
             bool hideTable,
             string? isoFormat,
+            CancellationToken cancellationToken,
             string? referenceTable = null, 
             bool applyTranslations = false)
         {
@@ -169,7 +182,7 @@ namespace Dax.Template
             Translations? translations = null;
             if (applyTranslations)
             {
-                translations = new(ReadTranslations());
+                translations = new(ReadTranslations(cancellationToken));
                 translations.DefaultIso = Configuration.IsoTranslation;
             }
             ReferenceCalculatedTable template;
@@ -181,11 +194,45 @@ namespace Dax.Template
                 IsoFormat = isoFormat
             };
 
-            template.ApplyTemplate(tableDate, hideTable);
+            template.ApplyTemplate(tableDate, cancellationToken, hideTable);
 
             tableDate.RequestRefresh(RefreshType.Full);
 
             return template;
+        }
+
+        private void ApplyConfigurationDefaults()
+        {
+            //
+            // ITemplates
+            //
+            Configuration.Templates ??= Array.Empty<ITemplates.TemplateEntry>();
+            //
+            // ILocalization
+            //
+            Configuration.LocalizationFiles ??= Array.Empty<string>();
+            //
+            // IScanConfig
+            //
+            Configuration.OnlyTablesColumns ??= Array.Empty<string>();
+            Configuration.ExceptTablesColumns ??= Array.Empty<string>();
+            // Add template tables to excluded tables
+            var templateTables = from item in Configuration.Templates
+                                 where !string.IsNullOrWhiteSpace(item.Table)
+                                 select item.Table;
+            Configuration.ExceptTablesColumns = Configuration.ExceptTablesColumns.Union(templateTables).Distinct().ToArray();
+            //
+            // IHolidaysConfig
+            //
+            Configuration.WorkingDays ??= "{ 2, 3, 4, 5, 6 }";
+            Configuration.InLieuOfPrefix ??= "(in lieu of ";
+            Configuration.InLieuOfSuffix ??= ")";
+            //
+            // IMeasureTemplateConfig
+            //
+            Configuration.AutoNaming ??= AutoNamingEnum.Suffix;
+            Configuration.AutoNamingSeparator ??= " ";
+            Configuration.TargetMeasures ??= Array.Empty<IMeasureTemplateConfig.TargetMeasure>();
         }
     }
 }

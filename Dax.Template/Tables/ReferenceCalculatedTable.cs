@@ -1,4 +1,5 @@
 ﻿using Dax.Template.Model;
+using System.Threading;
 
 namespace Dax.Template.Tables
 {
@@ -6,9 +7,9 @@ namespace Dax.Template.Tables
     {
         public string? HiddenTable { get; init; } 
 
-        public override string? GetDaxTableExpression(Microsoft.AnalysisServices.Tabular.Model? model)
+        public override string? GetDaxTableExpression(Microsoft.AnalysisServices.Tabular.Model? model, CancellationToken cancellationToken)
         {
-            return QuotedHiddenTable ?? base.GetDaxTableExpression(model);
+            return QuotedHiddenTable ?? base.GetDaxTableExpression(model, cancellationToken);
         }
 
         private string? QuotedHiddenTable { get

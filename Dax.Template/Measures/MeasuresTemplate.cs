@@ -9,6 +9,7 @@ using TabularModel = Microsoft.AnalysisServices.Tabular.Model;
 using TabularMeasure = Microsoft.AnalysisServices.Tabular.Measure;
 using Dax.Template.Interfaces;
 using Dax.Template.Enums;
+using System.Threading;
 
 // TODO: implement logic to match targetable based on annotations
 
@@ -80,7 +81,7 @@ namespace Dax.Template.Measures
         /// Returns the target measures for the template
         /// </summary>
         /// <returns></returns>
-        private IEnumerable<Measure> GetTargetMeasures(TabularModel model)
+        private IEnumerable<Measure> GetTargetMeasures(TabularModel model, CancellationToken cancellationToken)
         {
             if (Config.TargetMeasures == null || Config.TargetMeasures.Length == 0)
             {
@@ -93,6 +94,7 @@ namespace Dax.Template.Measures
             IEnumerable<Measure> result = Array.Empty<Measure>();
             foreach(var tm in Config.TargetMeasures)
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 result = result.Union(
                     from t in model.Tables
                     from m in t.Measures
@@ -138,9 +140,9 @@ namespace Dax.Template.Measures
             string suffix = (Config.AutoNaming == AutoNamingEnum.Suffix) ? $"{Config.AutoNamingSeparator}{templateName}" : string.Empty;
             return $"{prefix}{referenceMeasureName}{suffix}";
         }
-        public void ApplyTemplate(TabularModel model, bool overrideExistingMeasures = true)
+        public void ApplyTemplate(TabularModel model, CancellationToken cancellationToken, bool overrideExistingMeasures = true)
         {
-            var targetMeasures = GetTargetMeasures(model).ToList();
+            var targetMeasures = GetTargetMeasures(model, cancellationToken).ToList();
             var singleInstanceMeasures = Template.MeasureTemplates.Where(mt => mt.IsSingleInstance);
             var templateMeasures = Template.MeasureTemplates.Where(mt => !mt.IsSingleInstance);
 
@@ -155,7 +157,7 @@ namespace Dax.Template.Measures
                  select m).ToList();
 
             List<Measure> appliedMeasures = new();
-            Table targetTable = GetTargetTable(model);
+            Table targetTable = GetTargetTable(model, cancellationToken);
 
             Table targetTableSingleInstanceMeasures = (!string.IsNullOrEmpty(Config.TableSingleInstanceMeasures))
                 ? FindTable(model, Config.TableSingleInstanceMeasures) ?? targetTable : targetTable;
@@ -163,7 +165,8 @@ namespace Dax.Template.Measures
             // Create the individual measures of the template (not applied to single measures)
             foreach (var template in singleInstanceMeasures)
             {
-                ApplyMeasureTemplate(template, targetTableSingleInstanceMeasures, referenceMeasure: null);
+                cancellationToken.ThrowIfCancellationRequested();
+                ApplyMeasureTemplate(template, targetTableSingleInstanceMeasures, referenceMeasure: null, cancellationToken);
             }
 
             // Apply the templates to each target measure
@@ -171,7 +174,8 @@ namespace Dax.Template.Measures
             {
                 foreach (var template in templateMeasures)
                 {
-                    ApplyMeasureTemplate(template, targetTable, referenceMeasure: target);
+                    cancellationToken.ThrowIfCancellationRequested();
+                    ApplyMeasureTemplate(template, targetTable, referenceMeasure: target, cancellationToken);
                 }
             }
 
@@ -182,11 +186,12 @@ namespace Dax.Template.Measures
                 existingMeasuresFromSameTemplate.RemoveAll(m => appliedMeasures.Any(am => am.Name.Equals(m.Name)));
                 foreach (var removeMeasure in existingMeasuresFromSameTemplate)
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
                     removeMeasure.Table.Measures.Remove(removeMeasure);
                 }
             }
 
-            void ApplyMeasureTemplate(MeasuresTemplateDefinition.MeasureTemplate template, Table targetTable, Measure? referenceMeasure)
+            void ApplyMeasureTemplate(MeasuresTemplateDefinition.MeasureTemplate template, Table targetTable, Measure? referenceMeasure, CancellationToken cancellationToken)
             {
                 if (template.Name == null)
                 {
@@ -205,7 +210,7 @@ namespace Dax.Template.Measures
                     TemplateExpression = ReplaceMacros(template.GetExpression(), model),
                     ReferenceMeasure = referenceMeasure
                 };
-                var modelMeasure = measureTemplate.ApplyTemplate(model, referenceMeasure?.Parent as Table ?? targetTable, overrideExistingMeasures);
+                var modelMeasure = measureTemplate.ApplyTemplate(model, referenceMeasure?.Parent as Table ?? targetTable, cancellationToken, overrideExistingMeasures);
                 appliedMeasures.Add(modelMeasure);
             }
         }
@@ -230,6 +235,7 @@ namespace Dax.Template.Measures
                 displayFolder = regexTemplateName.Replace(displayFolder, templateName ?? string.Empty);
                 displayFolder = regexMeasureFolder.Replace(displayFolder, measure?.DisplayFolder ?? string.Empty);
                 displayFolder = regexTemplateFolder.Replace(displayFolder, templateDisplayFolder ?? string.Empty);
+                displayFolder = displayFolder.Replace(@"\\", @"\");
                 return displayFolder;
             }
         }
@@ -249,7 +255,7 @@ namespace Dax.Template.Measures
                 (from t in model.Tables
                  select t).FirstOrDefault(t => t.Name == tableName);
         }
-        private Table GetTargetTable(TabularModel model)
+        private Table GetTargetTable(TabularModel model, CancellationToken cancellationToken)
         {
             Table? targetTable = null;
             var targetTableName = Template.TargetTable.FirstOrDefault(tt => tt.Key == "Name").Value;
@@ -261,6 +267,7 @@ namespace Dax.Template.Measures
             {
                 foreach (var tt in Template.TargetTable)
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
                     var tables = MeasureTemplateBase.GetTablesFromAnnotations(model, tt.Key, tt.Value);
                     if (!tables.Any())
                     {

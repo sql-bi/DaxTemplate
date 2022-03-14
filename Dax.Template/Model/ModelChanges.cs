@@ -7,6 +7,7 @@ using TabularModel = Microsoft.AnalysisServices.Tabular.Model;
 using TabularColumn = Microsoft.AnalysisServices.Tabular.Column;
 using TabularMeasure = Microsoft.AnalysisServices.Tabular.Measure;
 using TabularHierarchy = Microsoft.AnalysisServices.Tabular.Hierarchy;
+using System.Threading;
 
 namespace Dax.Template.Model
 {
@@ -86,7 +87,7 @@ namespace Dax.Template.Model
             collection.Add(tableChanges);
             return tableChanges;
         }
-        public void AddColumn(TabularColumn column, Table? table, bool isRemoved)
+        internal void AddColumn(TabularColumn column, Table? table, bool isRemoved)
         {
             AddColumn(column, table, isRemoved ? RemovedObjects : ModifiedObjects);
         }
@@ -105,7 +106,7 @@ namespace Dax.Template.Model
             };
             tableChanges.Columns.Add(columnChanges);
         }
-        public void AddMeasure(TabularMeasure measure, Table? table, bool isRemoved)
+        internal void AddMeasure(TabularMeasure measure, Table? table, bool isRemoved)
         {
             AddMeasure(measure, table, isRemoved ? RemovedObjects : ModifiedObjects);
         }
@@ -124,7 +125,7 @@ namespace Dax.Template.Model
             };
             tableChanges.Measures.Add(measureChanges);
         }
-        public void AddHierarchy(TabularHierarchy hierarchy, Table? table, bool isRemoved)
+        internal void AddHierarchy(TabularHierarchy hierarchy, Table? table, bool isRemoved)
         {
             AddHierarchy(hierarchy, table, isRemoved ? RemovedObjects : ModifiedObjects);
         }
@@ -144,11 +145,13 @@ namespace Dax.Template.Model
             tableChanges.Hierarchies.Add(hierarchyChanges);
         }
 
-        public void SimplifyRemovedObjects()
+        internal void SimplifyRemovedObjects(CancellationToken cancellationToken = default)
         {
             var removedObjects = RemovedObjects.ToArray();
             foreach( var tableChanges in removedObjects )
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 var modifiedTable = ModifiedObjects.FirstOrDefault(t => t.Name == tableChanges.Name);
                 if (modifiedTable != null)
                 {
@@ -232,7 +235,7 @@ namespace Dax.Template.Model
             queryTablesDefinition ??= string.Empty;
 
             string daxQuery = $"{queryTablesDefinition}\r\nEVALUATE TOPNSKIP ( {previewRows}, 0, {tableExpression} )";
-            System.IO.File.WriteAllText(@"c:\temp\query.dax", daxQuery);
+            System.Diagnostics.Debug.WriteLine(daxQuery);
             if (connection.State != System.Data.ConnectionState.Open) connection.Open();
             using AdomdCommand command = new(daxQuery, connection);
             using var reader = command.ExecuteReader();
@@ -254,10 +257,12 @@ namespace Dax.Template.Model
                     : columnName;
         }
 
-        public void PopulatePreview(AdomdConnection connection, TabularModel model, int previewRows = 5)
+        public void PopulatePreview(AdomdConnection connection, TabularModel model, int previewRows = 5, CancellationToken cancellationToken = default)
         {
             foreach( var tableChanges in ModifiedObjects )
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 // table has the column definitions
                 // tableReference has the desired expression
                 var table = model.Tables[tableChanges.Name];
@@ -277,6 +282,8 @@ namespace Dax.Template.Model
                     // For each reference table prepare the expression to include in the DEFINE TABLE statement
                     foreach (var referencedTable in referencedTables)
                     {
+                        cancellationToken.ThrowIfCancellationRequested();
+
                         var modelTable = model.Tables[referencedTable.Name];
                         var referenceTableExpression = GetTableExpression(model, referencedTable, modelTable);
                         // Skip table if it is not a calculated table
@@ -294,6 +301,8 @@ namespace Dax.Template.Model
                         List<(string tableName, string expression)> innerQueryTables = new();
                         foreach (var innerTable in innerTables )
                         {
+                            cancellationToken.ThrowIfCancellationRequested();
+
                             var innerModelTable = model.Tables[innerTable.Name];
                             var innerReferenceTableExpression = GetTableExpression(model, innerTable, innerModelTable);
                             // Skip table if it is not a calculated table
