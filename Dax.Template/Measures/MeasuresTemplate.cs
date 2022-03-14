@@ -88,6 +88,7 @@ namespace Dax.Template.Measures
                 return
                     from t in model.Tables
                     from m in t.Measures
+                    where !m.Annotations.Any(a => a.Name == SQLBI_TEMPLATE_ATTRIBUTE)
                     select m;
             }
 
