@@ -5,6 +5,7 @@ using TabularModel = Microsoft.AnalysisServices.Tabular.Model;
 using Dax.Template.Syntax;
 using Column = Dax.Template.Model.Column;
 using System.Text.Json.Serialization;
+using System.Threading;
 
 namespace Dax.Template.Tables.Dates
 {
@@ -164,7 +165,7 @@ DATATABLE (
             Columns.AddRange(columns);
         }
 
-        public override string? GetDaxTableExpression(TabularModel? model)
+        public override string? GetDaxTableExpression(TabularModel? model, CancellationToken cancellationToken)
         {
             return __HolidaysDefinition.Expression;
         }
