@@ -14,6 +14,7 @@ namespace Dax.Template.Interfaces
             public string[] LocalizationFiles { get; set; } = Array.Empty<string>();
             public IMeasureTemplateConfig.TargetMeasure[] TargetMeasures { get; set; } = Array.Empty<IMeasureTemplateConfig.TargetMeasure>();
             public bool IsHidden { get; set; } = false;
+            public bool IsEnabled { get; set; } = true;
             public Dictionary<string, object> Properties { get; set; } = new();
         }
 
