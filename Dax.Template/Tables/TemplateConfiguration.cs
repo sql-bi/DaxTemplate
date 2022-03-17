@@ -20,6 +20,10 @@ namespace Dax.Template.Tables
 
         // ILocalization implementation
         public string? IsoTranslation { get; set; }
+        /// <summary>
+        /// If IsoFormat is null, there is not localization in FORMAT functions and the model language is used.
+        /// If IsoFormat is not null, it corresponds to the third argument of FORMAT functions used to generate formatted strings.
+        /// </summary>
         public string? IsoFormat { get; set; }
         public string[]? LocalizationFiles { get; set; }
 
