@@ -177,7 +177,7 @@ namespace TestDaxTemplates
         {
             string configJson = File.ReadAllText(path);
             var configUnchecked = SystemJsonSerializer.Deserialize(configJson, typeof(T));
-            if (configUnchecked is not T config) throw new Exception("Invalid configuration");
+            if (configUnchecked is not T config) throw new TemplateConfigurationException("Invalid configuration");
             return config;
         }
 
@@ -185,7 +185,7 @@ namespace TestDaxTemplates
         {
             string configJsonFilename = txtCustomTemplate.Text;
             string configJson = File.ReadAllText(configJsonFilename);
-            if (SystemJsonSerializer.Deserialize(configJson, typeof(CustomDateTemplateDefinition)) is not CustomDateTemplateDefinition config) throw new Exception("Invalid configuration");
+            if (SystemJsonSerializer.Deserialize(configJson, typeof(CustomDateTemplateDefinition)) is not CustomDateTemplateDefinition config) throw new TemplateConfigurationException("Invalid configuration");
             return config;
         }
 
@@ -193,7 +193,7 @@ namespace TestDaxTemplates
         {
             string translationsJsonFilename = txtCustomTranslation.Text;
             string translationsJson = File.ReadAllText(translationsJsonFilename);
-            if (SystemJsonSerializer.Deserialize(translationsJson, typeof(Translations.Definitions)) is not Translations.Definitions definitions) throw new Exception("Invalid translations");
+            if (SystemJsonSerializer.Deserialize(translationsJson, typeof(Translations.Definitions)) is not Translations.Definitions definitions) throw new TemplateConfigurationException("Invalid translations");
             return definitions;
         }
 
@@ -208,7 +208,7 @@ namespace TestDaxTemplates
             IHolidaysConfig config = ReadConfig<TemplateConfiguration>();
             string holidaysJsonFilename = $@"..\..\..\HolidaysDefinitionTemplate.json";
             string holidaysJson = File.ReadAllText(holidaysJsonFilename);
-            if (SystemJsonSerializer.Deserialize(holidaysJson, typeof(HolidaysDefinitionTable.HolidaysDefinitions)) is not HolidaysDefinitionTable.HolidaysDefinitions holidaysDefinition) throw new Exception("Invalid configuration");
+            if (SystemJsonSerializer.Deserialize(holidaysJson, typeof(HolidaysDefinitionTable.HolidaysDefinitions)) is not HolidaysDefinitionTable.HolidaysDefinitions holidaysDefinition) throw new TemplateConfigurationException("Invalid configuration");
             return holidaysDefinition;
         }
 
@@ -263,7 +263,7 @@ namespace TestDaxTemplates
         {
             string templateJsonFilename = @"..\..\..\Templates\TimeIntelligence-05.json";
             string templateJson = File.ReadAllText(templateJsonFilename);
-            if (SystemJsonSerializer.Deserialize(templateJson, typeof(MeasuresTemplateDefinition)) is not MeasuresTemplateDefinition measuresTemplate) throw new Exception("Invalid configuration");
+            if (SystemJsonSerializer.Deserialize(templateJson, typeof(MeasuresTemplateDefinition)) is not MeasuresTemplateDefinition measuresTemplate) throw new TemplateConfigurationException("Invalid configuration");
 
             var config = ReadConfig<TemplateConfiguration>();
             var template = new MeasuresTemplate(config, measuresTemplate,new Dictionary<string, object>());
@@ -310,7 +310,7 @@ namespace TestDaxTemplates
             string? templateSelection = comboTemplates.SelectedItem.ToString();
             if (templateSelection == null)
             {
-                throw new Exception("Template not selected");
+                throw new TemplateException("Template not selected");
             }
             return Path.Combine(txtPath.Text, $"{templateSelection}.template.json");
         }

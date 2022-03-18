@@ -1,5 +1,6 @@
 ﻿using Dax.Template;
 using Dax.Template.Enums;
+using Dax.Template.Exceptions;
 using Dax.Template.Model;
 using Microsoft.AnalysisServices.AdomdClient;
 using Microsoft.AnalysisServices.Tabular;
@@ -100,7 +101,7 @@ namespace TestDaxTemplates.Bravo
         /// <param name="commitChanges">TRUE to commit changes</param>
         /// <param name="previewRows">Number of rows to include in data preview</param>
         /// <returns>Changes applied to the model</returns>
-        /// <exception cref="Exception">Errors executing template</exception>
+        /// <exception cref="TemplateException">Errors executing template</exception>
         public static ModelChanges? ApplyTemplate(DaxTemplateConfig config, Model model, string connectionString, bool commitChanges, int previewRows = 5) 
         {
             var package = Package.LoadFromFile(config.TemplatePath);
@@ -182,12 +183,12 @@ namespace TestDaxTemplates.Bravo
                 string key = $"__{parameterName}";
                 if (!package.Configuration.DefaultVariables.ContainsKey(key))
                 {
-                    throw new Exception($"Invalid {key} variable.");
+                    throw new TemplateException($"Invalid {key} variable.");
                 }
                 string? variableValue = value.ToString();
                 if (variableValue == null)
                 {
-                    throw new Exception($"Null value for {key} variable.");
+                    throw new TemplateException($"Null value for {key} variable.");
                 }
                 package.Configuration.DefaultVariables[key] = $"{quote}{variableValue}{quote}";
             }
@@ -198,7 +199,7 @@ namespace TestDaxTemplates.Bravo
         /// </summary>
         /// <param name="path">Path to scan for template configuration files</param>
         /// <returns>Array of template configurations</returns>
-        /// <exception cref="Exception">Error retrieving template configuration</exception>
+        /// <exception cref="TemplateException">Error retrieving template configuration</exception>
         public static DaxTemplateConfig[] GetTemplates(string path)
         {
             List<DaxTemplateConfig> daxTemplateConfigs = new ();
@@ -208,7 +209,7 @@ namespace TestDaxTemplates.Bravo
                 var package = Package.LoadFromFile(templatePath);
                 if (package?.Configuration == null)
                 {
-                    throw new Exception($"Configuration {templatePath} not loaded.");
+                    throw new TemplateException($"Configuration {templatePath} not loaded.");
                 }
                 DaxTemplateConfig templateConfig = new(templatePath) {
                     Name = package.Configuration.Name,

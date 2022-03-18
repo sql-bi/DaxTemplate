@@ -8,6 +8,7 @@ using TabularColumn = Microsoft.AnalysisServices.Tabular.Column;
 using TabularMeasure = Microsoft.AnalysisServices.Tabular.Measure;
 using TabularHierarchy = Microsoft.AnalysisServices.Tabular.Hierarchy;
 using System.Threading;
+using Dax.Template.Exceptions;
 
 namespace Dax.Template.Model
 {
@@ -94,7 +95,7 @@ namespace Dax.Template.Model
         protected void AddColumn(TabularColumn column, Table? table, ICollection<TableChanges> collection)
         {
             if (column.Type == ColumnType.RowNumber) return;
-            if (table == null) throw new System.Exception("Parent table not found");
+            if (table == null) throw new TemplateException("Parent table not found");
 
             TableChanges tableChanges = AddTable(table, collection);
             if (tableChanges.Columns.Any(c => c.Name == column.Name)) return;
@@ -112,7 +113,7 @@ namespace Dax.Template.Model
         }
         protected void AddMeasure(TabularMeasure measure, Table? table, ICollection<TableChanges> collection)
         {
-            if (table == null) throw new System.Exception("Parent table not found");
+            if (table == null) throw new TemplateException("Parent table not found");
 
             TableChanges tableChanges = AddTable(table, collection);
             if (tableChanges.Measures.Any(m => m.Name == measure.Name)) return;
@@ -131,7 +132,7 @@ namespace Dax.Template.Model
         }
         protected void AddHierarchy(TabularHierarchy hierarchy, Table? table, ICollection<TableChanges> collection)
         {
-            if (table == null) throw new System.Exception("Parent table not found");
+            if (table == null) throw new TemplateException("Parent table not found");
 
             TableChanges tableChanges = AddTable(table, collection);
             if (tableChanges.Hierarchies.Any(h => h.Name == hierarchy.Name)) return;
