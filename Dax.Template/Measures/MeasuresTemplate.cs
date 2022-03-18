@@ -143,7 +143,7 @@ namespace Dax.Template.Measures
             return $"{prefix}{referenceMeasureName}{suffix}";
         }
 
-        public void ApplyTemplate(TabularModel model, bool isEnbled, CancellationToken? cancellationToken, bool overrideExistingMeasures = true)
+        public void ApplyTemplate(TabularModel model, bool isEnabled, CancellationToken? cancellationToken, bool overrideExistingMeasures = true)
         {
             // Retrieves the existing measures created by a previous execution of the same template type
             string? SqlbiTemplateValue = GetSqlbiTemplateValue();
@@ -155,7 +155,7 @@ namespace Dax.Template.Measures
                     && (string.IsNullOrEmpty(SqlbiTemplateValue) || a.Value == SqlbiTemplateValue))
                  select m).ToList();
 
-            if (!isEnbled)
+            if (!isEnabled)
             {
                 existingMeasuresFromSameTemplate.ForEach((measure) => measure.Table.Measures.Remove(measure.Name));
                 return;
