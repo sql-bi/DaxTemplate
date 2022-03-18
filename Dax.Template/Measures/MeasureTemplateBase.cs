@@ -13,7 +13,7 @@ namespace Dax.Template.Measures
 {
     public class MeasureTemplateBase: Model.Measure
     {
-        class MultipleMatchesException : Exception
+        class MultipleMatchesException : TemplateException
         {
             public string[] Matches { get; init; }
             public MultipleMatchesException( string[] matches ) : base()
@@ -21,7 +21,7 @@ namespace Dax.Template.Measures
                 Matches = matches;
             }
         }
-        class AttributeNotFoundException : Exception
+        class AttributeNotFoundException : TemplateException
         {
             public string Attribute { get; init; }
             public string? Value { get; init; }
