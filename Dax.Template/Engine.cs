@@ -79,6 +79,16 @@ namespace Dax.Template
             void ApplyHolidaysDefinitionTable(ITemplates.TemplateEntry templateEntry, CancellationToken? cancellationToken)
             {
                 Table tableHolidaysDefinition = model.Tables.Find(templateEntry.Table);
+                if (!templateEntry.IsEnabled)
+                {
+                    if (Configuration.HolidaysReference != null)
+                        Configuration.HolidaysReference.IsEnabled = false;
+
+                    if (tableHolidaysDefinition != null)
+                        model.Tables.Remove(tableHolidaysDefinition);
+
+                    return;
+                }
                 if (tableHolidaysDefinition == null)
                 {
                     tableHolidaysDefinition = new Table { Name = templateEntry.Table };
@@ -96,6 +106,16 @@ namespace Dax.Template
             void ApplyHolidaysTable(ITemplates.TemplateEntry templateEntry, CancellationToken? cancellationToken)
             {
                 Table tableHolidays = model.Tables.Find(templateEntry.Table);
+                if (!templateEntry.IsEnabled)
+                {
+                    if (Configuration.HolidaysReference != null)
+                        Configuration.HolidaysReference.IsEnabled = false;
+
+                    if (tableHolidays != null)
+                        model.Tables.Remove(tableHolidays);
+
+                    return;
+                }
                 if (tableHolidays == null)
                 {
                     tableHolidays = new Table { Name = templateEntry.Table };
@@ -108,8 +128,6 @@ namespace Dax.Template
             }
             void ApplyCustomDateTable(ITemplates.TemplateEntry templateEntry, CancellationToken? cancellationToken)
             {
-                bool translationsEnabled = !string.IsNullOrWhiteSpace(Configuration.IsoTranslation);
-                ReferenceCalculatedTable? hiddenDateTemplate = null;
                 if (string.IsNullOrWhiteSpace(templateEntry.Template))
                 {
                     throw new InvalidConfigurationException($"Undefined Template in class {templateEntry.Class} configuration");
@@ -118,9 +136,13 @@ namespace Dax.Template
                 {
                     throw new InvalidConfigurationException($"Undefined Table property in class {templateEntry.Class} configuration");
                 }
+                if (!templateEntry.IsEnabled)
+                {
+                    return;
+                }
                 if (!string.IsNullOrWhiteSpace(templateEntry.ReferenceTable))
                 {
-                    hiddenDateTemplate = CreateDateTable(
+                    ReferenceCalculatedTable hiddenDateTemplate = CreateDateTable(
                         templateEntry.ReferenceTable,
                         templateEntry.Template,
                         model,
@@ -128,6 +150,7 @@ namespace Dax.Template
                         isoFormat: Configuration.IsoFormat,
                         cancellationToken);
                 }
+                bool translationsEnabled = !string.IsNullOrWhiteSpace(Configuration.IsoTranslation);
                 ReferenceCalculatedTable visibleDateTemplate = CreateDateTable(
                     templateEntry.Table, 
                     templateEntry.Template, 
@@ -147,7 +170,7 @@ namespace Dax.Template
                 }
                 var measuresTemplateDefinition = _package.ReadDefinition<MeasuresTemplateDefinition>(templateEntry.Template);
                 var template = new MeasuresTemplate(Configuration, measuresTemplateDefinition, templateEntry.Properties);
-                template.ApplyTemplate(model, cancellationToken);
+                template.ApplyTemplate(model, templateEntry.IsEnabled, cancellationToken);
             }
         }
 

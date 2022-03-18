@@ -142,12 +142,9 @@ namespace Dax.Template.Measures
             string suffix = (Config.AutoNaming == AutoNamingEnum.Suffix) ? $"{Config.AutoNamingSeparator}{templateName}" : string.Empty;
             return $"{prefix}{referenceMeasureName}{suffix}";
         }
-        public void ApplyTemplate(TabularModel model, CancellationToken? cancellationToken, bool overrideExistingMeasures = true)
-        {
-            var targetMeasures = GetTargetMeasures(model, cancellationToken).ToList();
-            var singleInstanceMeasures = Template.MeasureTemplates.Where(mt => mt.IsSingleInstance);
-            var templateMeasures = Template.MeasureTemplates.Where(mt => !mt.IsSingleInstance);
 
+        public void ApplyTemplate(TabularModel model, bool isEnbled, CancellationToken? cancellationToken, bool overrideExistingMeasures = true)
+        {
             // Retrieves the existing measures created by a previous execution of the same template type
             string? SqlbiTemplateValue = GetSqlbiTemplateValue();
             List<Measure> existingMeasuresFromSameTemplate =
@@ -158,11 +155,21 @@ namespace Dax.Template.Measures
                     && (string.IsNullOrEmpty(SqlbiTemplateValue) || a.Value == SqlbiTemplateValue))
                  select m).ToList();
 
+            if (!isEnbled)
+            {
+                existingMeasuresFromSameTemplate.ForEach((measure) => measure.Table.Measures.Remove(measure.Name));
+                return;
+            }
+
             List<Measure> appliedMeasures = new();
             Table targetTable = GetTargetTable(model, cancellationToken);
 
             Table targetTableSingleInstanceMeasures = (!string.IsNullOrEmpty(Config.TableSingleInstanceMeasures))
                 ? FindTable(model, Config.TableSingleInstanceMeasures) ?? targetTable : targetTable;
+
+            var targetMeasures = GetTargetMeasures(model, cancellationToken).ToList();
+            var singleInstanceMeasures = Template.MeasureTemplates.Where(mt => mt.IsSingleInstance);
+            var templateMeasures = Template.MeasureTemplates.Where(mt => !mt.IsSingleInstance);
 
             // Create the individual measures of the template (not applied to single measures)
             foreach (var template in singleInstanceMeasures)
