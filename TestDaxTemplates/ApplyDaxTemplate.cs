@@ -67,6 +67,8 @@ namespace TestDaxTemplates
             if (tableHolidays == null)
             {
                 tableHolidays = new Table { Name = dateTableName };
+                if (model.Database.CompatibilityLevel >= 1540)
+                    tableHolidays.LineageTag = Guid.NewGuid().ToString();
                 model.Tables.Add(tableHolidays);
             }
             CalculatedTableTemplateBase template;
@@ -83,6 +85,8 @@ namespace TestDaxTemplates
             if (tableHolidays == null)
             {
                 tableHolidays = new Table { Name = dateTableName };
+                if (model.Database.CompatibilityLevel >= 1540)
+                    tableHolidays.LineageTag = Guid.NewGuid().ToString();
                 model.Tables.Add(tableHolidays);
             }
             CalculatedTableTemplateBase template;
@@ -99,6 +103,8 @@ namespace TestDaxTemplates
             if (tableDate == null)
             {
                 tableDate = new Table { Name = dateTableName };
+                if (model.Database.CompatibilityLevel >= 1540)
+                    tableDate.LineageTag = Guid.NewGuid().ToString();
                 model.Tables.Add(tableDate);
             }
             Translations? translations = null;
@@ -275,7 +281,7 @@ namespace TestDaxTemplates
 
             try
             {
-                template.ApplyTemplate(model, null);
+                template.ApplyTemplate(model, isEnabled: true, null);
                 model.SaveChanges();
             }
             catch (TemplateException ex)

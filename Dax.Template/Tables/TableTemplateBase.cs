@@ -245,6 +245,9 @@ namespace Dax.Template.Tables
                         SummarizeBy = AggregateFunction.None
                     };
 
+                    if (dateTable.Model.Database.CompatibilityLevel >= 1540)
+                        column.TabularColumn.LineageTag = Guid.NewGuid().ToString();
+
                     if (column.AttributeType != null)
                     {
                         column.TabularColumn.Annotations.Add(
@@ -298,6 +301,8 @@ namespace Dax.Template.Tables
                     Name = level.Name,
                     Column = level.Column.TabularColumn
                 };
+                if (dateTable.Model.Database.CompatibilityLevel >= 1540)
+                    level.TabularLevel.LineageTag = Guid.NewGuid().ToString();
             }
 
             // Set the hierarchies
@@ -310,6 +315,8 @@ namespace Dax.Template.Tables
                     IsHidden = hierarchy.IsHidden,
                     DisplayFolder = hierarchy.DisplayFolder,
                 };
+                if (dateTable.Model.Database.CompatibilityLevel >= 1540)
+                    tabularHierarchy.LineageTag = Guid.NewGuid().ToString();
                 dateTable.Hierarchies.Add(tabularHierarchy);
                 int ordinal = 0;
                 foreach (var level in hierarchy.Levels)
@@ -320,6 +327,8 @@ namespace Dax.Template.Tables
                         Column = level.Column.TabularColumn,
                         Ordinal = ordinal++
                     };
+                    if (dateTable.Model.Database.CompatibilityLevel >= 1540)
+                        tabularLevel.LineageTag = Guid.NewGuid().ToString();
                     tabularHierarchy.Levels.Add(tabularLevel);
                 }
             }

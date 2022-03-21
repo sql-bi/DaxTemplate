@@ -92,6 +92,8 @@ namespace Dax.Template
                 if (tableHolidaysDefinition == null)
                 {
                     tableHolidaysDefinition = new Table { Name = templateEntry.Table };
+                    if (model.Database.CompatibilityLevel >= 1540)
+                        tableHolidaysDefinition.LineageTag = Guid.NewGuid().ToString();
                     model.Tables.Add(tableHolidaysDefinition);
                 }
                 CalculatedTableTemplateBase template;
@@ -119,6 +121,8 @@ namespace Dax.Template
                 if (tableHolidays == null)
                 {
                     tableHolidays = new Table { Name = templateEntry.Table };
+                    if (model.Database.CompatibilityLevel >= 1540)
+                        tableHolidays.LineageTag = Guid.NewGuid().ToString();
                     model.Tables.Add(tableHolidays);
                 }
                 CalculatedTableTemplateBase template;
@@ -200,6 +204,8 @@ namespace Dax.Template
             if (tableDate == null)
             {
                 tableDate = new Table { Name = dateTableName };
+                if (model.Database.CompatibilityLevel >= 1540)
+                    tableDate.LineageTag = Guid.NewGuid().ToString();
                 model.Tables.Add(tableDate);
             }
             Translations? translations = null;
