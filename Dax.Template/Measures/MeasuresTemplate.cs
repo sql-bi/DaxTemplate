@@ -9,6 +9,7 @@ using TabularModel = Microsoft.AnalysisServices.Tabular.Model;
 using TabularMeasure = Microsoft.AnalysisServices.Tabular.Measure;
 using Dax.Template.Interfaces;
 using Dax.Template.Enums;
+using Dax.Template.Constants;
 using System.Threading;
 
 // TODO: implement logic to match targetable based on annotations
@@ -54,7 +55,6 @@ namespace Dax.Template.Measures
 
     public class MeasuresTemplate
     {
-        const string SQLBI_TEMPLATE_ATTRIBUTE = "SQLBI_Template";
         const string PROPERTY_DISPLAYFOLDERRULE = "DisplayFolderRule";
         const string PROPERTY_DISPLAYFOLDERRULESINGLEINSTANCEMEASURES = "DisplayFolderRuleSingleInstanceMeasures";
 
@@ -88,7 +88,7 @@ namespace Dax.Template.Measures
                 return
                     from t in model.Tables
                     from m in t.Measures
-                    where !m.Annotations.Any(a => a.Name == SQLBI_TEMPLATE_ATTRIBUTE)
+                    where !m.Annotations.Any(a => a.Name == Attributes.SQLBI_TEMPLATE_ATTRIBUTE)
                     select m;
             }
 
@@ -100,7 +100,7 @@ namespace Dax.Template.Measures
                     from t in model.Tables
                     from m in t.Measures
                     where m.Name == tm.Name    // TODO - modify the matching algorithm to manage wildcards and/or attributes
-                       && !m.Annotations.Any(a => a.Name == SQLBI_TEMPLATE_ATTRIBUTE)
+                       && !m.Annotations.Any(a => a.Name == Attributes.SQLBI_TEMPLATE_ATTRIBUTE)
                     select m
                 );
             }
@@ -151,7 +151,7 @@ namespace Dax.Template.Measures
                 (from t in model.Tables
                  from m in t.Measures
                  where m.Annotations.Any(a =>
-                    a.Name == SQLBI_TEMPLATE_ATTRIBUTE
+                    a.Name == Attributes.SQLBI_TEMPLATE_ATTRIBUTE
                     && (string.IsNullOrEmpty(SqlbiTemplateValue) || a.Value == SqlbiTemplateValue))
                  select m).ToList();
 
@@ -255,7 +255,7 @@ namespace Dax.Template.Measures
         /// <returns>Value of SQLBI_Template used by the current template</returns>
         private string GetSqlbiTemplateValue()
         {
-            return Template.TemplateAnnotations.FirstOrDefault(a => a.Key == SQLBI_TEMPLATE_ATTRIBUTE).Value;
+            return Template.TemplateAnnotations.FirstOrDefault(a => a.Key == Attributes.SQLBI_TEMPLATE_ATTRIBUTE).Value;
         }
 
         private static Table? FindTable(TabularModel model, string tableName)

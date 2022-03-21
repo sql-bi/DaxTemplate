@@ -95,6 +95,7 @@ namespace Dax.Template.Tables
             
             GetColumns(template, Prefixes, steps, skipColumn);
             GetHierarchies(template);
+            GetAnnotations(template);
 
             List<IDaxName> templateItems = new();
             templateItems.AddRange(steps);
@@ -142,6 +143,14 @@ namespace Dax.Template.Tables
                 };
                 hierarchy.Description = hierarchyDefinition.Description;
                 Hierarchies.Add(hierarchy);
+            });
+        }
+
+        private void GetAnnotations(CustomTemplateDefinition template)
+        { 
+            template.Annotations.ToList().ForEach(annotation =>
+            {
+                Annotations.Add(annotation.Key, annotation.Value);
             });
         }
 

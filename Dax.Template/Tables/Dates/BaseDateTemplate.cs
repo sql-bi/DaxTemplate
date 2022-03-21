@@ -8,6 +8,7 @@ using TabularModel = Microsoft.AnalysisServices.Tabular.Model;
 using Dax.Template.Exceptions;
 using System.Text.RegularExpressions;
 using Dax.Template.Interfaces;
+using Dax.Template.Constants;
 using System.Threading;
 
 namespace Dax.Template.Tables.Dates
@@ -30,24 +31,16 @@ namespace Dax.Template.Tables.Dates
                 column.IsKey = true;
             }
 
+            if (CalendarType != null)
+            {
+                string calendarTypes = string.Join(", ", CalendarType);
+                Annotations.Add(ANNOTATION_CALENDAR_TYPE, calendarTypes);
+            }
+
             base.ApplyTemplate(dateTable, cancellationToken);
 
             // Mark as Date table (Date column already set as Key)
             dateTable.DataCategory = DATACATEGORY_TIME;
-
-            if (CalendarType != null)
-            {
-                string calendarTypes = string.Join(", ", CalendarType);
-                Annotation? existingAnnotation = dateTable.Annotations.FirstOrDefault(a => a.Name == ANNOTATION_CALENDAR_TYPE);
-                if (existingAnnotation != null)
-                {
-                    existingAnnotation.Value = string.Join(", ", calendarTypes);
-                }
-                else
-                {
-                    dateTable.Annotations.Add(new Annotation { Name = ANNOTATION_CALENDAR_TYPE, Value = calendarTypes });
-                }
-            }
         }
 
         private static readonly Regex regexGetHolidayName = new(@"@@GETHOLIDAYNAME[ \r\n\t]*\(([^\)]*)\)", RegexOptions.Compiled);

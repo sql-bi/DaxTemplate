@@ -191,7 +191,9 @@ namespace Dax.Template
         }
 
         private ReferenceCalculatedTable CreateDateTable(
-            string dateTableName, 
+            string dateTableName,
+            // TODO: if existing table has a different name, we should handle the replacement
+            // string? existingDateTableName,
             string templateFilename,
             TabularModel model, 
             bool hideTable,

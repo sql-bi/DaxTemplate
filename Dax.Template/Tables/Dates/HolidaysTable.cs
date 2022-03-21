@@ -1,6 +1,7 @@
 ﻿using Microsoft.AnalysisServices.Tabular;
 using TabularModel = Microsoft.AnalysisServices.Tabular.Model;
 using Dax.Template.Syntax;
+using Dax.Template.Constants;
 using Column = Dax.Template.Model.Column;
 using Dax.Template.Interfaces;
 using System.Threading;
@@ -12,6 +13,7 @@ namespace Dax.Template.Tables.Dates
         private readonly DaxStep __HolidaysTable;
         public HolidaysTable(IHolidaysConfig config): base(config)
         {
+            Annotations.Add(Attributes.SQLBI_TEMPLATE_ATTRIBUTE, Attributes.SQLBI_TEMPLATE_HOLIDAYS);
             __HolidaysTable = new()
             {
                 Name = "__HolidayParameters",

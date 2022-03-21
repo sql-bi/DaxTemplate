@@ -5,6 +5,7 @@ using TabularModel = Microsoft.AnalysisServices.Tabular.Model;
 using Column = Dax.Template.Model.Column;
 using Dax.Template.Exceptions;
 using Dax.Template.Interfaces;
+using Dax.Template.Constants;
 
 namespace Dax.Template.Tables.Dates
 {
@@ -24,6 +25,8 @@ namespace Dax.Template.Tables.Dates
         public CustomDateTable(IDateTemplateConfig config, CustomDateTemplateDefinition template, TabularModel? model)
             : base(config, template, model)
         {
+            Annotations.Add(Attributes.SQLBI_TEMPLATE_ATTRIBUTE, Attributes.SQLBI_TEMPLATE_DATES); 
+            
             if (!string.IsNullOrWhiteSpace(template.CalendarType)) {
                 CalendarType = new string[] { template.CalendarType };
             }

@@ -73,6 +73,7 @@ namespace Dax.Template
         public RowVariable[] RowVariables { get; set; } = Array.Empty<RowVariable>();
         public Column[] Columns { get; set; } = Array.Empty<Column>();
         public Hierarchy[] Hierarchies { get; set; } = Array.Empty<Hierarchy>();
+        public Dictionary<string, string> Annotations { get; set; } = new();
         /// <summary>
         /// Define the calendar type for time intelligence calculations
         /// </summary>

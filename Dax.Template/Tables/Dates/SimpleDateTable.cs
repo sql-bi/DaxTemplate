@@ -7,6 +7,7 @@ using Hierarchy = Dax.Template.Model.Hierarchy;
 using Level = Dax.Template.Model.Level;
 using TabularModel = Microsoft.AnalysisServices.Tabular.Model;
 using Dax.Template.Extensions;
+using Dax.Template.Constants;
 
 namespace Dax.Template.Tables.Dates
 {
@@ -26,6 +27,8 @@ namespace Dax.Template.Tables.Dates
 
         public SimpleDateTable(SimpleDateTemplateConfig config, TabularModel? model ) : base( config )
         {
+            Annotations.Add(Attributes.SQLBI_TEMPLATE_ATTRIBUTE, Attributes.SQLBI_TEMPLATE_DATES);
+
             string quarterFormatPrefix = string.Concat(from c in Config.QuarterPrefix select @"\" + c);
             string fiscalYearFormatPrefix = string.Concat(from c in Config.FiscalYearPrefix select @"\" + c);
             string fiscalQuarterFormatPrefix = string.Concat(from c in Config.FiscalQuarterPrefix select @"\" + c);

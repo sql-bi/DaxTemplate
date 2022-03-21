@@ -3,6 +3,7 @@ using System.Linq;
 using Microsoft.AnalysisServices.Tabular;
 using TabularModel = Microsoft.AnalysisServices.Tabular.Model;
 using Dax.Template.Syntax;
+using Dax.Template.Constants;
 using Column = Dax.Template.Model.Column;
 using System.Text.Json.Serialization;
 using System.Threading;
@@ -89,6 +90,7 @@ namespace Dax.Template.Tables.Dates
         public HolidaysDefinitionTable(HolidaysDefinitions holidaysDefinitions)
         {
             string padding = new(' ', 8);
+            Annotations.Add(Attributes.SQLBI_TEMPLATE_ATTRIBUTE, Attributes.SQLBI_TEMPLATE_HOLIDAYS);
             __HolidaysDefinition = new()
             {
                 Name = "__HolidayParameters",

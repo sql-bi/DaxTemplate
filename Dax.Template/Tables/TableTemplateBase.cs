@@ -16,6 +16,7 @@ namespace Dax.Template.Tables
 
         public List<Column> Columns { get; set; } = new List<Column>();
         public List<Hierarchy> Hierarchies { get; set; } = new List<Hierarchy>();
+        public Dictionary<string, string> Annotations { get; set; } = new();
 
         public Translations? Translation { get; set; }
 
@@ -161,6 +162,8 @@ namespace Dax.Template.Tables
 
             AddHierarchies(tabularTable, cancellationToken);
 
+            AddAnnotations(tabularTable, cancellationToken);
+
             RestoreAffectedRelationships(tabularTable, cancellationToken);
         }
 
@@ -286,6 +289,31 @@ namespace Dax.Template.Tables
             {
                 // Restore existing columns
                 existingColumns.ForEach(c => dateTable.Columns.Add(c));
+            }
+        }
+
+        // TODO: this code is very similar to ApplyAnnotations in MeasuresTemplateBase.cs - evaluate whether we should consolidate the code in a single function
+        protected virtual void AddAnnotations(Table dateTable, CancellationToken? cancellationToken)
+        {
+            cancellationToken?.ThrowIfCancellationRequested();
+            if (Annotations == null) return;
+            foreach (var annotation in Annotations)
+            {
+                cancellationToken?.ThrowIfCancellationRequested();
+
+                var annotationName = annotation.Key;
+                var annotationValue = annotation.Value.ToString();
+
+                Annotation? tabularAnnotation = dateTable.Annotations.FirstOrDefault(a => a.Name == annotationName);
+                if (tabularAnnotation == null)
+                {
+                    tabularAnnotation = new Annotation { Name = annotationName, Value = annotationValue };
+                    dateTable.Annotations.Add(tabularAnnotation);
+                }
+                else
+                {
+                    tabularAnnotation.Value = annotationValue;
+                }
             }
         }
 
