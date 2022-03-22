@@ -69,14 +69,10 @@ namespace Dax.Template.Tables.Dates
             if (model != null)
             {
                 var scanColumns = model.GetScanColumns(Config, dataCategory: DATACATEGORY_TIME);
-                if (scanColumns != null)
-                {
-                    expression = GetMinDates(expression, scanColumns);
-                    expression = GetMaxDates(expression, scanColumns);
-                }
+                expression = GetMinDates(expression, scanColumns);
+                expression = GetMaxDates(expression, scanColumns);
                 expression = GetCalendar(expression, model);
                 expression = GetMinYear(expression, model);
-
                 expression = GetMaxYear(expression, model);
             }
             return expression;
@@ -136,29 +132,34 @@ namespace Dax.Template.Tables.Dates
                 return expression;
             }
 
-            static string GetMinDates(string expression, IEnumerable<TabularColumn> scanColumns)
+            static string GetMinDates(string expression, IEnumerable<TabularColumn>? scanColumns)
             {
                 if (regexGetMinDates.Match(expression).Success)
                 {
-                    // TODO: remove Table?.Name
-                    var listMin = string.Join(", ", scanColumns.Select(col => $"MIN ( '{col.Table?.Name}'[{col.Name}] )"));
-                    string replace = listMin.IsNullOrEmpty() ? "TODAY()" : $"MINX ( {{ {listMin} }}, ''[Value] )";
+                    string replace = "TODAY()";
+                    if (scanColumns != null)
+                    {
+                        // TODO: remove Table?.Name
+                        var listMin = string.Join(", ", scanColumns.Select(col => $"MIN ( '{col.Table?.Name}'[{col.Name}] )"));
+                        replace = listMin.IsNullOrEmpty() ? "TODAY()" : $"MINX ( {{ {listMin} }}, ''[Value] )";
+                    }
                     expression = regexGetMinDates.Replace(expression, replace);
                 }
-
                 return expression;
             }
 
-            static string GetMaxDates(string expression, IEnumerable<TabularColumn> scanColumns)
+            static string GetMaxDates(string expression, IEnumerable<TabularColumn>? scanColumns)
             {
                 if (regexGetMaxDates.Match(expression).Success)
                 {
-                    // TODO: remove Table?.Name
-                    var listMax = string.Join(", ", scanColumns.Select(col => $"MAX ( '{col.Table?.Name}'[{col.Name}] )"));
-                    string replace = listMax.IsNullOrEmpty() ? "TODAY()" : $"MAXX ( {{ {listMax} }}, ''[Value] )";
+                    string replace = "TODAY()";
+                    if (scanColumns != null) {
+                        // TODO: remove Table?.Name
+                        var listMax = string.Join(", ", scanColumns.Select(col => $"MAX ( '{col.Table?.Name}'[{col.Name}] )"));
+                        replace = listMax.IsNullOrEmpty() ? "TODAY()" : $"MAXX ( {{ {listMax} }}, ''[Value] )";
+                    }
                     expression = regexGetMaxDates.Replace(expression, replace);
                 }
-
                 return expression;
             }
 

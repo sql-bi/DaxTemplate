@@ -119,7 +119,22 @@ namespace Dax.Template.Measures
                 var scanColumns = model.GetScanColumns(Config);
                 if (scanColumns == null)
                 {
-                    throw new InvalidMacroReferenceException(matchGetMinDates.Value ?? matchGetMaxDates.Value, expression, "Invalid configuration for scan columns.");
+                    if (Config.AutoScan == AutoScanEnum.Disabled)
+                    {
+                        if (matchGetMinDates.Success)
+                        {
+                            expression = regexGetMinDates.Replace(expression, "TODAY()");
+                        }
+                        if (matchGetMaxDates.Success)
+                        {
+                            expression = regexGetMaxDates.Replace(expression, "TODAY()");
+                        }
+                        return expression;
+                    }
+                    else
+                    {
+                        throw new InvalidMacroReferenceException(matchGetMinDates.Value ?? matchGetMaxDates.Value, expression, "Invalid configuration for scan columns.");
+                    }
                 }
                 if (matchGetMinDates.Success)
                 {
