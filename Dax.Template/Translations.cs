@@ -69,7 +69,20 @@ namespace Dax.Template
 
         public Language? GetTranslationIso( string iso )
         {
-            return LanguageDefinitions.Translations.FirstOrDefault(t => t.Iso == iso); 
+            // First, search for perfect match ("it-IT" must be "it-IT", "it" must be "it")
+            var matchingTranslation = LanguageDefinitions.Translations.FirstOrDefault(t => t.Iso == iso);
+            if (matchingTranslation == null)
+            {
+                // Second, search for generic match ("it" instead of "it-IT")
+                var genericIsoLanguage = iso[..2];
+                matchingTranslation = LanguageDefinitions.Translations.FirstOrDefault(t => t.Iso == genericIsoLanguage);
+                if (matchingTranslation == null)
+                {
+                    // Third, search for the first compatible match ("it-IT" instead of "it-CH" or "it")
+                    matchingTranslation = LanguageDefinitions.Translations.FirstOrDefault(t => t.Iso?[..2] == genericIsoLanguage);
+                }
+            }
+            return matchingTranslation; 
         }
 
         public IEnumerable<Language> GetTranslations()

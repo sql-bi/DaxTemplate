@@ -1,7 +1,7 @@
 ﻿{
   "Translations": [
     {
-      "Iso": "it-IT",
+      "Iso": "it",
       "Table": {
         "OriginalName": null,
         "Name": "",
@@ -163,6 +163,174 @@
         {
           "OriginalName": "DateWithTransactions",
           "Name": "DataConTransazioni",
+          "Description": "",
+          "DisplayFolders": ""
+        }
+      ]
+    },
+    {
+      "Iso": "de",
+      "Table": {
+        "OriginalName": null,
+        "Name": "",
+        "Description": ""
+      },
+      "Hierarchies": [
+        {
+          "OriginalName": "Fiscal",
+          "Name": "Fiskalisch",
+          "Description": "",
+          "DisplayFolders": "",
+          "Levels": [
+            {
+              "OriginalName": "Year",
+              "Name": "Jahr",
+              "Description": ""
+            },
+            {
+              "OriginalName": "Quarter",
+              "Name": "Quartal",
+              "Description": ""
+            },
+            {
+              "OriginalName": "Month",
+              "Name": "Monat",
+              "Description": ""
+            }
+          ]
+        }
+      ],
+      "Columns": [
+        {
+          "OriginalName": "Date",
+          "Name": "Datum",
+          "Description": "",
+          "DisplayFolders": "",
+          "FormatString": null
+        },
+        {
+          "OriginalName": "DateKey",
+          "Name": "DatumKey",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Sequential Day Number",
+          "Name": "Laufende Tagesnummer",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Year Month",
+          "Name": "Jahr Monat",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Year Month Number",
+          "Name": "Jahr Monat Nummer",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Fiscal Year",
+          "Name": "Fiskaljahr",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Fiscal Year Number",
+          "Name": "Geschäftsjahresnummer",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Fiscal Year Quarter",
+          "Name": "Geschäftsjahresquartal",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Fiscal Year Quarter Number",
+          "Name": "Quartalsnummer des Geschäftsjahres",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Fiscal Quarter",
+          "Name": "Geschäftsquartal",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Month",
+          "Name": "Monat",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Fiscal Month Number",
+          "Name": "Geschäftsmonatsnummer",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Fiscal Month in Quarter Number",
+          "Name": "Geschäftsjahr im Quartal Nummer",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Day of Week",
+          "Name": "Wochentag",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Day of Week Number",
+          "Name": "Wochentagnummer",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Day of Month Number",
+          "Name": "Tag des Monats Nummer",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Day of Fiscal Year Number",
+          "Name": "Tag der Geschäftsjahresnummer",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Working Day",
+          "Name": "Arbeitstag",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "IsWorking",
+          "Name": "IstArbeitstag",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Working Day Value",
+          "Name": "Arbeitstag Wert",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Holiday Name",
+          "Name": "Feiertagsname",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "DateWithTransactions",
+          "Name": "DatumMitTransaktionen",
           "Description": "",
           "DisplayFolders": ""
         }
