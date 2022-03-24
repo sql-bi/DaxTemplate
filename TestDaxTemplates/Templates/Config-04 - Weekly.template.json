@@ -43,8 +43,8 @@
       ]
     }
   ],
-  "IsoTranslation": "it-IT",
-  "IsoFormat": "it-IT",
+  "IsoTranslation": "en-US",
+  "IsoFormat": "en-US",
   "LocalizationFiles": [
     "DateLocalization-04.json"
   ],
