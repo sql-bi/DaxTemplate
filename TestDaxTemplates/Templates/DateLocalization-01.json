@@ -180,6 +180,543 @@
       ]
     },
     {
+      "Iso": "fr",
+      "Table": {
+        "OriginalName": null,
+        "Name": "",
+        "Description": ""
+      },
+      "Hierarchies": [
+        {
+          "OriginalName": "Calendar",
+          "Name": "Solaire",
+          "Description": "",
+          "DisplayFolders": "",
+          "Levels": [
+            {
+              "OriginalName": "Year",
+              "Name": "An",
+              "Description": ""
+            },
+            {
+              "OriginalName": "Month",
+              "Name": "Mois",
+              "Description": ""
+            },
+            {
+              "OriginalName": "Date",
+              "Name": "Date",
+              "Description": ""
+            }
+          ]
+        },
+        {
+          "OriginalName": "Fiscal",
+          "Name": "Fiscal",
+          "Description": "",
+          "DisplayFolders": "",
+          "Levels": [
+            {
+              "OriginalName": "Year",
+              "Name": "An",
+              "Description": ""
+            },
+            {
+              "OriginalName": "Month",
+              "Name": "Mois",
+              "Description": ""
+            },
+            {
+              "OriginalName": "Date",
+              "Name": "Date",
+              "Description": ""
+            }
+          ]
+        }
+      ],
+      "Columns": [
+        {
+          "OriginalName": "Date",
+          "Name": "Date",
+          "Description": "",
+          "DisplayFolders": "",
+          "FormatString": null
+        },
+        {
+          "OriginalName": "Year",
+          "Name": "An",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Year Quarter Number",
+          "Name": "Année Trimestre Numéro",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Year Quarter",
+          "Name": "Année Trimestre",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Year Month",
+          "Name": "Année Mois",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Year Month Number",
+          "Name": "Année Mois Numéro",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Month",
+          "Name": "Mois",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Month Number",
+          "Name": "Mois Numéro",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Day of Week",
+          "Name": "Jour de la Semaine",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Day of Week Number",
+          "Name": "Jour de la Semaine Numéro",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Fiscal Year",
+          "Name": "Exercice Fiscal",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Fiscal Year Number",
+          "Name": "Exercice Fiscal Numéro",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Fiscal Year Quarter",
+          "Name": "Anno Trimestre Fiscale",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Fiscal Year Quarter Number",
+          "Name": "Exercice Fiscal Trimestre",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Fiscal Quarter",
+          "Name": "Trimestre Fiscal",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Working Day",
+          "Name": "Jour Ouvrable",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "IsWorking",
+          "Name": "Travaille",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Working Day Value",
+          "Name": "Jour Ouvrable Valeur",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Holiday Name",
+          "Name": "Festivité",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "DateWithTransactions",
+          "Name": "DateAvecTransactions",
+          "Description": "",
+          "DisplayFolders": ""
+        }
+      ]
+    },
+    {
+      "Iso": "es",
+      "Table": {
+        "OriginalName": null,
+        "Name": "",
+        "Description": ""
+      },
+      "Hierarchies": [
+        {
+          "OriginalName": "Calendar",
+          "Name": "Solar",
+          "Description": "",
+          "DisplayFolders": "",
+          "Levels": [
+            {
+              "OriginalName": "Year",
+              "Name": "Año",
+              "Description": ""
+            },
+            {
+              "OriginalName": "Month",
+              "Name": "Mes",
+              "Description": ""
+            },
+            {
+              "OriginalName": "Date",
+              "Name": "Fecha",
+              "Description": ""
+            }
+          ]
+        },
+        {
+          "OriginalName": "Fiscal",
+          "Name": "Fiscal",
+          "Description": "",
+          "DisplayFolders": "",
+          "Levels": [
+            {
+              "OriginalName": "Year",
+              "Name": "Año",
+              "Description": ""
+            },
+            {
+              "OriginalName": "Month",
+              "Name": "Mes",
+              "Description": ""
+            },
+            {
+              "OriginalName": "Date",
+              "Name": "Fecha",
+              "Description": ""
+            }
+          ]
+        }
+      ],
+      "Columns": [
+        {
+          "OriginalName": "Date",
+          "Name": "Fecha",
+          "Description": "",
+          "DisplayFolders": "",
+          "FormatString": null
+        },
+        {
+          "OriginalName": "Year",
+          "Name": "Año",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Year Quarter Number",
+          "Name": "Año Trimestre Número",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Year Quarter",
+          "Name": "Año Trimestre",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Year Month",
+          "Name": "Año Mes",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Year Month Number",
+          "Name": "Año Mes Número",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Month",
+          "Name": "Mes",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Month Number",
+          "Name": "Mes Número",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Day of Week",
+          "Name": "Día de la semana",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Day of Week Number",
+          "Name": "Número de día de la semana",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Fiscal Year",
+          "Name": "Año Fiscal",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Fiscal Year Number",
+          "Name": "Año Fiscal Número",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Fiscal Year Quarter",
+          "Name": "Trimestre del año fiscal",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Fiscal Year Quarter Number",
+          "Name": "Trimestre del Año Fiscal Número",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Fiscal Quarter",
+          "Name": "Trimestre Fiscal",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Working Day",
+          "Name": "Día de trabajo",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "IsWorking",
+          "Name": "EstáTrabajando",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Working Day Value",
+          "Name": "Valor del día laborable",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Holiday Name",
+          "Name": "Vacaciones",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "DateWithTransactions",
+          "Name": "FechaConTransacciones",
+          "Description": "",
+          "DisplayFolders": ""
+        }
+      ]
+    },
+    {
+      "Iso": "pt",
+      "Table": {
+        "OriginalName": null,
+        "Name": "",
+        "Description": ""
+      },
+      "Hierarchies": [
+        {
+          "OriginalName": "Calendar",
+          "Name": "Solar",
+          "Description": "",
+          "DisplayFolders": "",
+          "Levels": [
+            {
+              "OriginalName": "Year",
+              "Name": "Ano",
+              "Description": ""
+            },
+            {
+              "OriginalName": "Month",
+              "Name": "Mês",
+              "Description": ""
+            },
+            {
+              "OriginalName": "Date",
+              "Name": "Data",
+              "Description": ""
+            }
+          ]
+        },
+        {
+          "OriginalName": "Fiscal",
+          "Name": "Fiscal",
+          "Description": "",
+          "DisplayFolders": "",
+          "Levels": [
+            {
+              "OriginalName": "Year",
+              "Name": "Ano",
+              "Description": ""
+            },
+            {
+              "OriginalName": "Month",
+              "Name": "Mês",
+              "Description": ""
+            },
+            {
+              "OriginalName": "Date",
+              "Name": "Data",
+              "Description": ""
+            }
+          ]
+        }
+      ],
+      "Columns": [
+        {
+          "OriginalName": "Date",
+          "Name": "Data",
+          "Description": "",
+          "DisplayFolders": "",
+          "FormatString": "dd/mm/yyyy"
+        },
+        {
+          "OriginalName": "Year",
+          "Name": "Ano",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Year Quarter Number",
+          "Name": "Ano Trimestre Número",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Year Quarter",
+          "Name": "Ano Trimestre",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Year Month",
+          "Name": "Ano Mês",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Year Month Number",
+          "Name": "Ano Mês Número",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Month",
+          "Name": "Mês",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Month Number",
+          "Name": "Mês Número",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Day of Week",
+          "Name": "Dia da Semana",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Day of Week Number",
+          "Name": "Dia da Semana Número",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Fiscal Year",
+          "Name": "Ano Fiscal",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Fiscal Year Number",
+          "Name": "Ano Fiscal Número",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Fiscal Year Quarter",
+          "Name": "Ano Trimestre Fiscal",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Fiscal Year Quarter Number",
+          "Name": "Ano Trimestre Fiscal Número",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Fiscal Quarter",
+          "Name": "Trimestre Fiscal",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Working Day",
+          "Name": "Dia de Trabalho",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "IsWorking",
+          "Name": "ÉDiaDeTrabalho",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Working Day Value",
+          "Name": "Dia de Trabalho Valor",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Holiday Name",
+          "Name": "Festividade",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "DateWithTransactions",
+          "Name": "DataComTransações",
+          "Description": "",
+          "DisplayFolders": ""
+        }
+      ]
+    },
+    {
       "Iso": "de",
       "Table": {
         "OriginalName": null,
