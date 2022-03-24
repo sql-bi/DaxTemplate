@@ -116,10 +116,9 @@ namespace TestDaxTemplates
             ReferenceCalculatedTable template;
             if (chkCustomTemplate.Checked)
             {
-                template = new CustomDateTable(ReadConfig<TemplateConfiguration>(), ReadTemplateDefinition(), model)
+                template = new CustomDateTable(ReadConfig<TemplateConfiguration>(), ReadTemplateDefinition(), model, referenceTable)
                 {
                     Translation = translations,
-                    HiddenTable = referenceTable,
                     IsoFormat = useIsoFormat ? "it-IT" : null
                 };
             }

@@ -91,6 +91,7 @@ namespace Dax.Template.Tables.Dates
         {
             string padding = new(' ', 8);
             Annotations.Add(Attributes.SQLBI_TEMPLATE_ATTRIBUTE, Attributes.SQLBI_TEMPLATE_HOLIDAYS);
+            Annotations.Add(Attributes.SQLBI_TEMPLATETABLE_ATTRIBUTE, Attributes.SQLBI_TEMPLATETABLE_HOLIDAYSDEFINITION);
             __HolidaysDefinition = new()
             {
                 Name = "__HolidayParameters",

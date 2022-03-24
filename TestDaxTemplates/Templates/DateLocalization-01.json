@@ -9,6 +9,29 @@
       },
       "Hierarchies": [
         {
+          "OriginalName": "Calendar",
+          "Name": "Solare",
+          "Description": "",
+          "DisplayFolders": "",
+          "Levels": [
+            {
+              "OriginalName": "Year",
+              "Name": "Anno",
+              "Description": ""
+            },
+            {
+              "OriginalName": "Month",
+              "Name": "Mese",
+              "Description": ""
+            },
+            {
+              "OriginalName": "Date",
+              "Name": "Data",
+              "Description": ""
+            }
+          ]
+        },
+        {
           "OriginalName": "Fiscal",
           "Name": "Fiscale",
           "Description": "",
@@ -20,13 +43,13 @@
               "Description": ""
             },
             {
-              "OriginalName": "Quarter",
-              "Name": "Trimestre",
+              "OriginalName": "Month",
+              "Name": "Mese",
               "Description": ""
             },
             {
-              "OriginalName": "Month",
-              "Name": "Mese",
+              "OriginalName": "Date",
+              "Name": "Data",
               "Description": ""
             }
           ]
@@ -38,17 +61,23 @@
           "Name": "Data",
           "Description": "",
           "DisplayFolders": "",
-          "FormatString": null
+          "FormatString": "dd/mm/yyyy"
         },
         {
-          "OriginalName": "DateKey",
-          "Name": "DateKey",
+          "OriginalName": "Year",
+          "Name": "Anno",
           "Description": "",
           "DisplayFolders": ""
         },
         {
-          "OriginalName": "Sequential Day Number",
-          "Name": "Numero giorno sequenziale",
+          "OriginalName": "Year Quarter Number",
+          "Name": "Anno Trimestre Numero",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Year Quarter",
+          "Name": "Anno Trimestre",
           "Description": "",
           "DisplayFolders": ""
         },
@@ -61,6 +90,30 @@
         {
           "OriginalName": "Year Month Number",
           "Name": "Anno Mese Numero",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Month",
+          "Name": "Mese",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Month Number",
+          "Name": "Mese Numero",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Day of Week",
+          "Name": "Giorno Settimana",
+          "Description": "",
+          "DisplayFolders": ""
+        },
+        {
+          "OriginalName": "Day of Week Number",
+          "Name": "Giorno Settimana Numero",
           "Description": "",
           "DisplayFolders": ""
         },
@@ -91,48 +144,6 @@
         {
           "OriginalName": "Fiscal Quarter",
           "Name": "Trimestre Fiscale",
-          "Description": "",
-          "DisplayFolders": ""
-        },
-        {
-          "OriginalName": "Month",
-          "Name": "Mese",
-          "Description": "",
-          "DisplayFolders": ""
-        },
-        {
-          "OriginalName": "Fiscal Month Number",
-          "Name": "Mese Fiscale Numero",
-          "Description": "",
-          "DisplayFolders": ""
-        },
-        {
-          "OriginalName": "Fiscal Month in Quarter Number",
-          "Name": "Mese Fiscale in Trimestre Numero",
-          "Description": "",
-          "DisplayFolders": ""
-        },
-        {
-          "OriginalName": "Day of Week",
-          "Name": "Giorno Settimana",
-          "Description": "",
-          "DisplayFolders": ""
-        },
-        {
-          "OriginalName": "Day of Week Number",
-          "Name": "Giorno Settimana Numero",
-          "Description": "",
-          "DisplayFolders": ""
-        },
-        {
-          "OriginalName": "Day of Month Number",
-          "Name": "Giorno Mese Numero",
-          "Description": "",
-          "DisplayFolders": ""
-        },
-        {
-          "OriginalName": "Day of Fiscal Year Number",
-          "Name": "Giorno Anno Fiscale Numero",
           "Description": "",
           "DisplayFolders": ""
         },

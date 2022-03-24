@@ -22,11 +22,15 @@ namespace Dax.Template.Tables.Dates
         // TODO: this could be localized (as other column names)
         const string DATE_COLUMN_NAME = "Date";
 
-        public CustomDateTable(IDateTemplateConfig config, CustomDateTemplateDefinition template, TabularModel? model)
+        public CustomDateTable(IDateTemplateConfig config, CustomDateTemplateDefinition template, TabularModel? model, string? referenceTable = null)
             : base(config, template, model)
         {
-            Annotations.Add(Attributes.SQLBI_TEMPLATE_ATTRIBUTE, Attributes.SQLBI_TEMPLATE_DATES); 
-            
+            HiddenTable = referenceTable;
+            Annotations.Add(Attributes.SQLBI_TEMPLATE_ATTRIBUTE, Attributes.SQLBI_TEMPLATE_DATES);
+            Annotations.Add(
+                Attributes.SQLBI_TEMPLATETABLE_ATTRIBUTE, 
+                (referenceTable == null) ? Attributes.SQLBI_TEMPLATETABLE_DATEAUTOTEMPLATE : Attributes.SQLBI_TEMPLATETABLE_DATE );
+
             if (!string.IsNullOrWhiteSpace(template.CalendarType)) {
                 CalendarType = new string[] { template.CalendarType };
             }

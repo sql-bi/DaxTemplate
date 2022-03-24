@@ -14,6 +14,7 @@ namespace Dax.Template.Tables.Dates
         public HolidaysTable(IHolidaysConfig config): base(config)
         {
             Annotations.Add(Attributes.SQLBI_TEMPLATE_ATTRIBUTE, Attributes.SQLBI_TEMPLATE_HOLIDAYS);
+            Annotations.Add(Attributes.SQLBI_TEMPLATETABLE_ATTRIBUTE, Attributes.SQLBI_TEMPLATETABLE_HOLIDAYS);
             __HolidaysTable = new()
             {
                 Name = "__HolidayParameters",

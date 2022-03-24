@@ -6,6 +6,7 @@ using Column = Dax.Template.Model.Column;
 using Hierarchy = Dax.Template.Model.Hierarchy;
 using TabularHierarchy = Microsoft.AnalysisServices.Tabular.Hierarchy;
 using TabularLevel = Microsoft.AnalysisServices.Tabular.Level;
+using TabularColumn = Microsoft.AnalysisServices.Tabular.Column;
 using System.Threading;
 
 namespace Dax.Template.Tables
@@ -141,8 +142,8 @@ namespace Dax.Template.Tables
             }
         }
 
-        protected IEnumerable<(SingleColumnRelationship relationshipTo, string columnName)>? FixRelationshipsTo = null;
-        protected IEnumerable<(SingleColumnRelationship relationshipFrom, string columnName)>? FixRelationshipsFrom = null;
+        protected IEnumerable<(SingleColumnRelationship relationshipTo, string columnName, bool isKey)>? FixRelationshipsTo = null;
+        protected IEnumerable<(SingleColumnRelationship relationshipFrom, string columnName, bool isKey)>? FixRelationshipsFrom = null;
 
         public virtual void ApplyTemplate(Table tabularTable, CancellationToken? cancellationToken)
         {
@@ -180,14 +181,14 @@ namespace Dax.Template.Tables
                           where r is SingleColumnRelationship
                           select r)
                     where relationship.ToTable.Name == tabularTable.Name
-                    select (relationship, relationship.ToColumn.Name);
+                    select (relationship, relationship.ToColumn.Name, relationship.ToColumn.IsKey);
                 FixRelationshipsFrom =
                     from SingleColumnRelationship relationship in
                          (from r in tabularTable.Model.Relationships
                           where r is SingleColumnRelationship
                           select r)
                     where relationship.FromTable.Name == tabularTable.Name
-                    select (relationship, relationship.FromColumn.Name);
+                    select (relationship, relationship.FromColumn.Name, relationship.ToColumn.IsKey);
             }
         }
 
@@ -195,9 +196,9 @@ namespace Dax.Template.Tables
         {
             if (FixRelationshipsTo != null)
             {
-                foreach (var (relationshipTo, columnName) in FixRelationshipsTo)
+                foreach (var (relationshipTo, columnName, isKey) in FixRelationshipsTo)
                 {
-                    var column = tabularTable.Columns[columnName];
+                    TabularColumn column = GetColumn(isKey, columnName);
                     relationshipTo.ToColumn = column;
                 }
             }
@@ -206,11 +207,25 @@ namespace Dax.Template.Tables
 
             if (FixRelationshipsFrom != null)
             {
-                foreach (var (relationshipFrom, columnName) in FixRelationshipsFrom)
+                foreach (var (relationshipFrom, columnName, isKey) in FixRelationshipsFrom)
                 {
-                    var column = tabularTable.Columns[columnName];
+                    TabularColumn column = GetColumn(isKey, columnName);
                     relationshipFrom.FromColumn = column;
                 }
+            }
+
+            TabularColumn GetColumn(bool isKey, string columnName)
+            {
+                TabularColumn column;
+                if (isKey)
+                {
+                    column = tabularTable.Columns.First(c => c.IsKey);
+                }
+                else
+                {
+                    column = tabularTable.Columns[columnName];
+                }
+                return column;
             }
         }
 

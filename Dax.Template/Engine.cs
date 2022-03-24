@@ -218,10 +218,9 @@ namespace Dax.Template
             }
             ReferenceCalculatedTable template;
 
-            template = new CustomDateTable(Configuration, _package.ReadDefinition<CustomDateTemplateDefinition>(templateFilename), model)
+            template = new CustomDateTable(Configuration, _package.ReadDefinition<CustomDateTemplateDefinition>(templateFilename), model, referenceTable)
             {
                 Translation = translations,
-                HiddenTable = referenceTable,
                 IsoFormat = isoFormat
             };
 
