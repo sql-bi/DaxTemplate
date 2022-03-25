@@ -10,6 +10,7 @@ using System.Text.RegularExpressions;
 using Dax.Template.Interfaces;
 using Dax.Template.Constants;
 using System.Threading;
+using System.Globalization;
 
 namespace Dax.Template.Tables.Dates
 {
@@ -23,6 +24,14 @@ namespace Dax.Template.Tables.Dates
         public BaseDateTemplate(T config) : base(config) { }
         public BaseDateTemplate(T config, CustomTemplateDefinition template, TabularModel? model) : base(config, template, model) { }
         public BaseDateTemplate(T config, CustomTemplateDefinition template, Predicate<CustomTemplateDefinition.Column>? skipColumn, TabularModel? model) : base(config, template, skipColumn, model) { }
+
+        protected override string? GetDefaultFormatString(Dax.Template.Model.Column column, Microsoft.AnalysisServices.Tabular.Model model)
+        {
+            string isoCulture = string.IsNullOrWhiteSpace(IsoFormat) ? model.Culture : IsoFormat;
+            return (column.DataType == DataType.DateTime)
+                ? new CultureInfo(isoCulture).DateTimeFormat.ShortDatePattern
+                : null;
+        }
 
         public override void ApplyTemplate(Table dateTable, CancellationToken? cancellationToken)
         {

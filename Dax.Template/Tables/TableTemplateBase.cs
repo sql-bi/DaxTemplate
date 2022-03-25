@@ -235,12 +235,16 @@ namespace Dax.Template.Tables
             return $"[{column.Name}]";
         }
 
+        protected virtual string? GetDefaultFormatString( Column column, Microsoft.AnalysisServices.Tabular.Model model )  
+        {
+            return null;
+        }
+
         protected virtual void AddColumns(Table dateTable, CancellationToken? cancellationToken)
         {
             // Save existing columns (like calculated columns)
             var existingColumns = dateTable.Columns.Select(c => c.Clone()).ToList();
             dateTable.Columns.Clear();
-
             try
             {
                 // Add the columns
@@ -253,7 +257,7 @@ namespace Dax.Template.Tables
                         Description = column.Description,
                         SourceColumn = GetSourceColumnName(column),
                         DataType = column.DataType,
-                        FormatString = column.FormatString,
+                        FormatString = column.FormatString ?? GetDefaultFormatString(column, dateTable.Model),
                         IsHidden = column.IsHidden,
                         DisplayFolder = column.DisplayFolder,
                         DataCategory = column.DataCategory,
