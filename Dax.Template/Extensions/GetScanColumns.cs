@@ -97,6 +97,10 @@ namespace Dax.Template.Extensions
                 var scanRelationships = scanRelationshipsFrom.Union(scanRelationshipsTo);
                 scanColumns = (scanColumns == null) ? scanRelationships : scanColumns.Union(scanRelationships);
             }
+
+            // Remove columns that are marked as Time
+            scanColumns = scanColumns?.Where(c => !(c.Annotations.FirstOrDefault(a => a.Name == "UnderlyingDateTimeDataType")?.Value == "Time"));
+            
             return scanColumns;
         }
 
