@@ -29,7 +29,7 @@ namespace Dax.Template.Tables.Dates
         {
             string isoCulture = string.IsNullOrWhiteSpace(IsoFormat) ? model.Culture : IsoFormat;
             return (column.DataType == DataType.DateTime)
-                ? new CultureInfo(isoCulture).DateTimeFormat.ShortDatePattern
+                ? new CultureInfo(isoCulture).DateTimeFormat.ShortDatePattern.Replace('M', 'm')
                 : null;
         }
 
