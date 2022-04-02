@@ -250,6 +250,12 @@ namespace Dax.Template
             var templateTables = from item in Configuration.Templates
                                  where !string.IsNullOrWhiteSpace(item.Table)
                                  select item.Table;
+            // Add also reference table if present
+            templateTables = templateTables.Union(
+                from item in Configuration.Templates
+                where !string.IsNullOrWhiteSpace(item.ReferenceTable)
+                select item.ReferenceTable
+                );
             Configuration.ExceptTablesColumns = Configuration.ExceptTablesColumns.Union(templateTables).Distinct().ToArray();
             //
             // IHolidaysConfig
