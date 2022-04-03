@@ -8,6 +8,7 @@ using TabularHierarchy = Microsoft.AnalysisServices.Tabular.Hierarchy;
 using TabularLevel = Microsoft.AnalysisServices.Tabular.Level;
 using TabularColumn = Microsoft.AnalysisServices.Tabular.Column;
 using System.Threading;
+using Dax.Template.Constants;
 
 namespace Dax.Template.Tables
 {
@@ -307,7 +308,16 @@ namespace Dax.Template.Tables
             finally
             {
                 // Restore existing columns
-                existingColumns.ForEach(c => dateTable.Columns.Add(c));
+                existingColumns.ForEach(c => 
+                    {
+                        TabularColumn? existingColumn;
+                        while ((existingColumn = dateTable.Columns.FirstOrDefault(existingColumn => existingColumn.Name == c.Name)) != null)
+                        {
+                            c.Name = Prefixes.CONFLICT_RENAME_PREFIX + c.Name;
+                        }
+
+                        dateTable.Columns.Add(c);
+                    });
             }
         }
 
