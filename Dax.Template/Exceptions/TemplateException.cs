@@ -29,5 +29,10 @@ namespace Dax.Template.Exceptions
             : base(message)
         {
         }
+
+        public TemplateUnexpectedException(string message, Exception innerException)
+            : base(message, innerException)
+        {
+        }
     }
 }
