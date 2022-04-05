@@ -9,6 +9,7 @@ using TabularLevel = Microsoft.AnalysisServices.Tabular.Level;
 using TabularColumn = Microsoft.AnalysisServices.Tabular.Column;
 using System.Threading;
 using Dax.Template.Constants;
+using Dax.Template.Exceptions;
 
 namespace Dax.Template.Tables
 {
@@ -224,7 +225,15 @@ namespace Dax.Template.Tables
                 }
                 else
                 {
-                    column = tabularTable.Columns[columnName];
+                    try
+                    {
+                        column = tabularTable.Columns[columnName];
+                    }
+                    catch (Exception ex)
+                    {
+                        // TODO: remove try/catch after the issue has been closes https://github.com/sql-bi/DaxTemplate/issues/10
+                        throw new TemplateUnexpectedException($" *** PLEASE REPORT THIS ISSUE ON GITHUB *** { ex.Message }", ex);
+                    }
                 }
                 return column;
             }

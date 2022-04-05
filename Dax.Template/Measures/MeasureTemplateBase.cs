@@ -87,7 +87,15 @@ namespace Dax.Template.Measures
                 var clonedMeasure = measure.Clone();
                 (measure.Parent as Table)?.Measures.Remove(measure);
                 measure = clonedMeasure;
-                targetTable.Measures.Add(measure);
+                try
+                {
+                    targetTable.Measures.Add(measure);
+                }
+                catch (Exception ex)
+                {
+                    // TODO: remove try/catch after the issue has been closes https://github.com/sql-bi/DaxTemplate/issues/9
+                    throw new TemplateUnexpectedException($" *** PLEASE REPORT THIS ISSUE ON GITHUB *** { ex.Message }", ex);
+                }
             }
             measure.FormatString = FormatString ?? ReferenceMeasure?.FormatString;
             measure.IsHidden = IsHidden;
