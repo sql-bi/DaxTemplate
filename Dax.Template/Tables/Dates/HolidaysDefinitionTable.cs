@@ -98,7 +98,11 @@ namespace Dax.Template.Tables.Dates
                 Expression = $@"
 DATATABLE (
     ""ISO Country"", STRING,        -- ISO country code(to enable filter based on country)
-    ""MonthNumber"", INTEGER,       -- Number of month - use 99 for relative dates using Easter as a reference
+    ""MonthNumber"", INTEGER,       -- Number of month - use 99,98,97,96 for relative dates using an offset over special references:
+                                  --     99 = Easter (DayNumber 1 = Easter Monday, DayNumber -2 = Easter Friday)
+                                  --     98 = Swedish Midsummer Day 
+                                  --     97 = September Equinox
+                                  --     96 = March Equinox
     ""DayNumber"", INTEGER,         -- Absolute day(ignore WeekDayNumber, otherwise use 0)
     ""WeekDayNumber"", INTEGER,     -- 0 = Sunday, 1 = Monday, ... , 7 = Saturday
     ""OffsetWeek"", INTEGER,        -- 1 = first, 2 = second, ... -1 = last, -2 = second - last, ...

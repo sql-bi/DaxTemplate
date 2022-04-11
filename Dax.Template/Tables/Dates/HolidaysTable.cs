@@ -105,6 +105,14 @@ VAR __GeneratedRawWithDuplicatesUnfiltered =
             RETURN
                 DATE ( __HolidayYear, 6, 20 + (7 - WEEKDAY ( _June20, 1 ) ) )
             -- End of SwedishMidSummer calculation
+        VAR __MarchEquinoxDay =
+            INT ( 20.8431 + 0.242194 * ( __HolidayYear - 1980 ) )
+                - INT ( ( ( __HolidayYear - 1980 ) / 4 ) )
+        VAR __MarchEquinox = DATE ( __HolidayYear, 3, __MarchEquinoxDay )
+        VAR __SeptemberEquinoxDay =
+            INT ( 23.2488 + 0.242194 * ( __HolidayYear - 1980 ) )
+                - INT ( ( __HolidayYear - 1980 ) / 4 )
+        VAR __SeptemberEquinox = DATE ( __HolidayYear, 9, __SeptemberEquinoxDay )
         VAR __HolidayDate = 
             SWITCH (
                 TRUE,
@@ -116,6 +124,10 @@ VAR __GeneratedRawWithDuplicatesUnfiltered =
                     __EasterDate + '{config.HolidaysDefinitionTable}'[DayNumber],
                 '{config.HolidaysDefinitionTable}'[MonthNumber] = 98, -- Swedish Midsummer Day
                     __SwedishMidSummer + '{config.HolidaysDefinitionTable}'[DayNumber],
+                '{config.HolidaysDefinitionTable}'[MonthNumber] = 97, -- September Equinox
+                    __MarchEquinox + '{config.HolidaysDefinitionTable}'[DayNumber],
+                '{config.HolidaysDefinitionTable}'[MonthNumber] = 96, -- March Equinox
+                    __SeptemberEquinox + '{config.HolidaysDefinitionTable}'[DayNumber],
                 '{config.HolidaysDefinitionTable}'[WeekDayNumber] <> 0,
                     VAR _ReferenceDate =
                         DATE ( __HolidayYear, 1
