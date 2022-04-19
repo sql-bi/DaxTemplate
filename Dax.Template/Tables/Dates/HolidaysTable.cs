@@ -125,9 +125,9 @@ VAR __GeneratedRawWithDuplicatesUnfiltered =
                 '{config.HolidaysDefinitionTable}'[MonthNumber] = 98, -- Swedish Midsummer Day
                     __SwedishMidSummer + '{config.HolidaysDefinitionTable}'[DayNumber],
                 '{config.HolidaysDefinitionTable}'[MonthNumber] = 97, -- September Equinox
-                    __MarchEquinox + '{config.HolidaysDefinitionTable}'[DayNumber],
-                '{config.HolidaysDefinitionTable}'[MonthNumber] = 96, -- March Equinox
                     __SeptemberEquinox + '{config.HolidaysDefinitionTable}'[DayNumber],
+                '{config.HolidaysDefinitionTable}'[MonthNumber] = 96, -- March Equinox
+                    __MarchEquinox + '{config.HolidaysDefinitionTable}'[DayNumber],
                 '{config.HolidaysDefinitionTable}'[WeekDayNumber] <> 0,
                     VAR _ReferenceDate =
                         DATE ( __HolidayYear, 1
