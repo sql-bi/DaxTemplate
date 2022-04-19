@@ -213,7 +213,7 @@ namespace Dax.Template.Model
                 var table = model.Tables[tableName];
                 string columns = string.Join(
                     ",\r\n    ",
-                    table.Columns.Select(column => $"\"'{PREVIEW_PREFIX}{varName}'[{column.Name}]\", [{column.Name}]"));
+                    table.Columns.Where(c => c.Type != ColumnType.RowNumber).Select(column => $"\"'{PREVIEW_PREFIX}{varName}'[{column.Name}]\", [{column.Name}]"));
                 var renamedTableExpression = $"SELECTCOLUMNS (\r\n    {tableExpression},\r\n    {columns}\r\n)";
                 return renamedTableExpression;
             }
