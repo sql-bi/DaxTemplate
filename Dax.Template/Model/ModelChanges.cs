@@ -214,7 +214,7 @@ namespace Dax.Template.Model
                 string columns = string.Join(
                     ",\r\n    ",
                     table.Columns.Where(c => c.Type != ColumnType.RowNumber).Select(column => $"\"'{PREVIEW_PREFIX}{varName}'[{column.Name}]\", [{column.Name}]"));
-                var renamedTableExpression = $"SELECTCOLUMNS (\r\n    {tableExpression},\r\n    {columns}\r\n)";
+                var renamedTableExpression = $"SELECTCOLUMNS (\r\n    {tableExpression}\r\n    ,\r\n    {columns}\r\n)";
                 return renamedTableExpression;
             }
 
@@ -360,7 +360,7 @@ namespace Dax.Template.Model
                     return result;
                 }));
                 var internalTableNames = previewQueryTables.Select(qt => qt.tableName).ToArray();
-                var previewQuery = $"SELECTCOLUMNS (\r\n    {RenameTableReferences(tableExpression, internalTableNames)},\r\n    {columns}\r\n)";
+                var previewQuery = $"SELECTCOLUMNS (\r\n    {RenameTableReferences(tableExpression, internalTableNames)}\r\n    ,\r\n    {columns}\r\n)";
                 string queryTablesDefinition = GetQueryTablesDefinition(model, previewQueryTables);
                 tableChanges.Preview = GetPreviewData(connection, previewQuery, previewRows, queryTablesDefinition);
             }
