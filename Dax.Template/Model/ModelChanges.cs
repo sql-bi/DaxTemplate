@@ -347,10 +347,15 @@ namespace Dax.Template.Model
                         sourceColumn = $"[{sourceColumn}]";
                     }
                     sourceColumn = sourceColumn[sourceColumn.IndexOf('[')..];
-                    string columnExpression =
-                        (!string.IsNullOrWhiteSpace(calcColumn?.FormatString))
-                        ? $"FORMAT( {sourceColumn}, \"{calcColumn.FormatString}\" )"
-                        : sourceColumn;
+
+                    var columnExpression = sourceColumn;
+                    if (!string.IsNullOrWhiteSpace(calcColumn?.FormatString))
+                    {
+                        // Escape double quotes i.e. a user-defined format expression like "POSITIVE";"NEGATIVE";"ZERO" should be escaped to ""POSITIVE"";""NEGATIVE"";""ZERO""
+                        var escapedFormatString = calcColumn.FormatString.Replace("\"", "\"\"");
+                        columnExpression = $"FORMAT( {sourceColumn}, \"{escapedFormatString}\" )";
+                    }
+                    
                     string result = $"\"{column.Name}\", {columnExpression}";
                     return result;
                 }));
