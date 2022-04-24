@@ -200,20 +200,40 @@ namespace Dax.Template.Model
             string AddInnerVar(List<(string tableName, string expression)> innerTables)
             {
                 var internalTableNames = innerTables.Select(qt => qt.tableName).ToArray();
-                var varDefinitions =
-                    from it in innerTables
-                    select $"VAR {PREVIEW_PREFIX}{it.tableName} =\r\n{RenameColumns(it.tableName, RenameTableReferences(it.expression, internalTableNames))}";
+                var varDefinitions = innerTables.Select((it, index) =>
+                {
+                    var varName = TableNameToVarName(it.tableName, index);
+                    return $"VAR {PREVIEW_PREFIX}{varName} =\r\n{RenameColumns(it.tableName, varName, RenameTableReferences(it.expression, internalTableNames))}";
+                });
                 return varDefinitions.Any() ? $"{string.Join("\r\n", varDefinitions)}\r\nRETURN\r\n" : string.Empty;
             }
 
-            string RenameColumns(string tableName, string tableExpression)
+            string RenameColumns(string tableName, string varName, string tableExpression)
             {
                 var table = model.Tables[tableName];
                 string columns = string.Join(
                     ",\r\n    ",
-                    table.Columns.Select(column => $"\"'{PREVIEW_PREFIX}{tableName}'[{column.Name}]\", [{column.Name}]"));
-                var renamedTableExpression = $"SELECTCOLUMNS (\r\n    {tableExpression},\r\n    {columns}\r\n)";
+                    table.Columns.Where(c => c.Type != ColumnType.RowNumber).Select(column => $"\"'{PREVIEW_PREFIX}{varName}'[{column.Name}]\", [{column.Name}]"));
+                var renamedTableExpression = $"SELECTCOLUMNS (\r\n    {tableExpression}\r\n    ,\r\n    {columns}\r\n)";
                 return renamedTableExpression;
+            }
+
+            static string TableNameToVarName(string tableName, int index)
+            {
+                // https://docs.microsoft.com/it-it/dax/var-dax#parameters
+                var allowedChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".ToCharArray();
+                var varName = tableName.Replace(" ", "_");
+
+                foreach (var currentChar in varName.ToCharArray())
+                {
+                    if (!allowedChars.Contains(currentChar))
+                        varName = varName.Replace(currentChar, '_');
+                }
+
+                if (varName != tableName)
+                    varName += $"{ index }"; // if value is changed add unique index to ensure uniqueness 
+
+                return varName;
             }
         }
         
@@ -327,15 +347,20 @@ namespace Dax.Template.Model
                         sourceColumn = $"[{sourceColumn}]";
                     }
                     sourceColumn = sourceColumn[sourceColumn.IndexOf('[')..];
-                    string columnExpression =
-                        (!string.IsNullOrWhiteSpace(calcColumn?.FormatString))
-                        ? $"FORMAT( {sourceColumn}, \"{calcColumn.FormatString}\" )"
-                        : sourceColumn;
+
+                    var columnExpression = sourceColumn;
+                    if (!string.IsNullOrWhiteSpace(calcColumn?.FormatString))
+                    {
+                        // Escape double quotes i.e. a user-defined format expression like "POSITIVE";"NEGATIVE";"ZERO" should be escaped to ""POSITIVE"";""NEGATIVE"";""ZERO""
+                        var escapedFormatString = calcColumn.FormatString.Replace("\"", "\"\"");
+                        columnExpression = $"FORMAT( {sourceColumn}, \"{escapedFormatString}\" )";
+                    }
+                    
                     string result = $"\"{column.Name}\", {columnExpression}";
                     return result;
                 }));
                 var internalTableNames = previewQueryTables.Select(qt => qt.tableName).ToArray();
-                var previewQuery = $"SELECTCOLUMNS (\r\n    {RenameTableReferences(tableExpression, internalTableNames)},\r\n    {columns}\r\n)";
+                var previewQuery = $"SELECTCOLUMNS (\r\n    {RenameTableReferences(tableExpression, internalTableNames)}\r\n    ,\r\n    {columns}\r\n)";
                 string queryTablesDefinition = GetQueryTablesDefinition(model, previewQueryTables);
                 tableChanges.Preview = GetPreviewData(connection, previewQuery, previewRows, queryTablesDefinition);
             }
