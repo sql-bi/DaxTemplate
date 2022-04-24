@@ -291,10 +291,16 @@ namespace Dax.Template.Model
                 // Skip table if it is not a calculated table
                 if (tableExpression == null) continue;
 
+                // Skip table if there are no changes in columns, because it is an original calculated column not modified by the template
+                // (we ignore measures and hierarchies for the preview dependencies)
+                if (!tableChanges.Columns.Any()) continue;
+
                 // Search dependencies on other modified tables
                 var referencedTables =
                     from t in ModifiedObjects
-                    where t != tableChanges && tableExpression.Contains($"'{t.Name}'")
+                    where t != tableChanges 
+                       && tableExpression.Contains($"'{t.Name}'")
+                       && t.Columns.Any() // Ignore calculated tables without columns modified by the template
                     select t;
 
                 List<(string tableName, string expression, List<(string tableName, string expression)> innerTables)> previewQueryTables = new();
@@ -317,6 +323,7 @@ namespace Dax.Template.Model
                             where t != tableChanges 
                                 && t != referencedTable
                                 && referenceTableExpression.Contains($"'{t.Name}'")
+                                && t.Columns.Any() // Ignore calculated tables without columns modified by the template
                             select t;
 
                         List<(string tableName, string expression)> innerQueryTables = new();
