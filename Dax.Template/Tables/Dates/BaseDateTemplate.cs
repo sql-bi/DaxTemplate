@@ -33,6 +33,13 @@ namespace Dax.Template.Tables.Dates
                 : null;
         }
 
+        protected override bool IsRelationshipToSaveAndRestore(SingleColumnRelationship relationship)
+        {
+            // Only preserve relationships on DateTime columns
+            return relationship.FromColumn.DataType == DataType.DateTime
+                   && relationship.ToColumn.DataType == DataType.DateTime;
+        }
+
         public override void ApplyTemplate(Table dateTable, CancellationToken? cancellationToken)
         {
             foreach (var column in Columns.Where(c => c is Model.DateColumn))

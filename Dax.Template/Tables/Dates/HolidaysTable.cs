@@ -335,8 +335,10 @@ VAR __Generated =
                 & __InLieuOfSuffix
         )
     )
+VAR __GeneratedValidDates =
+    FILTER ( __Generated, [Holiday Date] > 2 )
 RETURN
-    __Generated"
+    __GeneratedValidDates"
             };
 
             Column[] columns = {

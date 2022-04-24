@@ -345,7 +345,9 @@ namespace Dax.Template.Model
                     }
                 }
 
-                string columns = string.Join(",\r\n    ", table.Columns.Where(column => column.Type != ColumnType.RowNumber).Select(column =>
+                string columns = string
+                    .Join(",\r\n    ", table.Columns.Where(column => column.Type != ColumnType.RowNumber && column.Type != ColumnType.Calculated)
+                    .Select(column =>
                 {
                     var calcColumn = column as CalculatedTableColumn;
                     var sourceColumn = calcColumn?.SourceColumn ?? column.Name;

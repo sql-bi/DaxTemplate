@@ -147,6 +147,11 @@ namespace Dax.Template.Tables
         protected IEnumerable<(SingleColumnRelationship relationshipTo, string columnName, bool isKey)>? FixRelationshipsTo = null;
         protected IEnumerable<(SingleColumnRelationship relationshipFrom, string columnName, bool isKey)>? FixRelationshipsFrom = null;
 
+        protected virtual bool IsRelationshipToSaveAndRestore(SingleColumnRelationship relationship)
+        {
+            return true;
+        }
+
         public virtual void ApplyTemplate(Table tabularTable, CancellationToken? cancellationToken)
         {
             if (templateApplied)
@@ -182,7 +187,8 @@ namespace Dax.Template.Tables
                          (from r in tabularTable.Model.Relationships
                           where r is SingleColumnRelationship
                           select r)
-                    where relationship.ToTable.Name == tabularTable.Name
+                    where relationship.ToTable.Name == tabularTable.Name 
+                       && IsRelationshipToSaveAndRestore( relationship )
                     select (relationship, relationship.ToColumn.Name, relationship.ToColumn.IsKey);
                 FixRelationshipsFrom =
                     from SingleColumnRelationship relationship in
@@ -190,6 +196,7 @@ namespace Dax.Template.Tables
                           where r is SingleColumnRelationship
                           select r)
                     where relationship.FromTable.Name == tabularTable.Name
+                       && IsRelationshipToSaveAndRestore(relationship)
                     select (relationship, relationship.FromColumn.Name, relationship.ToColumn.IsKey);
             }
         }
