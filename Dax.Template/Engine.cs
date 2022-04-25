@@ -74,6 +74,32 @@ namespace Dax.Template
                     var (className, action) = classes.First(c => c.className == template.Class);
                     action(template, cancellationToken);
                 });
+
+                RemoveOrphanTranslations();
+            }
+
+            void RemoveOrphanTranslations()
+            {
+                foreach (var culture in model.Cultures)
+                {
+                    var orphanTranslations = culture.ObjectTranslations.Where((t) => t.Object.IsRemoved).ToArray();
+                    foreach (var translation in orphanTranslations)
+                    {
+                        culture.ObjectTranslations.Remove(translation);
+                    }
+                }
+
+                var orphanRelationships = model.Relationships.Where(
+                    (r) =>
+                        r.FromTable.IsRemoved
+                        || r.ToTable.IsRemoved
+                        || (r is SingleColumnRelationship scr && (scr.FromColumn.IsRemoved || scr.ToColumn.IsRemoved))
+                    ).ToArray();
+
+                foreach (var relationship in orphanRelationships)
+                {
+                    model.Relationships.Remove(relationship);
+                }
             }
 
             void ApplyHolidaysDefinitionTable(ITemplates.TemplateEntry templateEntry, CancellationToken? cancellationToken)
