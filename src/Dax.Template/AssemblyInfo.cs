@@ -2,7 +2,7 @@ using System;
 using System.Runtime.CompilerServices;
 
 #if SIGNED
-[assembly: InternalsVisibleTo("Dax.Template.Tests, PublicKey=TODO")]
+[assembly: InternalsVisibleTo("Dax.Template.Tests, PublicKey=002400000480000094000000060200000024000052534131000400000100010039665474541e22abe13943b14b31bc8af889efb4e8f4c121b3972aece355b441903e0f40cd077752e6843385806db630730d03a4d6127f5ca13e5b2770989f5da7e66ba79d02212c6cd647e40eff4a72aa51def4fcc40c8170779f5d028531a9982d62adf5448b300f19d756a7222a9154abde0339b47e48211a4499112016c9")]
 #else
 [assembly: InternalsVisibleTo("Dax.Template.Tests")]
 #endif
