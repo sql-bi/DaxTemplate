@@ -2,10 +2,10 @@ name: CI
 on:
   push:
     branches:
-      - master
+      - main
   pull_request:
     branches:
-      - master
+      - main
   workflow_dispatch:
 env:
   CONFIGURATION: 'Release'
@@ -29,6 +29,6 @@ jobs:
       - name: .NET build
         run: dotnet build ./src/Dax.Template.sln --configuration ${{ env.CONFIGURATION }} --no-restore
       - name: .NET test
-        run: dotnet test ./src/Dax.Template.Tests/Dax.Formatter.Tests.csproj --configuration ${{ env.CONFIGURATION }} --no-build --verbosity normal
+        run: dotnet test ./src/Dax.Template.Tests/Dax.Template.Tests.csproj --configuration ${{ env.CONFIGURATION }} --no-build --verbosity normal
       - name: .NET pack
         run: dotnet pack ./src/Dax.Template/Dax.Template.csproj --configuration ${{ env.CONFIGURATION }} --no-build --no-restore --verbosity normal
