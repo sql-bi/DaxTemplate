@@ -21,6 +21,5 @@ namespace Dax.Template.Extensions
             }
             return result;
         }
-
     }
 }

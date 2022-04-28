@@ -36,6 +36,5 @@ namespace Dax.Template.Tables
         {
             return $"{QuotedHiddenTable ?? string.Empty}[{column.Name}]";
         }
-
     }
 }

@@ -45,7 +45,6 @@ namespace Dax.Template.Model
             public ColumnChanges(string name) : base(name) { }
             public bool IsHidden { get; set; }
             public string? DataType { get; set; }
-
         }
         public class MeasureChanges : ItemChanges
         {
@@ -175,7 +174,6 @@ namespace Dax.Template.Model
                 {
                     removedItems.Remove(removedItem);
                 }
-
             }
         }
         private const string PREVIEW_PREFIX = "__PREVIEW__";

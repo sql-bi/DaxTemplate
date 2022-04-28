@@ -24,7 +24,6 @@ namespace Dax.Template.Tables.Dates
         //// TODO: this could be localized (as other column names)
         const string DATE_COLUMN_NAME = "Date";
 
-
         public SimpleDateTable(SimpleDateTemplateConfig config, TabularModel? model ) : base( config )
         {
             Annotations.Add(Attributes.SQLBI_TEMPLATE_ATTRIBUTE, Attributes.SQLBI_TEMPLATE_DATES);
@@ -197,6 +196,5 @@ namespace Dax.Template.Tables.Dates
             IEnumerable<IDaxName>? stepsVariablesColumns = ((IDaxName[])variables).Union(steps).Union(columns);
             stepsVariablesColumns.AddDependenciesFromExpression();
         }
-
     }
 }

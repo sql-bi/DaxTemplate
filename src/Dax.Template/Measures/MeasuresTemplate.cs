@@ -52,7 +52,6 @@ namespace Dax.Template.Measures
         public MeasureTemplate[] MeasureTemplates { get; set;} = Array.Empty<MeasureTemplate>();
     }
 
-
     public class MeasuresTemplate
     {
         const string PROPERTY_DISPLAYFOLDERRULE = "DisplayFolderRule";

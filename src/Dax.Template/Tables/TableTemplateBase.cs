@@ -246,7 +246,6 @@ namespace Dax.Template.Tables
             }
         }
 
-
         protected virtual string GetSourceColumnName(Column column)
         {
             return $"[{column.Name}]";

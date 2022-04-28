@@ -103,6 +103,5 @@ namespace Dax.Template.Extensions
             
             return scanColumns;
         }
-
     }
 }

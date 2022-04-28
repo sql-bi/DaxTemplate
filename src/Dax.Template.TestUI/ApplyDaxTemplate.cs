@@ -373,7 +373,6 @@ namespace Dax.Template.TestUI
                 templateEngine.ApplyTemplates(model, null);
                 var modelChanges = Engine.GetModelChanges(model);
 
-
                 if (commitChanges)
                 {
                     model.SaveChanges();

@@ -73,7 +73,6 @@ namespace Dax.Template.Measures
                  select m).FirstOrDefault(m => m.Name == measureName);
         }
 
-
         public virtual TabularMeasure ApplyTemplate(TabularModel model, Table targetTable, CancellationToken? cancellationToken, bool overrideExistingMeasure = true)
         {
             var measure = FindMeasure(model, Name);
@@ -233,7 +232,6 @@ namespace Dax.Template.Measures
             string result = string.Join(", ", tables.Select(t => $"'{t.Name}'"));
             return result;
         }
-
 
         private static string? FindColumnsList(TabularModel model, string attribute, string? value)
         {

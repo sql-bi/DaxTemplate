@@ -56,7 +56,6 @@ namespace Dax.Template.TestUI.Bravo
             [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
             [JsonConverter(typeof(JsonStringEnumConverter))]
             public WeeklyTypeEnum? WeeklyType { get; set; }
-
         }
 
         public DaxTemplateConfig(string templatePath)
