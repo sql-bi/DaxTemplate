@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dax.Template", "Dax.Templat
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dax.Template.TestUI", "Dax.Template.TestUI\Dax.Template.TestUI.csproj", "{59CB9130-6643-4C25-8A4D-E808F1271AAE}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dax.Template.Tests", "Dax.Template.Tests\Dax.Template.Tests.csproj", "{7429EC2C-81D9-42E2-8D69-D5CD729BD503}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{59CB9130-6643-4C25-8A4D-E808F1271AAE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{59CB9130-6643-4C25-8A4D-E808F1271AAE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{59CB9130-6643-4C25-8A4D-E808F1271AAE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7429EC2C-81D9-42E2-8D69-D5CD729BD503}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7429EC2C-81D9-42E2-8D69-D5CD729BD503}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7429EC2C-81D9-42E2-8D69-D5CD729BD503}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7429EC2C-81D9-42E2-8D69-D5CD729BD503}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
