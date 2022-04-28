@@ -1,4 +1,4 @@
-using Microsoft.AnalysisServices.Tabular;
+using TOM = Microsoft.AnalysisServices.Tabular;
 using Microsoft.Extensions.Configuration;
 using Dax.Template;
 using Dax.Template.Tables;
@@ -30,10 +30,10 @@ namespace Dax.Template.TestUI
             //       the hidden table name does not require a quoted identifier
             string dateTableNameTemplate = "DateAutoTemplate";
             string dateTableName = "Date";
-            Server server = new();
+            TOM.Server server = new();
             server.Connect(txtServer.Text);
-            Database db = server.Databases[txtDatabase.Text];
-            Model model = db.Model;
+            TOM.Database db = server.Databases[txtDatabase.Text];
+            TOM.Model model = db.Model;
 
             try
             {
@@ -61,12 +61,12 @@ namespace Dax.Template.TestUI
             MessageBox.Show($"Applied template {dateTableNameTemplate}");
         }
 
-        private CalculatedTableTemplateBase CreateHolidaysDefinitionTable(string dateTableName, Model model, bool hideTable)
+        private CalculatedTableTemplateBase CreateHolidaysDefinitionTable(string dateTableName, TOM.Model model, bool hideTable)
         {
-            Table tableHolidays = model.Tables.Find(dateTableName);
+            TOM.Table tableHolidays = model.Tables.Find(dateTableName);
             if (tableHolidays == null)
             {
-                tableHolidays = new Table { Name = dateTableName };
+                tableHolidays = new TOM.Table { Name = dateTableName };
                 if (model.Database.CompatibilityLevel >= 1540)
                     tableHolidays.LineageTag = Guid.NewGuid().ToString();
                 model.Tables.Add(tableHolidays);
@@ -74,17 +74,17 @@ namespace Dax.Template.TestUI
             CalculatedTableTemplateBase template;
             template = new HolidaysDefinitionTable(ReadHolidaysDefinitionConfig());
             template.ApplyTemplate(tableHolidays, null, hideTable);
-            tableHolidays.RequestRefresh(RefreshType.Full);
+            tableHolidays.RequestRefresh(TOM.RefreshType.Full);
 
             return template;
         }
 
-        private CalculatedTableTemplateBase CreateHolidaysTable(string dateTableName, Model model, bool hideTable)
+        private CalculatedTableTemplateBase CreateHolidaysTable(string dateTableName, TOM.Model model, bool hideTable)
         {
-            Table tableHolidays = model.Tables.Find(dateTableName);
+            TOM.Table tableHolidays = model.Tables.Find(dateTableName);
             if (tableHolidays == null)
             {
-                tableHolidays = new Table { Name = dateTableName };
+                tableHolidays = new TOM.Table { Name = dateTableName };
                 if (model.Database.CompatibilityLevel >= 1540)
                     tableHolidays.LineageTag = Guid.NewGuid().ToString();
                 model.Tables.Add(tableHolidays);
@@ -92,17 +92,17 @@ namespace Dax.Template.TestUI
             CalculatedTableTemplateBase template;
             template = new HolidaysTable(ReadConfig<TemplateConfiguration>());
             template.ApplyTemplate(tableHolidays, null, hideTable);
-            tableHolidays.RequestRefresh(RefreshType.Full);
+            tableHolidays.RequestRefresh(TOM.RefreshType.Full);
 
             return template;
         }
 
-        private ReferenceCalculatedTable CreateDateTable(string dateTableName, Model model, bool hideTable, string? referenceTable = null, bool useIsoFormat = false, bool applyTranslations = false)
+        private ReferenceCalculatedTable CreateDateTable(string dateTableName, TOM.Model model, bool hideTable, string? referenceTable = null, bool useIsoFormat = false, bool applyTranslations = false)
         {
-            Table tableDate = model.Tables.Find(dateTableName);
+            TOM.Table tableDate = model.Tables.Find(dateTableName);
             if (tableDate == null)
             {
-                tableDate = new Table { Name = dateTableName };
+                tableDate = new TOM.Table { Name = dateTableName };
                 if (model.Database.CompatibilityLevel >= 1540)
                     tableDate.LineageTag = Guid.NewGuid().ToString();
                 model.Tables.Add(tableDate);
@@ -132,7 +132,7 @@ namespace Dax.Template.TestUI
 
             template.ApplyTemplate(tableDate, null, hideTable);
 
-            tableDate.RequestRefresh(RefreshType.Full);
+            tableDate.RequestRefresh(TOM.RefreshType.Full);
 
             return template;
         }
@@ -233,10 +233,10 @@ namespace Dax.Template.TestUI
             //       the hidden table name does not require a quoted identifier
             string holidaysDefinitionTemplateName = config.HolidaysDefinitionTable ?? "HolidaysDefinition";
             string holidaysTemplateName = config.HolidaysReference?.TableName ?? "Holidays";
-            Server server = new();
+            TOM.Server server = new();
             server.Connect(txtServer.Text);
-            Database db = server.Databases[txtDatabase.Text];
-            Model model = db.Model;
+            TOM.Database db = server.Databases[txtDatabase.Text];
+            TOM.Model model = db.Model;
 
             try
             {
@@ -273,10 +273,10 @@ namespace Dax.Template.TestUI
             var config = ReadConfig<TemplateConfiguration>();
             var template = new MeasuresTemplate(config, measuresTemplate,new Dictionary<string, object>());
 
-            Server server = new();
+            TOM.Server server = new();
             server.Connect(txtServer.Text);
-            Database db = server.Databases[txtDatabase.Text];
-            Model model = db.Model;
+            TOM.Database db = server.Databases[txtDatabase.Text];
+            TOM.Model model = db.Model;
 
             try
             {
@@ -363,10 +363,10 @@ namespace Dax.Template.TestUI
 
             Engine templateEngine = new(package);
 
-            Server server = new();
+            TOM.Server server = new();
             server.Connect(txtServer.Text);
-            Database db = server.Databases[txtDatabase.Text];
-            Model model = db.Model;
+            TOM.Database db = server.Databases[txtDatabase.Text];
+            TOM.Model model = db.Model;
 
             try
             {
@@ -429,15 +429,15 @@ namespace Dax.Template.TestUI
             #endregion
 
             #region Loop over all configuration and apply preview
-            Server server = new();
+            TOM.Server server = new();
             server.Connect(txtServer.Text);
             try
             {
                 // loop preview
                 foreach (var config in bravoTemplates)
                 {
-                    Database db = server.Databases[txtDatabase.Text];
-                    Model model = db.Model;
+                    TOM.Database db = server.Databases[txtDatabase.Text];
+                    TOM.Model model = db.Model;
 
                     var modelChanges = Bravo.BravoDaxTemplate.ApplyTemplate(config, model, $"Data Source={txtServer.Text};Catalog={txtDatabase.Text};", false);
                     if (modelChanges != null)

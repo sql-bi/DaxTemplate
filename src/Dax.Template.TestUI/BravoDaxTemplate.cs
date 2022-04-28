@@ -3,7 +3,7 @@ using Dax.Template.Enums;
 using Dax.Template.Exceptions;
 using Dax.Template.Model;
 using Microsoft.AnalysisServices.AdomdClient;
-using Microsoft.AnalysisServices.Tabular;
+using TOM = Microsoft.AnalysisServices.Tabular;
 using System.Text.Json.Serialization;
 
 namespace Dax.Template.TestUI.Bravo
@@ -102,7 +102,7 @@ namespace Dax.Template.TestUI.Bravo
         /// <param name="previewRows">Number of rows to include in data preview</param>
         /// <returns>Changes applied to the model</returns>
         /// <exception cref="TemplateException">Errors executing template</exception>
-        public static ModelChanges? ApplyTemplate(DaxTemplateConfig config, Model model, string connectionString, bool commitChanges, int previewRows = 5) 
+        public static ModelChanges? ApplyTemplate(DaxTemplateConfig config, TOM.Model model, string connectionString, bool commitChanges, int previewRows = 5) 
         {
             var package = Package.LoadFromFile(config.TemplatePath);
 

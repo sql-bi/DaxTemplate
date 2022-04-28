@@ -16,7 +16,7 @@
         public string? Expression { get; set; } 
 
         public IDependencies<DaxBase>[]? Dependencies { get; set; } 
-        public string GetDebugInfo() { return $"{this.GetType().Name}: {Expression}"; }
+        public string GetDebugInfo() { return $"{GetType().Name}: {Expression}"; }
 
     }
 }

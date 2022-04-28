@@ -265,7 +265,7 @@ namespace Dax.Template.Tables
             try
             {
                 // Add the columns
-                foreach (var column in this.Columns.Where(c=>!c.IsTemporary))
+                foreach (var column in Columns.Where(c=>!c.IsTemporary))
                 {
                     cancellationToken?.ThrowIfCancellationRequested();
                     column.TabularColumn = new CalculatedTableColumn
@@ -313,7 +313,7 @@ namespace Dax.Template.Tables
                 }
 
                 // Fix the Sort By Columns property
-                foreach (var column in this.Columns.Where(c => c.SortByColumn is not null))
+                foreach (var column in Columns.Where(c => c.SortByColumn is not null))
                 {
                     if (column.TabularColumn is not null)
                     {
@@ -379,7 +379,7 @@ namespace Dax.Template.Tables
             }
 
             // Set the hierarchies
-            foreach (var hierarchy in this.Hierarchies)
+            foreach (var hierarchy in Hierarchies)
             {
                 cancellationToken?.ThrowIfCancellationRequested();
                 var tabularHierarchy = new TabularHierarchy
