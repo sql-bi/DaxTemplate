@@ -6,7 +6,7 @@ using Microsoft.AnalysisServices.AdomdClient;
 using Microsoft.AnalysisServices.Tabular;
 using System.Text.Json.Serialization;
 
-namespace TestDaxTemplates.Bravo
+namespace Dax.Template.TestUI.Bravo
 {
     public class DaxTemplateConfig
     {

@@ -1,4 +1,4 @@
-namespace TestDaxTemplates
+namespace Dax.Template.TestUI
 {
     internal static class Program
     {

@@ -14,7 +14,7 @@ using System.Collections;
 using Microsoft.AnalysisServices.AdomdClient;
 using System.Text.Encodings.Web;
 
-namespace TestDaxTemplates
+namespace Dax.Template.TestUI
 {
     public partial class ApplyDaxTemplate : Form
     {

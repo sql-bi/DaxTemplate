@@ -1,4 +1,4 @@
-﻿namespace TestDaxTemplates
+﻿namespace Dax.Template.TestUI
 {
     partial class ApplyDaxTemplate
     {
@@ -100,8 +100,8 @@
             // 
             // txtDax
             // 
-            this.txtDax.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            this.txtDax.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.txtDax.Location = new System.Drawing.Point(46, 419);
             this.txtDax.Margin = new System.Windows.Forms.Padding(4);

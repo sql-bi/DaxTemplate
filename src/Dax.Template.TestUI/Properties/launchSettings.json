@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "TestDaxTemplates": {
+    "Dax.Template.TestUI": {
       "commandName": "Project",
       "commandLineArgs": "--server=\"localhost:57766\" --database=\"0aac490b-4197-498b-8488-95d89c44970c\""
     }
