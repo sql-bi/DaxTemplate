@@ -40,7 +40,7 @@ namespace Dax.Template.Tables.Dates
             /// </summary>
             public int DayNumber { get; set; } = default;
             /// <summary>
-            /// 0 = Sunday, 1 = Monday, ... , 7 = Saturday
+            /// 0 = Sunday, 1 = Monday, ... , 6 = Saturday
             /// </summary>
             public int WeekDayNumber { get; set; } = default;
             /// <summary>
