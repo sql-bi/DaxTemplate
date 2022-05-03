@@ -19,8 +19,8 @@
     <!--Copyright>Copyright ©</Copyright-->
     <Authors>Marco Russo</Authors>
     <Product>Tabular and DAX template engine</Product>
-    <!--Description>....</Description-->
-    <!--Summary>...</Summary-->
+    <Description>Engine that creates DAX columns, measures, tables and calculation groups based on JSON templates</Description>
+    <Summary>Engine that creates DAX columns, measures, tables and calculation groups based on JSON templates</Summary>
     <PackageId>Dax.Template</PackageId>
     <PackageTags>DAX;TEMPLATE;SQLBI;TABULAR;SSAS</PackageTags>
     <PackageIcon>package-icon.png</PackageIcon>
