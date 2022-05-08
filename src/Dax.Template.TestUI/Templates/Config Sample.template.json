@@ -1,0 +1,77 @@
+{
+  "Config": {
+    "Templates": [
+      {
+        "Class": "CustomDateTable",
+        "Table": "Date",
+        "Template": "SimpleDateTemplate.json"
+      }
+    ]
+  },
+  "SimpleDateTemplate": {
+    "Steps": [
+      {
+        "Name": "__Calendar",
+        "Expression": "CALENDARAUTO()"
+      }
+    ],
+    "RowVariables": [
+      {
+        "Name": "__Date",
+        "Expression": "[Date]"
+      },
+      {
+        "Name": "__YearNumber",
+        "Expression": "YEAR ( __Date )"
+      },
+      {
+        "Name": "__MonthNumber",
+        "Expression": "MONTH ( __Date )"
+      }
+    ],
+    "Columns": [
+      {
+        "Name": "Date",
+        "DataType": "DateTime",
+        "Step": "__Calendar"
+      },
+      {
+        "Name": "Year",
+        "Expression": "__YearNumber",
+        "DataType": "Int64"
+      },
+      {
+        "Name": "Year Month Number",
+        "Expression": "__YearNumber * 12 + __MonthNumber - 1",
+        "DataType": "Int64",
+        "IsHidden": true
+      },
+      {
+        "Name": "Year Month",
+        "Expression": "FORMAT ( __Date, \"mmm yyyy\" )",
+        "DataType": "String",
+        "SortByColumn": "Year Month Number",
+        "IsHidden": true
+      }
+    ],
+    "Hierarchies": [
+      {
+        "Name": "Calendar",
+        "Levels": [
+          {
+            "Name": "Year",
+            "Column": "Year"
+          },
+          {
+            "Name": "Month",
+            "Column": "Year Month"
+          },
+          {
+            "Name": "Date",
+            "Column": "Date"
+          }
+        ]
+      }
+    ]
+  }
+}

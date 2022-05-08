@@ -7,6 +7,7 @@ using Dax.Template.Constants;
 using Column = Dax.Template.Model.Column;
 using System.Text.Json.Serialization;
 using System.Threading;
+using Json.Schema.Generation;
 
 namespace Dax.Template.Tables.Dates
 {
@@ -27,50 +28,71 @@ namespace Dax.Template.Tables.Dates
         }
         public class HolidayLine
         {
+            [Description("Two-letter ISO code of the country.")]
             /// <summary>
             /// ISO country code (filter holidays based on country)
             /// </summary>
-            public string? IsoCountry { get; set; } 
+            public string? IsoCountry { get; set; }
+
+            [Description("Number of month - use 99 for relative dates using Easter as a reference.")]
             /// <summary>
             /// Number of month - use 99 for relative dates using Easter as a reference
             /// </summary>
             public int MonthNumber { get; set; } = default;
+
+            [Description("Absolute day (ignore WeekDayNumber when other than 0).")]
             /// <summary>
             /// Absolute day (ignore WeekDayNumber, otherwise use 0)
             /// </summary>
             public int DayNumber { get; set; } = default;
+
+            [Description("Day of the week, as a number: 0 = Sunday, 1 = Monday, ... , 6 = Saturday")]
             /// <summary>
             /// 0 = Sunday, 1 = Monday, ... , 6 = Saturday
             /// </summary>
             public int WeekDayNumber { get; set; } = default;
+
+            [Description("Number of the week in the month, negative if the reference is the last one in the month: 1 first week, -1 last week")]
             /// <summary>
             /// 1 = first, 2 = second, ... -1 = last, -2 = second-last, ...
             /// </summary>
             public int OffsetWeek { get; set; } = default;
+
+            [Description("Days to add after OffsetWeek and WeekDayNumber have been applied.")]
             /// <summary>
             /// days to add after offsetWeek and WeekDayNumber have been applied
             /// </summary>
             public int OffsetDays { get; set; } = default;
+
+            [Description("Name of the holiday.")]
             /// <summary>
             /// Holiday name 
             /// </summary>
             public string? HolidayName { get; set; }
+
+            [Description("Define the logic to move an holiday to another day in case the date is already a non-working day (e.g. “in lieu of…”)")]
             /// <summary>
             /// Define logic to move an holiday to another day in case
             /// the date is already a non-working day (e.g. "in lieu of...")
             /// </summary>
             [JsonConverter(typeof(JsonStringEnumConverter))]
             public SubstituteEnum SubstituteHoliday { get; set; } = SubstituteEnum.NoSubstituteHoliday;
+
+            [Description("Priority in case of two or more holidays in the same date. A lower number corresponds to an higher priority.")]
             /// <summary>
             /// Priority in case of two or more holidays in the same date - lower number --> higher priority
             /// For example: marking Easter relative days with 150 and other holidays with 100 means that other holidays take   
             ///              precedence over Easter-related days; use 50 for Easter related holidays to invert such a priority
             /// </summary>
             public int ConflictPriority { get; set; } = default;
+
+            [Description("First year for the holiday, 0 if it is not defined.")]
             /// <summary>
             /// First year for the holiday, 0 if it is not defined
             /// </summary>
             public int FirstYear { get; set; } = default;
+
+            [Description("Last year for the holiday, 0 if it is not defined.")]
             /// <summary>
             /// Last year for the holiday, 0 if it is not defined
             /// </summary>
@@ -83,6 +105,7 @@ namespace Dax.Template.Tables.Dates
         }
         public class HolidaysDefinitions
         {
+            [Description("Array of holidays, each defined as follows.")]
             public HolidayLine[] Holidays { get; set; } = Array.Empty<HolidayLine>();
         }
 

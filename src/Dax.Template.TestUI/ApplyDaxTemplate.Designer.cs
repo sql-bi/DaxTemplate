@@ -58,6 +58,10 @@
             this.btnPackage = new System.Windows.Forms.Button();
             this.btnPreviewTemplate = new System.Windows.Forms.Button();
             this.btnBravoConfig = new System.Windows.Forms.Button();
+            this.btnPreviewJsonSchemaConfig = new System.Windows.Forms.Button();
+            this.btnPreviewJsonSchemaTemplate = new System.Windows.Forms.Button();
+            this.btnPreviewJsonSchemaHolidaysDefinition = new System.Windows.Forms.Button();
+            this.btnPreviewJsonSchemaMeasuresTemplate = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher)).BeginInit();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
@@ -100,8 +104,8 @@
             // 
             // txtDax
             // 
-            this.txtDax.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
+            this.txtDax.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.txtDax.Location = new System.Drawing.Point(46, 419);
             this.txtDax.Margin = new System.Windows.Forms.Padding(4);
@@ -382,11 +386,59 @@
             this.btnBravoConfig.UseVisualStyleBackColor = true;
             this.btnBravoConfig.Click += new System.EventHandler(this.BravoConfig_Click);
             // 
+            // btnPreviewJsonSchemaConfig
+            // 
+            this.btnPreviewJsonSchemaConfig.Location = new System.Drawing.Point(46, 258);
+            this.btnPreviewJsonSchemaConfig.Margin = new System.Windows.Forms.Padding(4);
+            this.btnPreviewJsonSchemaConfig.Name = "btnPreviewJsonSchemaConfig";
+            this.btnPreviewJsonSchemaConfig.Size = new System.Drawing.Size(390, 49);
+            this.btnPreviewJsonSchemaConfig.TabIndex = 32;
+            this.btnPreviewJsonSchemaConfig.Text = "Preview Config JSON Schema";
+            this.btnPreviewJsonSchemaConfig.UseVisualStyleBackColor = true;
+            this.btnPreviewJsonSchemaConfig.Click += new System.EventHandler(this.btnPreviewJsonSchemaTemplate_Click);
+            // 
+            // btnPreviewJsonSchemaTemplate
+            // 
+            this.btnPreviewJsonSchemaTemplate.Location = new System.Drawing.Point(46, 313);
+            this.btnPreviewJsonSchemaTemplate.Margin = new System.Windows.Forms.Padding(4);
+            this.btnPreviewJsonSchemaTemplate.Name = "btnPreviewJsonSchemaTemplate";
+            this.btnPreviewJsonSchemaTemplate.Size = new System.Drawing.Size(390, 49);
+            this.btnPreviewJsonSchemaTemplate.TabIndex = 33;
+            this.btnPreviewJsonSchemaTemplate.Text = "Preview Template JSON Schema";
+            this.btnPreviewJsonSchemaTemplate.UseVisualStyleBackColor = true;
+            this.btnPreviewJsonSchemaTemplate.Click += new System.EventHandler(this.btnPreviewJsonSchemaTemplate_Click_1);
+            // 
+            // btnPreviewJsonSchemaHolidaysDefinition
+            // 
+            this.btnPreviewJsonSchemaHolidaysDefinition.Location = new System.Drawing.Point(444, 258);
+            this.btnPreviewJsonSchemaHolidaysDefinition.Margin = new System.Windows.Forms.Padding(4);
+            this.btnPreviewJsonSchemaHolidaysDefinition.Name = "btnPreviewJsonSchemaHolidaysDefinition";
+            this.btnPreviewJsonSchemaHolidaysDefinition.Size = new System.Drawing.Size(414, 49);
+            this.btnPreviewJsonSchemaHolidaysDefinition.TabIndex = 34;
+            this.btnPreviewJsonSchemaHolidaysDefinition.Text = "Preview HolidaysDef JSON Schema";
+            this.btnPreviewJsonSchemaHolidaysDefinition.UseVisualStyleBackColor = true;
+            this.btnPreviewJsonSchemaHolidaysDefinition.Click += new System.EventHandler(this.btnPreviewJsonSchemaHolidaysDefinition_Click);
+            // 
+            // btnPreviewJsonSchemaMeasuresTemplate
+            // 
+            this.btnPreviewJsonSchemaMeasuresTemplate.Location = new System.Drawing.Point(444, 313);
+            this.btnPreviewJsonSchemaMeasuresTemplate.Margin = new System.Windows.Forms.Padding(4);
+            this.btnPreviewJsonSchemaMeasuresTemplate.Name = "btnPreviewJsonSchemaMeasuresTemplate";
+            this.btnPreviewJsonSchemaMeasuresTemplate.Size = new System.Drawing.Size(414, 49);
+            this.btnPreviewJsonSchemaMeasuresTemplate.TabIndex = 35;
+            this.btnPreviewJsonSchemaMeasuresTemplate.Text = "Preview MeasuresT JSON Schema";
+            this.btnPreviewJsonSchemaMeasuresTemplate.UseVisualStyleBackColor = true;
+            this.btnPreviewJsonSchemaMeasuresTemplate.Click += new System.EventHandler(this.btnPreviewJsonSchemaMeasuresTemplate_Click);
+            // 
             // ApplyDaxTemplate
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(13F, 32F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(2012, 1318);
+            this.Controls.Add(this.btnPreviewJsonSchemaMeasuresTemplate);
+            this.Controls.Add(this.btnPreviewJsonSchemaHolidaysDefinition);
+            this.Controls.Add(this.btnPreviewJsonSchemaTemplate);
+            this.Controls.Add(this.btnPreviewJsonSchemaConfig);
             this.Controls.Add(this.btnBravoConfig);
             this.Controls.Add(this.btnPreviewTemplate);
             this.Controls.Add(this.btnPackage);
@@ -447,5 +499,9 @@
         private Button btnPackage;
         private Button btnPreviewTemplate;
         private Button btnBravoConfig;
+        private Button btnPreviewJsonSchemaTemplate;
+        private Button btnPreviewJsonSchemaConfig;
+        private Button btnPreviewJsonSchemaMeasuresTemplate;
+        private Button btnPreviewJsonSchemaHolidaysDefinition;
     }
 }

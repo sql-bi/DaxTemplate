@@ -6,15 +6,19 @@ using Column = Dax.Template.Model.Column;
 using Dax.Template.Exceptions;
 using Dax.Template.Interfaces;
 using Dax.Template.Constants;
+using Json.Schema.Generation;
 
 namespace Dax.Template.Tables.Dates
 {
     public class CustomDateTemplateDefinition : CustomTemplateDefinition
     {
+        [Description("Specify a single calendar type assigned to the Date table. When specified, it creates a list with a single item in CalendarTypes, ignoring the CalendarTypes definition.")]
         /// <summary>
         /// Define the calendar type for time intelligence calculations
         /// </summary>
         public string? CalendarType { get; set; }
+
+        [Description("Specify a list of calendar types assigned to the Date table. It is ignored if CalendarType is defined.")]
         public string[]? CalendarTypes { get; set; }
     }
     public class CustomDateTable : BaseDateTemplate<IDateTemplateConfig>

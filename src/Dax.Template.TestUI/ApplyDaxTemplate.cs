@@ -14,6 +14,10 @@ using System.Collections;
 using Microsoft.AnalysisServices.AdomdClient;
 using System.Text.Encodings.Web;
 
+using Json.Schema;
+using Json.Schema.Generation;
+using Json.Schema.Generation.Generators;
+
 namespace Dax.Template.TestUI
 {
     public partial class ApplyDaxTemplate : Form
@@ -450,6 +454,54 @@ namespace Dax.Template.TestUI
                 server.Disconnect();
             }
             #endregion
+        }
+
+        private void btnPreviewJsonSchemaTemplate_Click(object sender, EventArgs e)
+        {
+            var builder = new Json.Schema.JsonSchemaBuilder()
+                .Schema("http://json-schema.org/draft-07/schema")
+                .Id("http://sqlbi.com/daxtemplate/schemas/engine-configuration.schema.json");
+            var schemaFromType = builder.FromType<TemplateConfiguration>();
+            var schema = schemaFromType.Build();
+            var result = SystemJsonSerializer.Serialize(schema, new JsonSerializerOptions { WriteIndented = true });
+            
+            txtDax.Text = result;
+        }
+
+        private void btnPreviewJsonSchemaTemplate_Click_1(object sender, EventArgs e)
+        {
+            var builder = new Json.Schema.JsonSchemaBuilder()
+                .Schema("http://json-schema.org/draft-07/schema")
+                .Id("http://sqlbi.com/daxtemplate/schemas/date-template-definition.schema.json");
+            var schemaFromType = builder.FromType<CustomDateTemplateDefinition>();
+            var schema = schemaFromType.Build();
+            var result = SystemJsonSerializer.Serialize(schema, new JsonSerializerOptions { WriteIndented = true });
+
+            txtDax.Text = result;
+        }
+
+        private void btnPreviewJsonSchemaHolidaysDefinition_Click(object sender, EventArgs e)
+        {
+            var builder = new Json.Schema.JsonSchemaBuilder()
+                .Schema("http://json-schema.org/draft-07/schema")
+                .Id("http://sqlbi.com/daxtemplate/schemas/holidays-definition.schema.json");
+            var schemaFromType = builder.FromType<HolidaysDefinitionTable.HolidaysDefinitions>();
+            var schema = schemaFromType.Build();
+            var result = SystemJsonSerializer.Serialize(schema, new JsonSerializerOptions { WriteIndented = true });
+
+            txtDax.Text = result;
+        }
+
+        private void btnPreviewJsonSchemaMeasuresTemplate_Click(object sender, EventArgs e)
+        {
+            var builder = new Json.Schema.JsonSchemaBuilder()
+                .Schema("http://json-schema.org/draft-07/schema")
+                .Id("http://sqlbi.com/daxtemplate/schemas/measures-template-definition.schema.json");
+            var schemaFromType = builder.FromType<MeasuresTemplateDefinition>();
+            var schema = schemaFromType.Build();
+            var result = SystemJsonSerializer.Serialize(schema, new JsonSerializerOptions { WriteIndented = true });
+
+            txtDax.Text = result;
         }
     }
 }
