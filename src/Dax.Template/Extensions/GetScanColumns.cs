@@ -26,9 +26,12 @@ namespace Dax.Template.Extensions
 
             // Remove quoted identifier for table name
             if (tableName?[0] == '\'')
-            {
                 tableName = tableName[1..^1];
-            }
+
+            // Remove bracket identifier for column name
+            if (columnName?[0] == '[')
+                columnName = columnName[1..^1];
+
             return (tableName, columnName);
         }
 
