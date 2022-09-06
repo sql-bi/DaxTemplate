@@ -1,4 +1,6 @@
 ﻿using Dax.Template.Enums;
+using System.Collections.Generic;
+
 namespace Dax.Template.Interfaces
 {
     public interface IMeasureTemplateConfig : IScanConfig
@@ -12,5 +14,7 @@ namespace Dax.Template.Interfaces
         // public IScanConfig DateColumns { get; set; } = new();
         public TargetMeasure[]? TargetMeasures { get; set; }
         public string? TableSingleInstanceMeasures { get; set; }
+
+        Dictionary<string, string> DefaultVariables { get; set; }
     }
 }

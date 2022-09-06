@@ -231,7 +231,8 @@ namespace Dax.Template.Measures
                     Annotations = template.Annotations.Union(Template.TemplateAnnotations),
                     Comments = template.GetComments(),
                     TemplateExpression = ReplaceMacros(template.GetExpression(), model),
-                    ReferenceMeasure = referenceMeasure
+                    ReferenceMeasure = referenceMeasure,
+                    DefaultVariables = Config.DefaultVariables
                 };
                 var modelMeasure = measureTemplate.ApplyTemplate(model, referenceMeasure?.Parent as Table ?? targetTable, cancellationToken, overrideExistingMeasures);
                 appliedMeasures.Add(modelMeasure);

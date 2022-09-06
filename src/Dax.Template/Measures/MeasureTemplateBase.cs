@@ -52,8 +52,15 @@ namespace Dax.Template.Measures
         /// </summary>
         public string? TemplateExpression { get; set; }
 
+        /// <summary>
+        /// Default variables settings accessible to measures
+        /// </summary>
+        public Dictionary<string, string>? DefaultVariables { get; set; }
+
         private static readonly Regex regexFindPlaceholders = new(@"@_(?<entity>.*?)-(?<attribute>.*?)(-(?<value>.*?))?_@", RegexOptions.Compiled);
         private static readonly Regex regexGetMeasure = new(@"@@GETMEASURE[ \r\n\t]*\((?<templateName>[^\)]*?)\)", RegexOptions.Compiled);
+        private static readonly Regex regexGetDefaultVariable = new(@"@@GETDEFAULTVARIABLE[ \r\n\t]*\((?<setting>[^\)]*)\)", RegexOptions.Compiled);
+        private static readonly Regex regexGetYearEndFromFirstMonthVariable = new(@"@@GETYEARENDFROMFIRSTMONTHVARIABLE[ \r\n\t]*\((?<setting>[^\)]*)\)", RegexOptions.Compiled);
 
         private static string? GetGroupValue( Match match, string groupName)
         {
@@ -71,6 +78,66 @@ namespace Dax.Template.Measures
                 (from t in model.Tables
                  from m in t.Measures
                  select m).FirstOrDefault(m => m.Name == measureName);
+        }
+
+        string GetDefaultVariable(string expression)
+        {
+            Match matchGetDefaultVariable = regexGetDefaultVariable.Match(expression);
+            if (matchGetDefaultVariable.Success)
+            {
+                var settingName = matchGetDefaultVariable.Groups.ContainsKey("setting") ? matchGetDefaultVariable.Groups["setting"].Value?.Trim() : null;
+                if (settingName == null)
+                {
+                    throw new TemplateException($"Expression {regexGetDefaultVariable} not resolved");
+                }
+                string? replace = null;
+                DefaultVariables?.TryGetValue(settingName, out replace);
+                if (replace == null)
+                {
+                    throw new TemplateException($"Default variable not available for expression {regexGetDefaultVariable}");
+                }
+                expression = regexGetDefaultVariable.Replace(expression, replace);
+            }
+
+            return expression;
+        }
+
+        string GetYearEndFromFirstMonthVariable(string expression)
+        {
+            Match matchGetYearEnd = regexGetYearEndFromFirstMonthVariable.Match(expression);
+            if (matchGetYearEnd.Success)
+            {
+                var settingName = matchGetYearEnd.Groups.ContainsKey("setting") ? matchGetYearEnd.Groups["setting"].Value?.Trim() : null;
+                if (settingName == null)
+                {
+                    throw new TemplateException($"Expression {regexGetYearEndFromFirstMonthVariable} not resolved");
+                }
+                string? firstMonth = null;
+                DefaultVariables?.TryGetValue(settingName, out firstMonth);
+                if (!int.TryParse(firstMonth, out int firstMonthNumber))
+                {
+                    throw new TemplateException($"Invalid number argument in {regexGetYearEndFromFirstMonthVariable} expression");
+                }
+                string replace = firstMonthNumber switch
+                {
+                    1 => "\"12-31\"",
+                    2 => "\"1-31\"",
+                    3 => "\"2-28\"",
+                    4 => "\"3-31\"",
+                    5 => "\"4-30\"",
+                    6 => "\"5-31\"",
+                    7 => "\"6-30\"",
+                    8 => "\"7-31\"",
+                    9 => "\"8-31\"",
+                    10 => "\"9-30\"",
+                    11 => "\"10-31\"",
+                    12 => "\"11-30\"",
+                    _ => throw new TemplateException($"Invalid month number in {regexGetYearEndFromFirstMonthVariable} expression")
+                };
+                expression = regexGetYearEndFromFirstMonthVariable.Replace(expression, replace);
+            }
+
+            return expression;
         }
 
         public virtual TabularMeasure ApplyTemplate(TabularModel model, Table targetTable, CancellationToken? cancellationToken, bool overrideExistingMeasure = true)
@@ -178,6 +245,9 @@ namespace Dax.Template.Measures
                 }
                 result = result.Replace(match.Value, replace);
             }
+
+            result = GetDefaultVariable(result);
+            result = GetYearEndFromFirstMonthVariable(result);
 
             if (originalMeasureName != null)
             {
