@@ -1,5 +1,5 @@
 {
-  "Description": "Weekly calendars with weekly-based time intelligence",
+  "Description": "Custom calendar based on months with custom time intelligence",
   "Templates": [
     {
       "Class": "HolidaysDefinitionTable",
@@ -17,36 +17,26 @@
       "Class": "CustomDateTable",
       "Table": "Date",
       "ReferenceTable": "DateAutoTemplate",
-      "Template": "DateTemplate-04.json",
+      "Template": "DateTemplate-05.json",
       "LocalizationFiles": [
-        "DateLocalization-04.json"
       ]
     },
     {
       "Class": "MeasuresTemplate",
       "Table": null,
-      "Template": "TimeIntelligence-04.json",
+      "Template": "TimeIntelligence-05.json",
       "Properties": {
-        "__DisplayFolderRule": "Time intelligence\\@_MEASURE_@\\@_TEMPLATEFOLDER_@",
+        "DisplayFolderRule": "Time intelligence\\@_MEASURE_@\\@_TEMPLATEFOLDER_@",
         "_DisplayFolderRule": "Time intelligence\\@_TEMPLATEFOLDER_@\\@_TEMPLATE_@",
-        "___DisplayFolderRule": "Time intelligence\\@_TEMPLATEFOLDER_@\\@_MEASURE_@",
-        "DisplayFolderRule": "@_MEASURE_@\\@_TEMPLATEFOLDER_@"
+        "__DisplayFolderRule": "Time intelligence\\@_TEMPLATEFOLDER_@\\@_MEASURE_@"
       },
-      "_comment": "TargetMeasures can override the default setting",
-      "TargetMeasures": [
-        {
-          "Name": "Sales Amount"
-        },
-        {
-          "Name": "Total Cost"
-        }
-      ]
+      "_comment": "TargetMeasures can override the default setting"
     }
   ],
   "IsoTranslation": "en-US",
   "IsoFormat": "en-US",
   "LocalizationFiles": [
-    "DateLocalization-04.json"
+    "DateLocalization-05.json"
   ],
   "OnlyTablesColumns": [
     "Sales",
@@ -59,16 +49,8 @@
   "LastYearMax": null,
   "AutoScan": "Full",
   "DefaultVariables": {
-    "__FirstFiscalMonth": "4",
-    "__FirstDayOfWeek": "0",
-    "__TypeStartFiscalYear": "1",
-    "__QuarterWeekType": "\"445\"",
-    "__WeeklyType": "\"Last\"",
-    "__WorkingDayType": "\"Working day\"",
-    "__NonWorkingDayType": "\"Non-working day\"",
-    "__OffsetYears": "1"
+    "__FirstDayOfWeek": "0"
   },
-
   "IsoCountry": "US",
   "InLieuOfPrefix": "(in lieu of ",
   "InLieuOfSuffix": ")",
@@ -80,6 +62,7 @@
     "DateColumnName": "Holiday Date",
     "HolidayColumnName": "Holiday Name"
   },
+  "AutoNaming": "Prefix",
   "TargetMeasures": [
     {
       "Name": "Sales Amount"

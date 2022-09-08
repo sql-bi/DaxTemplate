@@ -5,14 +5,14 @@
       "Class": "CustomDateTable",
       "Table": "Date",
       "ReferenceTable": "DateAutoTemplate",
-      "Template": "DateTemplate-02.json",
+      "Template": "DateTemplate-03.json",
       "LocalizationFiles": [
       ]
     },
     {
       "Class": "MeasuresTemplate",
       "Table": null,
-      "Template": "TimeIntelligence-02.json",
+      "Template": "TimeIntelligence-03.json",
       "Properties": {
         "__DisplayFolderRule": "Time intelligence\\@_MEASURE_@\\@_TEMPLATEFOLDER_@",
         "DisplayFolderRule": "Time intelligence\\@_TEMPLATEFOLDER_@\\@_TEMPLATE_@",
@@ -24,7 +24,7 @@
   "IsoTranslation": "en-US",
   "IsoFormat": "en-US",
   "LocalizationFiles": [
-    "DateLocalization-02.json"
+    "DateLocalization-03.json"
   ],
   "OnlyTablesColumns": [
     "Sales",
@@ -37,7 +37,6 @@
   "LastYearMax": null,
   "AutoScan": "Full",
   "DefaultVariables": {
-    "__FirstFiscalMonth": "4",
     "__MonthsInYear": "12"
   },
   "IsoCountry": "US",
