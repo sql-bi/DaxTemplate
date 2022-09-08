@@ -6,6 +6,7 @@
         public bool IgnoreAutoDependency { get; init; }
         public IDependencies<T>[]? Dependencies { get; set; }
         public string? Expression { get; set; } 
+
         public string GetDebugInfo();
     }
 }
