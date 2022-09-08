@@ -11,7 +11,7 @@
         public string[]? Comments { get; set; } 
         public string DaxName { get { return Name; } }
 
-        public IDependencies<DaxBase>[]? Dependencies { get; set; } 
+        public IDependencies<DaxBase>[]? Dependencies { get; set; }
         public string GetDebugInfo() { return $"VAR {Name}: {Expression}"; }
         public override string ToString()
         {

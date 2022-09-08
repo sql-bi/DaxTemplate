@@ -1,5 +1,7 @@
 ﻿namespace Dax.Template.Syntax
 {
+    using System.Xml.Linq;
+
     /// <summary>
     /// Internal use to create automatic DAX code in templates
     /// This could be partial code, it has no name because it is assigned internally 
