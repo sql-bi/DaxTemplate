@@ -16,7 +16,7 @@
       "Class": "CustomDateTable",
       "Table": "Date",
       "ReferenceTable": "DateAutoTemplate",
-      "Template": "DateTemplate-05.json",
+      "Template": "DateTemplate-95.json",
       "LocalizationFiles": [
       ]
     },
