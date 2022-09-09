@@ -1,5 +1,5 @@
 {
-  "_comment": "Reference Monthly Calendar",
+  "_comment": "Reference Monthly Fiscal Calendar",
   "CalendarTypes": [ "Fiscal" ],
   "FormatPrefixes": [ "FY", "FQ" ],
   "Steps": [

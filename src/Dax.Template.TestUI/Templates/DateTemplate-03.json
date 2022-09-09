@@ -1,5 +1,5 @@
 {
-  "_comment": "Reference Monthly Calendar",
+  "_comment": "Reference Monthly Gregorian Calendar",
   "CalendarTypes": [ "Calendar" ],
   "FormatPrefixes": [ "M", "Q" ],
   "Steps": [
