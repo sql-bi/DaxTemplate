@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using TabularModel = Microsoft.AnalysisServices.Tabular.Model;
 using TabularMeasure = Microsoft.AnalysisServices.Tabular.Measure;
 using System.Threading;
+using Dax.Template.Extensions;
 
 namespace Dax.Template.Measures
 {
@@ -299,14 +300,14 @@ namespace Dax.Template.Measures
         private static string? FindTablesList(TabularModel model, string attribute, string? value)
         {
             var tables = GetTablesFromAnnotations(model, attribute, value);
-            string result = string.Join(", ", tables.Select(t => $"'{t.Name}'"));
+            string result = string.Join(", ", tables.Select(t => $"'{t.Name.GetDaxTableName()}'"));
             return result;
         }
 
         private static string? FindColumnsList(TabularModel model, string attribute, string? value)
         {
             var columns = GetColumnsFromAnnotations(model, attribute, value);
-            string result = string.Join(", ", columns.Select(c => $"'{c.Table.Name}'[{c.Name}]"));
+            string result = string.Join(", ", columns.Select(c => $"'{c.Table.Name.GetDaxTableName()}'[{c.Name}]"));
             return result;
         }
 
@@ -321,7 +322,7 @@ namespace Dax.Template.Measures
             {
                 throw new AttributeNotFoundException(attribute, value);
             }
-            return $"'{tables.First().Name}'";
+            return $"'{tables.First().Name.GetDaxTableName()}'";
         }
 
         private static string? FindSingleColumn(TabularModel model, string attribute, string? value)
@@ -335,7 +336,7 @@ namespace Dax.Template.Measures
             {
                 throw new AttributeNotFoundException(attribute, value);
             }
-            return $"'{columns.First().Table.Name}'[{columns.First().Name}]";
+            return $"'{columns.First().Table.Name.GetDaxTableName()}'[{columns.First().Name}]";
         }
     }
 }

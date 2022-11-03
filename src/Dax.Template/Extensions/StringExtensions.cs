@@ -13,5 +13,10 @@
         {
             return current?.Equals(value, StringComparison.OrdinalIgnoreCase) ?? false;
         }
+
+        public static string? GetDaxTableName(this string? name)
+        {
+            return name?.Replace("'", "''");
+        }
     }
 }
