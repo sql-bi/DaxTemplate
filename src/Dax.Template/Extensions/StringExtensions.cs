@@ -18,5 +18,10 @@
         {
             return name?.Replace("'", "''");
         }
+
+        public static string? GetDaxColumnName(this string? name)
+        {
+            return name?.Replace("]", "]]");
+        }
     }
 }

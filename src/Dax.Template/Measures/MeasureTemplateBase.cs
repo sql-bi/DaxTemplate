@@ -307,7 +307,7 @@ namespace Dax.Template.Measures
         private static string? FindColumnsList(TabularModel model, string attribute, string? value)
         {
             var columns = GetColumnsFromAnnotations(model, attribute, value);
-            string result = string.Join(", ", columns.Select(c => $"'{c.Table.Name.GetDaxTableName()}'[{c.Name}]"));
+            string result = string.Join(", ", columns.Select(c => $"'{c.Table.Name.GetDaxTableName()}'[{c.Name.GetDaxColumnName()}]"));
             return result;
         }
 
