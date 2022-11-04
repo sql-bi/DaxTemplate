@@ -220,7 +220,7 @@ namespace Dax.Template.Tables.Dates
                     if (scanColumns != null)
                     {
                         // TODO: remove Table?.Name
-                        var listMin = string.Join(", ", scanColumns.Select(col => $"MIN ( '{col.Table?.Name}'[{col.Name}] )"));
+                        var listMin = string.Join(", ", scanColumns.Select(col => $"MIN ( '{col.Table?.Name.GetDaxTableName()}'[{col.Name.GetDaxColumnName()}] )"));
                         replace = listMin.IsNullOrEmpty() ? "TODAY()" : $"MINX ( {{ {listMin} }}, ''[Value] )";
                     }
                     expression = regexGetMinDates.Replace(expression, replace);
@@ -236,7 +236,7 @@ namespace Dax.Template.Tables.Dates
                     if (scanColumns != null)
                     {
                         // TODO: remove Table?.Name
-                        var listMax = string.Join(", ", scanColumns.Select(col => $"MAX ( '{col.Table?.Name}'[{col.Name}] )"));
+                        var listMax = string.Join(", ", scanColumns.Select(col => $"MAX ( '{col.Table?.Name.GetDaxTableName()}'[{col.Name.GetDaxColumnName()}] )"));
                         replace = listMax.IsNullOrEmpty() ? "TODAY()" : $"MAXX ( {{ {listMax} }}, ''[Value] )";
                     }
                     expression = regexGetMaxDates.Replace(expression, replace);
@@ -335,7 +335,7 @@ $@"
 
             if (string.IsNullOrEmpty(firstYear) && scanColumns != null)
             {
-                var listMin = string.Join(", ", scanColumns.Select(col => $"MIN ( '{col.Table.Name}'[{col.Name}] )"));
+                var listMin = string.Join(", ", scanColumns.Select(col => $"MIN ( '{col.Table.Name.GetDaxTableName()}'[{col.Name.GetDaxColumnName()}] )"));
                 firstYear = listMin.IsNullOrEmpty() ? "YEAR ( TODAY() )" : $"YEAR ( MINX ( {{ {listMin} }}, ''[Value] ) )";
             }
             firstYear =
@@ -356,7 +356,7 @@ $@"
             if (string.IsNullOrEmpty(lastYear) && scanColumns != null)
             {
                 // TODO: remove Table?.Name
-                var listMax = string.Join(", ", scanColumns.Select(col => $"MAX ( '{col.Table?.Name}'[{col.Name}] )"));
+                var listMax = string.Join(", ", scanColumns.Select(col => $"MAX ( '{col.Table?.Name.GetDaxTableName()}'[{col.Name.GetDaxColumnName()}] )"));
                 lastYear = listMax.IsNullOrEmpty() ? "YEAR ( TODAY() )" : $" YEAR ( MAXX ( {{ {listMax} }}, ''[Value] ) )";
             }
             lastYear =

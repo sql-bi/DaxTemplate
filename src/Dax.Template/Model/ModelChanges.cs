@@ -9,6 +9,7 @@ using TabularMeasure = Microsoft.AnalysisServices.Tabular.Measure;
 using TabularHierarchy = Microsoft.AnalysisServices.Tabular.Hierarchy;
 using System.Threading;
 using Dax.Template.Exceptions;
+using Dax.Template.Extensions;
 
 namespace Dax.Template.Model
 {
@@ -211,7 +212,7 @@ namespace Dax.Template.Model
                 var table = model.Tables[tableName];
                 string columns = string.Join(
                     ",\r\n    ",
-                    table.Columns.Where(c => c.Type != ColumnType.RowNumber).Select(column => $"\"'{PREVIEW_PREFIX}{varName}'[{column.Name}]\", [{column.Name}]"));
+                    table.Columns.Where(c => c.Type != ColumnType.RowNumber).Select(column => $"\"'{PREVIEW_PREFIX}{varName}'[{column.Name}]\", [{column.Name.GetDaxColumnName()}]"));
                 var renamedTableExpression = $"SELECTCOLUMNS (\r\n    {tableExpression}\r\n    ,\r\n    {columns}\r\n)";
                 return renamedTableExpression;
             }
