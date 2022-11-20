@@ -273,7 +273,7 @@ namespace Dax.Template.Measures
                 }
             }
 
-            return result;
+            return result.ToASEol()!;
         }
 
         internal static IEnumerable<Table> GetTablesFromAnnotations(TabularModel model, string attribute, string? value)

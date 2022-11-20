@@ -23,5 +23,18 @@
         {
             return name?.Replace("]", "]]");
         }
+
+        /// <summary>
+        /// Replace all occurrences of CRLF with LF since this is the default EOL character in SSAS
+        /// </summary>
+        public static string? ToASEol(this string? value)
+        {
+            if (value?.Length > 0)
+            {
+                value = value.Replace("\r\n", "\n");
+            }
+
+            return value;
+        }
     }
 }

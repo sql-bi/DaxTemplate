@@ -228,7 +228,7 @@ VAR {stepName} =
                 previousStepName = stepName;
             }
             result += $"\r\nRETURN\r\n    {previousStepName}";
-            return result;
+            return result.ToASEol();
         }
     }
 }
