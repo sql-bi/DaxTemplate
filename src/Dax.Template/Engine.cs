@@ -29,30 +29,36 @@ namespace Dax.Template
 
         public static Model.ModelChanges GetModelChanges(TabularModel model, CancellationToken cancellationToken = default)
         {
-            object? txManager = model.GetPropertyValue("TxManager");
-            object? currentSavePoint = txManager?.GetPropertyValue("CurrentSavepoint");
-            object? allBodies = currentSavePoint?.GetPropertyValue("AllBodies");
             Model.ModelChanges modelChanges = new();
-            if (allBodies != null)
-            {
-                var collection = (IEnumerable)allBodies;
-                foreach (var item in collection)
-                {
-                    cancellationToken.ThrowIfCancellationRequested();
 
-                    var owner = item?.GetPropertyValue("Owner");
-                    Table? lastParent = item?.GetPropertyValue("LastParent", false) as Table;
-                    Table? parent = lastParent ?? owner?.GetPropertyValue("Parent", false) as Table;
-                    switch (owner)
+            if (model.HasLocalChanges)
+            {
+                object? txManager = model.GetPropertyValue("TxManager");
+                object? currentSavePoint = txManager?.GetPropertyValue("CurrentSavepoint");
+                object? allBodies = currentSavePoint?.GetPropertyValue("AllBodies");
+
+                if (allBodies != null)
+                {
+                    var collection = (IEnumerable)allBodies;
+                    foreach (var item in collection)
                     {
-                        case Table table: modelChanges.AddTable(table, table.IsRemoved); break;
-                        case Measure measure: modelChanges.AddMeasure(measure, parent, measure.IsRemoved); break;
-                        case Column column: modelChanges.AddColumn(column, parent, column.IsRemoved); break;
-                        case Hierarchy hierarchy: modelChanges.AddHierarchy(hierarchy, parent, hierarchy.IsRemoved); break;
+                        cancellationToken.ThrowIfCancellationRequested();
+
+                        var owner = item?.GetPropertyValue("Owner");
+                        Table? lastParent = item?.GetPropertyValue("LastParent", false) as Table;
+                        Table? parent = lastParent ?? owner?.GetPropertyValue("Parent", false) as Table;
+                        switch (owner)
+                        {
+                            case Table table: modelChanges.AddTable(table, table.IsRemoved); break;
+                            case Measure measure: modelChanges.AddMeasure(measure, parent, measure.IsRemoved); break;
+                            case Column column: modelChanges.AddColumn(column, parent, column.IsRemoved); break;
+                            case Hierarchy hierarchy: modelChanges.AddHierarchy(hierarchy, parent, hierarchy.IsRemoved); break;
+                        }
                     }
                 }
+                modelChanges.SimplifyRemovedObjects(cancellationToken);
             }
-            modelChanges.SimplifyRemovedObjects(cancellationToken);
+
             return modelChanges;
         }
 
