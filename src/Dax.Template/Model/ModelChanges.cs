@@ -254,7 +254,7 @@ namespace Dax.Template.Model
             if (string.IsNullOrWhiteSpace(tableExpression)) return null;
             queryTablesDefinition ??= string.Empty;
 
-            string daxQuery = $"{queryTablesDefinition}\r\nEVALUATE TOPNSKIP ( {previewRows}, 0, {tableExpression} )";
+            string daxQuery = $"{queryTablesDefinition}\r\nEVALUATE TOPN ( {previewRows}, {tableExpression} )";
             if (connection.State != System.Data.ConnectionState.Open) connection.Open();
             using AdomdCommand command = new(daxQuery, connection);
             using var reader = command.ExecuteReader();
