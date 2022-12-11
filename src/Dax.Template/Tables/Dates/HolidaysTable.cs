@@ -114,21 +114,22 @@ VAR __GeneratedRawWithDuplicatesUnfiltered =
                 - INT ( ( __HolidayYear - 1980 ) / 4 )
         VAR __SeptemberEquinox = DATE ( __HolidayYear, 9, __SeptemberEquinoxDay )
         VAR __HolidayDate = 
-            SWITCH (
-                TRUE,
-                '{config.HolidaysDefinitionTable}'[DayNumber] <> 0
+//  Workaround for a SWITCH regression that fails on service from 2022-12-10 - revert to SWITCH and remove IF once the bug is fixed
+//            SWITCH (
+//                TRUE,
+                IF ( '{config.HolidaysDefinitionTable}'[DayNumber] <> 0
                     && '{config.HolidaysDefinitionTable}'[WeekDayNumber] <> 0, ERROR ( ""Wrong configuration in {config.HolidaysDefinitionTable}"" ),
-                '{config.HolidaysDefinitionTable}'[DayNumber] <> 0
+                IF ( '{config.HolidaysDefinitionTable}'[DayNumber] <> 0
                     && '{config.HolidaysDefinitionTable}'[MonthNumber] <= 12, DATE ( __HolidayYear, '{config.HolidaysDefinitionTable}'[MonthNumber], '{config.HolidaysDefinitionTable}'[DayNumber] ),
-                '{config.HolidaysDefinitionTable}'[MonthNumber] = 99, -- Easter offset
+                IF ( '{config.HolidaysDefinitionTable}'[MonthNumber] = 99, -- Easter offset
                     __EasterDate + '{config.HolidaysDefinitionTable}'[DayNumber],
-                '{config.HolidaysDefinitionTable}'[MonthNumber] = 98, -- Swedish Midsummer Day
+                IF ( '{config.HolidaysDefinitionTable}'[MonthNumber] = 98, -- Swedish Midsummer Day
                     __SwedishMidSummer + '{config.HolidaysDefinitionTable}'[DayNumber],
-                '{config.HolidaysDefinitionTable}'[MonthNumber] = 97, -- September Equinox
+                IF ( '{config.HolidaysDefinitionTable}'[MonthNumber] = 97, -- September Equinox
                     __SeptemberEquinox + '{config.HolidaysDefinitionTable}'[DayNumber],
-                '{config.HolidaysDefinitionTable}'[MonthNumber] = 96, -- March Equinox
+                IF ( '{config.HolidaysDefinitionTable}'[MonthNumber] = 96, -- March Equinox
                     __MarchEquinox + '{config.HolidaysDefinitionTable}'[DayNumber],
-                '{config.HolidaysDefinitionTable}'[WeekDayNumber] <> 0,
+                IF ( '{config.HolidaysDefinitionTable}'[WeekDayNumber] <> 0,
                     VAR _ReferenceDate =
                         DATE ( __HolidayYear, 1
                             + MOD ( '{config.HolidaysDefinitionTable}'[MonthNumber] - 1 + IF ( '{config.HolidaysDefinitionTable}'[OffsetWeek] < 0, 1 ), 12 ), 1 )
@@ -146,19 +147,20 @@ VAR __GeneratedRawWithDuplicatesUnfiltered =
                 RETURN
                     _ReferenceDate + _Offset + '{config.HolidaysDefinitionTable}'[OffsetDays],
                 ERROR ( ""Wrong configuration in {config.HolidaysDefinitionTable}"" )
-            )
+            ) ) ) ) ) ) )
+//            )
         VAR __HolidayDay = WEEKDAY ( __HolidayDate, 1 ) - 1
         VAR __SubstituteHolidayOffset = 
-            SWITCH (
-                TRUE,
-                '{config.HolidaysDefinitionTable}'[SubstituteHoliday] = -1,
+//            SWITCH (
+//                TRUE,
+                IF ( '{config.HolidaysDefinitionTable}'[SubstituteHoliday] = -1,
                     SWITCH ( 
                         __HolidayDay, 
                         0, 1,       -- If it falls on a Sunday then it is observed on Monday
                         6, -1,      -- If it falls on a Saturday then it is observed on Friday
                         0
                     ),
-                '{config.HolidaysDefinitionTable}'[SubstituteHoliday] > 0
+                IF ( '{config.HolidaysDefinitionTable}'[SubstituteHoliday] > 0
                     && NOT CONTAINS ( __WorkingDays, ''[Value], __HolidayDay ),
                     VAR _NextWorkingDay =
                         MINX (
@@ -174,7 +176,8 @@ VAR __GeneratedRawWithDuplicatesUnfiltered =
                     RETURN
                         _SubstituteDay - __HolidayDay
                             + ( '{config.HolidaysDefinitionTable}'[SubstituteHoliday] - 1 )
-            )
+            ) )
+//            )
         RETURN ROW ( 
             ""@HolidayDate"", DATE ( YEAR ( __HolidayDate ), MONTH ( __HolidayDate ), DAY ( __HolidayDate ) ),
             ""@SubstituteHolidayOffset"", __SubstituteHolidayOffset
