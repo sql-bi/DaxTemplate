@@ -160,6 +160,7 @@ namespace Dax.Template.Measures
                 measure = clonedMeasure;
                 targetTable.Measures.Add(measure);
             }
+            measure.Name = Name; // Force rename in case of different char casing (e.g. 'Amount' renamed to 'amount')
             measure.FormatString = FormatString ?? ReferenceMeasure?.FormatString;
             measure.IsHidden = IsHidden;
             measure.DisplayFolder = DisplayFolder;
