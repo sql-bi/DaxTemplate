@@ -75,10 +75,14 @@ namespace Dax.Template.Measures
         public const string ENTITY_COLUMNS_TABLE = "CT";
         internal static TabularMeasure? FindMeasure(TabularModel model, string measureName)
         {
-            return
-                (from t in model.Tables
-                 from m in t.Measures
-                 select m).FirstOrDefault(m => m.Name == measureName);
+            foreach (var table in model.Tables)
+            {
+                var measure = table.Measures.Find(measureName);
+                if (measure != null)
+                    return measure;
+            }
+
+            return null;
         }
 
         string GetDefaultVariable(string expression)
@@ -154,16 +158,9 @@ namespace Dax.Template.Measures
                 var clonedMeasure = measure.Clone();
                 (measure.Parent as Table)?.Measures.Remove(measure);
                 measure = clonedMeasure;
-                try
-                {
-                    targetTable.Measures.Add(measure);
-                }
-                catch (Exception ex)
-                {
-                    // TODO: remove try/catch after the issue has been closes https://github.com/sql-bi/DaxTemplate/issues/9
-                    throw new TemplateUnexpectedException($" *** PLEASE REPORT THIS ISSUE ON GITHUB *** { ex.Message }", ex);
-                }
+                targetTable.Measures.Add(measure);
             }
+            measure.Name = Name; // Force rename in case of different char casing (e.g. 'Amount' renamed to 'amount')
             measure.FormatString = FormatString ?? ReferenceMeasure?.FormatString;
             measure.IsHidden = IsHidden;
             measure.DisplayFolder = DisplayFolder;
