@@ -75,10 +75,14 @@ namespace Dax.Template.Measures
         public const string ENTITY_COLUMNS_TABLE = "CT";
         internal static TabularMeasure? FindMeasure(TabularModel model, string measureName)
         {
-            return
-                (from t in model.Tables
-                 from m in t.Measures
-                 select m).FirstOrDefault(m => m.Name == measureName);
+            foreach (var table in model.Tables)
+            {
+                var measure = table.Measures.Find(measureName);
+                if (measure != null)
+                    return measure;
+            }
+
+            return null;
         }
 
         string GetDefaultVariable(string expression)
