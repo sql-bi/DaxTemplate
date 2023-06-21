@@ -70,7 +70,7 @@ namespace Dax.Template.Extensions
                     select c;
             }
             bool checkInactive = (Config.AutoScan & AutoScanEnum.ScanInactiveRelationships) == AutoScanEnum.ScanInactiveRelationships;
-            bool checkActive = (Config.AutoScan & AutoScanEnum.ScanActiveRelationships) == AutoScanEnum.ScanActiveRelationships;
+            bool checkActive = (Config.AutoScan & AutoScanEnum.ScanActiveRelationships) == AutoScanEnum.ScanActiveRelationships || checkInactive;
             if ( checkInactive || checkActive )
             {
                 var scanRelationshipsFrom =
