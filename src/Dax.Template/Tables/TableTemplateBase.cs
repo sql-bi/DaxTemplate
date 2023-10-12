@@ -197,7 +197,7 @@ namespace Dax.Template.Tables
                           select r)
                     where relationship.FromTable.Name == tabularTable.Name
                        && IsRelationshipToSaveAndRestore(relationship)
-                    select (relationship, relationship.FromColumn.Name, relationship.ToColumn.IsKey);
+                    select (relationship, relationship.FromColumn.Name, relationship.FromColumn.IsKey);
             }
         }
 
