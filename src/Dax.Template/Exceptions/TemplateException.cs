@@ -13,12 +13,22 @@ namespace Dax.Template.Exceptions
             : base(message)
         {
         }
+
+        public TemplateException(string message, Exception innerException)
+            : base(message, innerException)
+        {
+        }
     }
 
     public class TemplateConfigurationException : TemplateException
     {
         public TemplateConfigurationException(string message)
             : base(message)
+        {
+        }
+
+        public TemplateConfigurationException(string message, Exception innerException) 
+            : base(message, innerException)
         {
         }
     }
