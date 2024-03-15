@@ -256,7 +256,7 @@ namespace Dax.Template.Measures
                         string.IsNullOrWhiteSpace(templateName)
                         ? originalMeasureName
                         : Template.GetTargetMeasureName(templateName, originalMeasureName);
-                    return $"[{replaceMeasureName}]";
+                    return $"[{replaceMeasureName.Replace("]", "]]")}]";
                 });
             }
             else
