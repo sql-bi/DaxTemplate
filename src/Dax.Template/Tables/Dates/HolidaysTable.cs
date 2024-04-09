@@ -129,7 +129,10 @@ VAR __GeneratedRawWithDuplicatesUnfiltered =
                     __SeptemberEquinox + '{config.HolidaysDefinitionTable}'[DayNumber],
                 IF ( '{config.HolidaysDefinitionTable}'[MonthNumber] = 96, -- March Equinox
                     __MarchEquinox + '{config.HolidaysDefinitionTable}'[DayNumber],
-                IF ( '{config.HolidaysDefinitionTable}'[WeekDayNumber] IN {{ 0, 1, 2, 3, 4, 5, 6 }},
+                IF ( '{config.HolidaysDefinitionTable}'[WeekDayNumber] IN {{ 0, 1, 2, 3, 4, 5, 6 }}
+                    && '{config.HolidaysDefinitionTable}'[DayNumber] = 0
+                    && '{config.HolidaysDefinitionTable}'[OffsetWeek] <> 0
+                    && '{config.HolidaysDefinitionTable}'[MonthNumber] IN {{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }},
                     VAR _ReferenceDate =
                         DATE ( __HolidayYear, 1
                             + MOD ( '{config.HolidaysDefinitionTable}'[MonthNumber] - 1 + IF ( '{config.HolidaysDefinitionTable}'[OffsetWeek] < 0, 1 ), 12 ), 1 )
