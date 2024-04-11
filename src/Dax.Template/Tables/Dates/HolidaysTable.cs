@@ -152,32 +152,32 @@ VAR __GeneratedRawWithDuplicatesUnfiltered =
                 ERROR ( ""Wrong configuration in {config.HolidaysDefinitionTable}"" )
             ) ) ) ) ) ) )
 //            )
-        VAR __HolidayDay = WEEKDAY ( __HolidayDate, 1 )
+        VAR __HolidayWeekDay = WEEKDAY ( __HolidayDate, 1 )
         VAR __SubstituteHolidayOffset = 
 //            SWITCH (
 //                TRUE,
                 IF ( '{config.HolidaysDefinitionTable}'[SubstituteHoliday] = -1,
                     SWITCH ( 
-                        __HolidayDay, 
+                        __HolidayWeekDay, 
                         1, 1,       -- If it falls on a Sunday then it is observed on Monday
                         7, -1,      -- If it falls on a Saturday then it is observed on Friday
                         0
                     ),
                 IF ( '{config.HolidaysDefinitionTable}'[SubstituteHoliday] > 0
-                    && NOT CONTAINS ( __WorkingDays, ''[Value], __HolidayDay ),
-                    VAR _NextWorkingDay =
+                    && NOT CONTAINS ( __WorkingDays, ''[Value], __HolidayWeekDay ),
+                    VAR _NextWorkingWeekDay =
                         MINX (
-                            FILTER ( __WorkingDays, ''[Value] > __HolidayDay ),
+                            FILTER ( __WorkingDays, ''[Value] > __HolidayWeekDay ),
                             ''[Value]
                         )
-                    VAR _SubstituteDay =
+                    VAR _SubstituteWeekDay =
                         IF (
-                            ISBLANK ( _NextWorkingDay ),
+                            ISBLANK ( _NextWorkingWeekDay ),
                             MINX ( __WorkingDays, ''[Value] ) + 7,
-                            _NextWorkingDay
+                            _NextWorkingWeekDay
                         )
                     RETURN
-                        _SubstituteDay - __HolidayDay
+                        _SubstituteWeekDay - __HolidayWeekDay
                             + ( '{config.HolidaysDefinitionTable}'[SubstituteHoliday] - 1 )
             ) )
 //            )
@@ -258,23 +258,23 @@ VAR __GeneratedSubstitutesOffset =
                 )
             VAR _SubstituteOffsetStep1 = [@SubstituteHolidayOffset] + _ConflictDay0 + _ConflictDay1 + _ConflictDay2
             VAR _HolidayDateStep1 = _CurrentHolidayDate + _SubstituteOffsetStep1
-            VAR _HolidayDayStep1 =
+            VAR _HolidayWeekDayStep1 =
                 WEEKDAY ( _HolidayDateStep1, 1 )
             VAR _SubstituteHolidayOffsetNonWorkingDays =
                 IF (
-                    NOT CONTAINS ( __WorkingDays, ''[Value], _HolidayDayStep1 ),
-                    VAR _NextWorkingDayStep2 =
+                    NOT CONTAINS ( __WorkingDays, ''[Value], _HolidayWeekDayStep1 ),
+                    VAR _NextWorkingWeekDayStep2 =
                         MINX (
-                            FILTER ( __WorkingDays, ''[Value] > _HolidayDayStep1 ),
+                            FILTER ( __WorkingDays, ''[Value] > _HolidayWeekDayStep1 ),
                             ''[Value]
                         )
-                    VAR _SubstituteDay =
+                    VAR _SubstituteWeekDay =
                         IF (
-                            ISBLANK ( _NextWorkingDayStep2 ),
+                            ISBLANK ( _NextWorkingWeekDayStep2 ),
                             MINX ( __WorkingDays, ''[Value] ) + 7,
-                            _NextWorkingDayStep2
+                            _NextWorkingWeekDayStep2
                         )
-                    RETURN _SubstituteDay - _HolidayDayStep1
+                    RETURN _SubstituteWeekDay - _HolidayWeekDayStep1
                 )
             VAR _SubstituteOffsetStep2 = _SubstituteOffsetStep1 + _SubstituteHolidayOffsetNonWorkingDays
             VAR _SubstituteDateStep2 = _OriginalSubstituteDate + _SubstituteOffsetStep2
