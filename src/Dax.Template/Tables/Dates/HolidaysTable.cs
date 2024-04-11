@@ -274,7 +274,7 @@ VAR __GeneratedSubstitutesOffset =
                             MINX ( __WorkingDays, ''[Value] ) + 7,
                             _NextWorkingDayStep2
                         )
-                    RETURN _SubstituteDay - _HolidayDateStep1
+                    RETURN _SubstituteDay - _HolidayDayStep1
                 )
             VAR _SubstituteOffsetStep2 = _SubstituteOffsetStep1 + _SubstituteHolidayOffsetNonWorkingDays
             VAR _SubstituteDateStep2 = _OriginalSubstituteDate + _SubstituteOffsetStep2
