@@ -152,15 +152,15 @@ VAR __GeneratedRawWithDuplicatesUnfiltered =
                 ERROR ( ""Wrong configuration in {config.HolidaysDefinitionTable}"" )
             ) ) ) ) ) ) )
 //            )
-        VAR __HolidayDay = WEEKDAY ( __HolidayDate, 1 ) - 1
+        VAR __HolidayDay = WEEKDAY ( __HolidayDate, 1 )
         VAR __SubstituteHolidayOffset = 
 //            SWITCH (
 //                TRUE,
                 IF ( '{config.HolidaysDefinitionTable}'[SubstituteHoliday] = -1,
                     SWITCH ( 
                         __HolidayDay, 
-                        0, 1,       -- If it falls on a Sunday then it is observed on Monday
-                        6, -1,      -- If it falls on a Saturday then it is observed on Friday
+                        1, 1,       -- If it falls on a Sunday then it is observed on Monday
+                        7, -1,      -- If it falls on a Saturday then it is observed on Friday
                         0
                     ),
                 IF ( '{config.HolidaysDefinitionTable}'[SubstituteHoliday] > 0
@@ -259,7 +259,7 @@ VAR __GeneratedSubstitutesOffset =
             VAR _SubstituteOffsetStep1 = [@SubstituteHolidayOffset] + _ConflictDay0 + _ConflictDay1 + _ConflictDay2
             VAR _HolidayDateStep1 = _CurrentHolidayDate + _SubstituteOffsetStep1
             VAR _HolidayDayStep1 =
-                WEEKDAY ( _HolidayDateStep1, 1 ) - 1
+                WEEKDAY ( _HolidayDateStep1, 1 )
             VAR _SubstituteHolidayOffsetNonWorkingDays =
                 IF (
                     NOT CONTAINS ( __WorkingDays, ''[Value], _HolidayDayStep1 ),
