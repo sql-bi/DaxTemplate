@@ -94,7 +94,7 @@ namespace Dax.Template.Measures
             IEnumerable<Measure> result = Array.Empty<Measure>();
             foreach(var tm in Config.TargetMeasures)
             {
-                cancellationToken?.ThrowIfCancellationRequested();
+                cancellationToken.ThrowIfCancellationRequested();
                 result = result.Union(
                     from t in model.Tables
                     from m in t.Measures
@@ -188,7 +188,7 @@ namespace Dax.Template.Measures
             // Create the individual measures of the template (not applied to single measures)
             foreach (var template in singleInstanceMeasures)
             {
-                cancellationToken?.ThrowIfCancellationRequested();
+                cancellationToken.ThrowIfCancellationRequested();
                 ApplyMeasureTemplate(template, targetTableSingleInstanceMeasures, referenceMeasure: null, cancellationToken);
             }
 
@@ -197,7 +197,7 @@ namespace Dax.Template.Measures
             {
                 foreach (var template in templateMeasures)
                 {
-                    cancellationToken?.ThrowIfCancellationRequested();
+                    cancellationToken.ThrowIfCancellationRequested();
                     ApplyMeasureTemplate(template, targetTable, referenceMeasure: target, cancellationToken);
                 }
             }
@@ -209,7 +209,7 @@ namespace Dax.Template.Measures
                 existingMeasuresFromSameTemplate.RemoveAll(m => appliedMeasures.Any(am => am.Name.Equals(m.Name)));
                 foreach (var removeMeasure in existingMeasuresFromSameTemplate)
                 {
-                    cancellationToken?.ThrowIfCancellationRequested();
+                    cancellationToken.ThrowIfCancellationRequested();
                     removeMeasure.Table.Measures.Remove(removeMeasure);
                 }
             }
@@ -291,7 +291,7 @@ namespace Dax.Template.Measures
             {
                 foreach (var tt in Template.TargetTable)
                 {
-                    cancellationToken?.ThrowIfCancellationRequested();
+                    cancellationToken.ThrowIfCancellationRequested();
                     var tables = MeasureTemplateBase.GetTablesFromAnnotations(model, tt.Key, tt.Value);
                     if (!tables.Any())
                     {

@@ -175,7 +175,7 @@ namespace Dax.Template.Measures
                 if (Annotations == null) return;
                 foreach (var annotation in Annotations)
                 {
-                    cancellationToken?.ThrowIfCancellationRequested();
+                    cancellationToken.ThrowIfCancellationRequested();
 
                     var annotationName = annotation.Key;
                     var annotationValue = annotation.Value.ToString();

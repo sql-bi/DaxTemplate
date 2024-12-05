@@ -76,7 +76,7 @@ namespace Dax.Template
             {
                 Configuration.Templates.ToList().ForEach(template =>
                 {
-                    cancellationToken?.ThrowIfCancellationRequested();
+                    cancellationToken.ThrowIfCancellationRequested();
                     var (className, action) = classes.First(c => c.className == template.Class);
                     action(template, cancellationToken);
                 });
@@ -215,7 +215,7 @@ namespace Dax.Template
             Translations.Definitions translations = new();
             foreach (var localizationFile in Configuration.LocalizationFiles!)
             {
-                cancellationToken?.ThrowIfCancellationRequested();
+                cancellationToken.ThrowIfCancellationRequested();
                 Translations.Definitions definitions = _package.ReadDefinition<Translations.Definitions>(localizationFile);
                 translations.Translations = translations.Translations.Union(definitions.Translations).ToArray();
             }

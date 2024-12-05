@@ -121,7 +121,7 @@ namespace Dax.Template.Tables
             var lastStepName = string.Empty;
             foreach (var level in groupElements)
             {
-                cancellationToken?.ThrowIfCancellationRequested();
+                cancellationToken.ThrowIfCancellationRequested();
                 var daxSteps = GetLevelElements<DaxStep>(level);
                 lastStepName = daxSteps.LastOrDefault()?.Name ?? lastStepName;
                 string previousStepToReference = (!string.IsNullOrEmpty(previousStepName) ? previousStepName : lastStepName);
