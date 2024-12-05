@@ -35,7 +35,7 @@ namespace Dax.Template.Tables
             return removeExistingPartition;
         }
 
-        protected override void AddPartitions(Table dateTable, CancellationToken? cancellationToken)
+        protected override void AddPartitions(Table dateTable, CancellationToken cancellationToken = default)
         {
             // Add the new partition
             dateTable.Partitions.Add(new Partition
@@ -53,7 +53,7 @@ namespace Dax.Template.Tables
 
         private static readonly Regex regexGetIso = new(@"@@GETISO[ \r\n\t]*\([ \r\n\t]*\)", RegexOptions.Compiled);
 
-        protected virtual string? ProcessDaxExpression(string? expression, string lastStep, CancellationToken? cancellationToken, Microsoft.AnalysisServices.Tabular.Model? model = null)
+        protected virtual string? ProcessDaxExpression(string? expression, string lastStep, Microsoft.AnalysisServices.Tabular.Model? model = null, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrEmpty(expression)) return expression;
 
@@ -104,7 +104,7 @@ namespace Dax.Template.Tables
         static protected readonly string PadColumnAddColumnsExpression = new(' ', 12);
         static protected readonly string PadColumnAddColumnsDefinition = new(' ', 8);
 
-        public virtual string? GetDaxTableExpression(Microsoft.AnalysisServices.Tabular.Model? model, CancellationToken? cancellationToken)
+        public virtual string? GetDaxTableExpression(Microsoft.AnalysisServices.Tabular.Model? model, CancellationToken cancellationToken = default)
         {
             var listDependencies = Columns.GetDependencies();
 

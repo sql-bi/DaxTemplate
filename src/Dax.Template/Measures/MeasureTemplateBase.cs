@@ -145,7 +145,7 @@ namespace Dax.Template.Measures
             return expression;
         }
 
-        public virtual TabularMeasure ApplyTemplate(TabularModel model, Table targetTable, CancellationToken? cancellationToken, bool overrideExistingMeasure = true)
+        public virtual TabularMeasure ApplyTemplate(TabularModel model, Table targetTable, bool overrideExistingMeasure = true, CancellationToken cancellationToken = default)
         {
             var measure = FindMeasure(model, Name);
             if (measure == null)
@@ -170,7 +170,7 @@ namespace Dax.Template.Measures
 
             return measure;
 
-            void ApplyAnnotations(TabularMeasure measure, CancellationToken? cancellationToken)
+            void ApplyAnnotations(TabularMeasure measure, CancellationToken cancellationToken = default)
             {
                 if (Annotations == null) return;
                 foreach (var annotation in Annotations)

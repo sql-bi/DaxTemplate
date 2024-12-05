@@ -62,9 +62,9 @@ namespace Dax.Template
             return modelChanges;
         }
 
-        public void ApplyTemplates(TabularModel model, CancellationToken? cancellationToken)
+        public void ApplyTemplates(TabularModel model, CancellationToken cancellationToken = default)
         {
-            (string className, Action<ITemplates.TemplateEntry, CancellationToken?> action)[] classes = new (string, Action<ITemplates.TemplateEntry, CancellationToken?>)[]
+            (string className, Action<ITemplates.TemplateEntry, CancellationToken> action)[] classes = new (string, Action<ITemplates.TemplateEntry, CancellationToken>)[]
             {
                 ( nameof(HolidaysDefinitionTable), ApplyHolidaysDefinitionTable ),
                 ( nameof(HolidaysTable), ApplyHolidaysTable ),
@@ -108,7 +108,7 @@ namespace Dax.Template
                 }
             }
 
-            void ApplyHolidaysDefinitionTable(ITemplates.TemplateEntry templateEntry, CancellationToken? cancellationToken)
+            void ApplyHolidaysDefinitionTable(ITemplates.TemplateEntry templateEntry, CancellationToken cancellationToken = default)
             {
                 Table tableHolidaysDefinition = model.Tables.Find(templateEntry.Table);
                 if (!templateEntry.IsEnabled)
@@ -137,7 +137,7 @@ namespace Dax.Template
                 template.ApplyTemplate(tableHolidaysDefinition, cancellationToken, templateEntry.IsHidden);
                 tableHolidaysDefinition.RequestRefresh(RefreshType.Full);
             }
-            void ApplyHolidaysTable(ITemplates.TemplateEntry templateEntry, CancellationToken? cancellationToken)
+            void ApplyHolidaysTable(ITemplates.TemplateEntry templateEntry, CancellationToken cancellationToken = default)
             {
                 Table tableHolidays = model.Tables.Find(templateEntry.Table);
                 if (!templateEntry.IsEnabled)
@@ -162,7 +162,7 @@ namespace Dax.Template
                 template.ApplyTemplate(tableHolidays, cancellationToken, templateEntry.IsHidden);
                 tableHolidays.RequestRefresh(RefreshType.Full);
             }
-            void ApplyCustomDateTable(ITemplates.TemplateEntry templateEntry, CancellationToken? cancellationToken)
+            void ApplyCustomDateTable(ITemplates.TemplateEntry templateEntry, CancellationToken cancellationToken = default)
             {
                 if (string.IsNullOrWhiteSpace(templateEntry.Template))
                 {
@@ -198,7 +198,7 @@ namespace Dax.Template
                     applyTranslations: translationsEnabled);
 
             }
-            void ApplyMeasuresTemplate(ITemplates.TemplateEntry templateEntry, CancellationToken? cancellationToken)
+            void ApplyMeasuresTemplate(ITemplates.TemplateEntry templateEntry, CancellationToken cancellationToken = default)
             {
                 if (string.IsNullOrWhiteSpace(templateEntry.Template))
                 {
@@ -210,7 +210,7 @@ namespace Dax.Template
             }
         }
 
-        private Translations.Definitions ReadTranslations(CancellationToken? cancellationToken)
+        private Translations.Definitions ReadTranslations(CancellationToken cancellationToken = default)
         {
             Translations.Definitions translations = new();
             foreach (var localizationFile in Configuration.LocalizationFiles!)
@@ -230,9 +230,9 @@ namespace Dax.Template
             TabularModel model, 
             bool hideTable,
             string? isoFormat,
-            CancellationToken? cancellationToken,
             string? referenceTable = null, 
-            bool applyTranslations = false)
+            bool applyTranslations = false,
+            CancellationToken cancellationToken = default)
         {
             Table tableDate = model.Tables.Find(dateTableName);
             if (tableDate == null)

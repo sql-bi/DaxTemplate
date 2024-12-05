@@ -40,7 +40,7 @@ namespace Dax.Template.Tables.Dates
                    && relationship.ToColumn.DataType == DataType.DateTime;
         }
 
-        public override void ApplyTemplate(Table dateTable, CancellationToken? cancellationToken)
+        public override void ApplyTemplate(Table dateTable, CancellationToken cancellationToken = default)
         {
             foreach (var column in Columns.Where(c => c is Model.DateColumn))
             {
@@ -75,7 +75,7 @@ namespace Dax.Template.Tables.Dates
         /// </summary>
         /// <param name="expression"></param>
         /// <returns></returns>
-        protected override string? ProcessDaxExpression(string? expression, string lastStep, CancellationToken? cancellationToken, TabularModel? model = null)
+        protected override string? ProcessDaxExpression(string? expression, string lastStep, TabularModel? model = null, CancellationToken cancellationToken = default)
         {
             cancellationToken?.ThrowIfCancellationRequested();
             expression = base.ProcessDaxExpression(expression, lastStep, cancellationToken, model);

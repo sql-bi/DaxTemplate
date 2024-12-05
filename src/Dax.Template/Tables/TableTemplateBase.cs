@@ -24,7 +24,7 @@ namespace Dax.Template.Tables
         public Translations? Translation { get; set; }
 
         private bool templateApplied = false;
-        private void ResetTabularReferences(CancellationToken? cancellationToken)
+        private void ResetTabularReferences(CancellationToken cancellationToken = default)
         {
             cancellationToken?.ThrowIfCancellationRequested();
 
@@ -46,7 +46,7 @@ namespace Dax.Template.Tables
             templateApplied = false;
         }
 
-        protected virtual void RenameWithTranslation(Table tabularTable, Translations.Language language, CancellationToken? cancellationToken)
+        protected virtual void RenameWithTranslation(Table tabularTable, Translations.Language language, CancellationToken cancellationToken = default)
         {
             // if (!string.IsNullOrEmpty(language.Table.Name)) tabularTable.Name = language.Table.Name;
             if (!string.IsNullOrEmpty(language.Table?.Description)) tabularTable.Description = language.Table.Description;
@@ -103,7 +103,7 @@ namespace Dax.Template.Tables
             throw new NotImplementedException();
         }
 
-        protected virtual void ApplyTranslations(Table tabularTable, CancellationToken? cancellationToken)
+        protected virtual void ApplyTranslations(Table tabularTable, CancellationToken cancellationToken = default)
         {
             if (Translation == null) return;
 
@@ -124,7 +124,7 @@ namespace Dax.Template.Tables
                 AddTranslation(tabularTable, t);
             });
         }
-        public void ApplyTemplate(Table tabularTable, CancellationToken? cancellationToken, bool hideTable = false)
+        public void ApplyTemplate(Table tabularTable, bool hideTable = false, CancellationToken cancellationToken = default)
         {
             ApplyTemplate(tabularTable, cancellationToken);
 
@@ -152,7 +152,7 @@ namespace Dax.Template.Tables
             return true;
         }
 
-        public virtual void ApplyTemplate(Table tabularTable, CancellationToken? cancellationToken)
+        public virtual void ApplyTemplate(Table tabularTable, CancellationToken cancellationToken = default)
         {
             if (templateApplied)
             {
@@ -175,7 +175,7 @@ namespace Dax.Template.Tables
             RestoreAffectedRelationships(tabularTable, cancellationToken);
         }
 
-        private void SaveAffectedRelationships(Table tabularTable, CancellationToken? cancellationToken)
+        private void SaveAffectedRelationships(Table tabularTable, CancellationToken cancellationToken = default)
         {
             cancellationToken?.ThrowIfCancellationRequested();
 
@@ -201,7 +201,7 @@ namespace Dax.Template.Tables
             }
         }
 
-        private void RestoreAffectedRelationships(Table tabularTable, CancellationToken? cancellationToken)
+        private void RestoreAffectedRelationships(Table tabularTable, CancellationToken cancellationToken = default)
         {
             if (FixRelationshipsTo != null)
             {
@@ -256,7 +256,7 @@ namespace Dax.Template.Tables
             return null;
         }
 
-        protected virtual void AddColumns(Table dateTable, CancellationToken? cancellationToken)
+        protected virtual void AddColumns(Table dateTable, CancellationToken cancellationToken = default)
         {
             // Save existing columns (like calculated columns)
             var existingColumns = dateTable.Columns.Select(c => c.Clone()).ToList();
@@ -337,7 +337,7 @@ namespace Dax.Template.Tables
         }
 
         // TODO: this code is very similar to ApplyAnnotations in MeasuresTemplateBase.cs - evaluate whether we should consolidate the code in a single function
-        protected virtual void AddAnnotations(Table dateTable, CancellationToken? cancellationToken)
+        protected virtual void AddAnnotations(Table dateTable, CancellationToken cancellationToken = default)
         {
             cancellationToken?.ThrowIfCancellationRequested();
             if (Annotations == null) return;
@@ -361,7 +361,7 @@ namespace Dax.Template.Tables
             }
         }
 
-        protected virtual void AddHierarchies(Table dateTable, CancellationToken? cancellationToken)
+        protected virtual void AddHierarchies(Table dateTable, CancellationToken cancellationToken = default)
         {
             // Create Tabular level for hierarchies
             var levels = from h in Hierarchies from l in h.Levels select l;
@@ -406,7 +406,7 @@ namespace Dax.Template.Tables
             }
         }
 
-        protected virtual void RemoveExistingElements(Table dateTable, CancellationToken? cancellationToken)
+        protected virtual void RemoveExistingElements(Table dateTable, CancellationToken cancellationToken = default)
         {
             cancellationToken?.ThrowIfCancellationRequested();
 
@@ -442,7 +442,7 @@ namespace Dax.Template.Tables
         }
 
         protected abstract bool RemoveExistingPartitions(Table dateTable);
-        protected abstract void AddPartitions(Table dateTable, CancellationToken? cancellationToken);
+        protected abstract void AddPartitions(Table dateTable, CancellationToken cancellationToken = default);
 
     }
 }
