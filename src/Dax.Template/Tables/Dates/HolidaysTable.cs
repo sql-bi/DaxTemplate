@@ -360,9 +360,9 @@ RETURN
             Columns.AddRange(columns);
         }
 
-        public override string? GetDaxTableExpression(TabularModel? model, CancellationToken? cancellationToken)
+        public override string? GetDaxTableExpression(TabularModel? model, CancellationToken cancellationToken = default)
         {
-            return ProcessDaxExpression(__HolidaysTable.Expression, string.Empty, cancellationToken, model);
+            return ProcessDaxExpression(__HolidaysTable.Expression, string.Empty, model, cancellationToken);
         }
     }
 }

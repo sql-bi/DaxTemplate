@@ -80,7 +80,7 @@ namespace Dax.Template.Measures
         /// Returns the target measures for the template
         /// </summary>
         /// <returns></returns>
-        private IEnumerable<Measure> GetTargetMeasures(TabularModel model, CancellationToken? cancellationToken)
+        private IEnumerable<Measure> GetTargetMeasures(TabularModel model, CancellationToken cancellationToken = default)
         {
             if (Config.TargetMeasures == null || Config.TargetMeasures.Length == 0)
             {
@@ -94,7 +94,7 @@ namespace Dax.Template.Measures
             IEnumerable<Measure> result = Array.Empty<Measure>();
             foreach(var tm in Config.TargetMeasures)
             {
-                cancellationToken?.ThrowIfCancellationRequested();
+                cancellationToken.ThrowIfCancellationRequested();
                 result = result.Union(
                     from t in model.Tables
                     from m in t.Measures
@@ -157,7 +157,7 @@ namespace Dax.Template.Measures
             return $"{prefix}{referenceMeasureName}{suffix}";
         }
 
-        public void ApplyTemplate(TabularModel model, bool isEnabled, CancellationToken? cancellationToken, bool overrideExistingMeasures = true)
+        public void ApplyTemplate(TabularModel model, bool isEnabled, bool overrideExistingMeasures = true, CancellationToken cancellationToken = default)
         {
             // Retrieves the existing measures created by a previous execution of the same template type
             string? SqlbiTemplateValue = GetSqlbiTemplateValue();
@@ -188,7 +188,7 @@ namespace Dax.Template.Measures
             // Create the individual measures of the template (not applied to single measures)
             foreach (var template in singleInstanceMeasures)
             {
-                cancellationToken?.ThrowIfCancellationRequested();
+                cancellationToken.ThrowIfCancellationRequested();
                 ApplyMeasureTemplate(template, targetTableSingleInstanceMeasures, referenceMeasure: null, cancellationToken);
             }
 
@@ -197,7 +197,7 @@ namespace Dax.Template.Measures
             {
                 foreach (var template in templateMeasures)
                 {
-                    cancellationToken?.ThrowIfCancellationRequested();
+                    cancellationToken.ThrowIfCancellationRequested();
                     ApplyMeasureTemplate(template, targetTable, referenceMeasure: target, cancellationToken);
                 }
             }
@@ -209,12 +209,12 @@ namespace Dax.Template.Measures
                 existingMeasuresFromSameTemplate.RemoveAll(m => appliedMeasures.Any(am => am.Name.Equals(m.Name)));
                 foreach (var removeMeasure in existingMeasuresFromSameTemplate)
                 {
-                    cancellationToken?.ThrowIfCancellationRequested();
+                    cancellationToken.ThrowIfCancellationRequested();
                     removeMeasure.Table.Measures.Remove(removeMeasure);
                 }
             }
 
-            void ApplyMeasureTemplate(MeasuresTemplateDefinition.MeasureTemplate template, Table targetTable, Measure? referenceMeasure, CancellationToken? cancellationToken)
+            void ApplyMeasureTemplate(MeasuresTemplateDefinition.MeasureTemplate template, Table targetTable, Measure? referenceMeasure, CancellationToken cancellationToken = default)
             {
                 if (template.Name == null)
                 {
@@ -234,7 +234,7 @@ namespace Dax.Template.Measures
                     ReferenceMeasure = referenceMeasure,
                     DefaultVariables = Config.DefaultVariables
                 };
-                var modelMeasure = measureTemplate.ApplyTemplate(model, referenceMeasure?.Parent as Table ?? targetTable, cancellationToken, overrideExistingMeasures);
+                var modelMeasure = measureTemplate.ApplyTemplate(model, referenceMeasure?.Parent as Table ?? targetTable, overrideExistingMeasures, cancellationToken);
                 appliedMeasures.Add(modelMeasure);
             }
         }
@@ -279,7 +279,7 @@ namespace Dax.Template.Measures
                 (from t in model.Tables
                  select t).FirstOrDefault(t => t.Name == tableName);
         }
-        private Table GetTargetTable(TabularModel model, CancellationToken? cancellationToken)
+        private Table GetTargetTable(TabularModel model, CancellationToken cancellationToken = default)
         {
             Table? targetTable = null;
             var targetTableName = Template.TargetTable.FirstOrDefault(tt => tt.Key == "Name").Value;
@@ -291,7 +291,7 @@ namespace Dax.Template.Measures
             {
                 foreach (var tt in Template.TargetTable)
                 {
-                    cancellationToken?.ThrowIfCancellationRequested();
+                    cancellationToken.ThrowIfCancellationRequested();
                     var tables = MeasureTemplateBase.GetTablesFromAnnotations(model, tt.Key, tt.Value);
                     if (!tables.Any())
                     {

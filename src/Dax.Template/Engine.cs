@@ -62,9 +62,9 @@ namespace Dax.Template
             return modelChanges;
         }
 
-        public void ApplyTemplates(TabularModel model, CancellationToken? cancellationToken)
+        public void ApplyTemplates(TabularModel model, CancellationToken cancellationToken = default)
         {
-            (string className, Action<ITemplates.TemplateEntry, CancellationToken?> action)[] classes = new (string, Action<ITemplates.TemplateEntry, CancellationToken?>)[]
+            (string className, Action<ITemplates.TemplateEntry, CancellationToken> action)[] classes = new (string, Action<ITemplates.TemplateEntry, CancellationToken>)[]
             {
                 ( nameof(HolidaysDefinitionTable), ApplyHolidaysDefinitionTable ),
                 ( nameof(HolidaysTable), ApplyHolidaysTable ),
@@ -76,7 +76,7 @@ namespace Dax.Template
             {
                 Configuration.Templates.ToList().ForEach(template =>
                 {
-                    cancellationToken?.ThrowIfCancellationRequested();
+                    cancellationToken.ThrowIfCancellationRequested();
                     var (className, action) = classes.First(c => c.className == template.Class);
                     action(template, cancellationToken);
                 });
@@ -108,7 +108,7 @@ namespace Dax.Template
                 }
             }
 
-            void ApplyHolidaysDefinitionTable(ITemplates.TemplateEntry templateEntry, CancellationToken? cancellationToken)
+            void ApplyHolidaysDefinitionTable(ITemplates.TemplateEntry templateEntry, CancellationToken cancellationToken = default)
             {
                 Table tableHolidaysDefinition = model.Tables.Find(templateEntry.Table);
                 if (!templateEntry.IsEnabled)
@@ -134,10 +134,10 @@ namespace Dax.Template
                     throw new InvalidConfigurationException($"Undefined Template in class {templateEntry.Class} configuration");
                 }
                 template = new HolidaysDefinitionTable(_package.ReadDefinition<HolidaysDefinitionTable.HolidaysDefinitions>(templateEntry.Template));
-                template.ApplyTemplate(tableHolidaysDefinition, cancellationToken, templateEntry.IsHidden);
+                template.ApplyTemplate(tableHolidaysDefinition, templateEntry.IsHidden, cancellationToken);
                 tableHolidaysDefinition.RequestRefresh(RefreshType.Full);
             }
-            void ApplyHolidaysTable(ITemplates.TemplateEntry templateEntry, CancellationToken? cancellationToken)
+            void ApplyHolidaysTable(ITemplates.TemplateEntry templateEntry, CancellationToken cancellationToken = default)
             {
                 Table tableHolidays = model.Tables.Find(templateEntry.Table);
                 if (!templateEntry.IsEnabled)
@@ -159,10 +159,10 @@ namespace Dax.Template
                 }
                 CalculatedTableTemplateBase template;
                 template = new HolidaysTable(Configuration);
-                template.ApplyTemplate(tableHolidays, cancellationToken, templateEntry.IsHidden);
+                template.ApplyTemplate(tableHolidays, templateEntry.IsHidden, cancellationToken);
                 tableHolidays.RequestRefresh(RefreshType.Full);
             }
-            void ApplyCustomDateTable(ITemplates.TemplateEntry templateEntry, CancellationToken? cancellationToken)
+            void ApplyCustomDateTable(ITemplates.TemplateEntry templateEntry, CancellationToken cancellationToken = default)
             {
                 if (string.IsNullOrWhiteSpace(templateEntry.Template))
                 {
@@ -184,7 +184,7 @@ namespace Dax.Template
                         model,
                         hideTable: true,
                         isoFormat: Configuration.IsoFormat,
-                        cancellationToken);
+                        cancellationToken: cancellationToken);
                 }
                 bool translationsEnabled = !string.IsNullOrWhiteSpace(Configuration.IsoTranslation);
                 ReferenceCalculatedTable visibleDateTemplate = CreateDateTable(
@@ -193,12 +193,12 @@ namespace Dax.Template
                     model, 
                     hideTable: templateEntry.IsHidden, 
                     isoFormat: Configuration.IsoFormat,
-                    cancellationToken,
                     referenceTable: templateEntry.ReferenceTable, 
-                    applyTranslations: translationsEnabled);
+                    applyTranslations: translationsEnabled,
+                    cancellationToken);
 
             }
-            void ApplyMeasuresTemplate(ITemplates.TemplateEntry templateEntry, CancellationToken? cancellationToken)
+            void ApplyMeasuresTemplate(ITemplates.TemplateEntry templateEntry, CancellationToken cancellationToken = default)
             {
                 if (string.IsNullOrWhiteSpace(templateEntry.Template))
                 {
@@ -206,16 +206,16 @@ namespace Dax.Template
                 }
                 var measuresTemplateDefinition = _package.ReadDefinition<MeasuresTemplateDefinition>(templateEntry.Template);
                 var template = new MeasuresTemplate(Configuration, measuresTemplateDefinition, templateEntry.Properties);
-                template.ApplyTemplate(model, templateEntry.IsEnabled, cancellationToken);
+                template.ApplyTemplate(model, isEnabled: templateEntry.IsEnabled, cancellationToken: cancellationToken);
             }
         }
 
-        private Translations.Definitions ReadTranslations(CancellationToken? cancellationToken)
+        private Translations.Definitions ReadTranslations(CancellationToken cancellationToken = default)
         {
             Translations.Definitions translations = new();
             foreach (var localizationFile in Configuration.LocalizationFiles!)
             {
-                cancellationToken?.ThrowIfCancellationRequested();
+                cancellationToken.ThrowIfCancellationRequested();
                 Translations.Definitions definitions = _package.ReadDefinition<Translations.Definitions>(localizationFile);
                 translations.Translations = translations.Translations.Union(definitions.Translations).ToArray();
             }
@@ -230,9 +230,9 @@ namespace Dax.Template
             TabularModel model, 
             bool hideTable,
             string? isoFormat,
-            CancellationToken? cancellationToken,
             string? referenceTable = null, 
-            bool applyTranslations = false)
+            bool applyTranslations = false,
+            CancellationToken cancellationToken = default)
         {
             Table tableDate = model.Tables.Find(dateTableName);
             if (tableDate == null)
@@ -256,7 +256,7 @@ namespace Dax.Template
                 IsoFormat = isoFormat
             };
 
-            template.ApplyTemplate(tableDate, cancellationToken, hideTable);
+            template.ApplyTemplate(tableDate, hideTable, cancellationToken);
 
             tableDate.RequestRefresh(RefreshType.Full);
 
