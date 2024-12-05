@@ -129,7 +129,7 @@ namespace Dax.Template.Tables
                 var daxElements = GetLevelElements<DaxElement>(level).Except(daxSteps);
                 var rowVars = GetLevelElements<VarRow>(level);
                 // Skip columns without definition, such as Date assigned to a step
-                var columns = GetLevelElements<Column>(level).Where(c => !string.IsNullOrEmpty(ProcessDaxExpression(c.Expression, previousStepToReference, cancellationToken, model)));
+                var columns = GetLevelElements<Column>(level).Where(c => !string.IsNullOrEmpty(ProcessDaxExpression(c.Expression, previousStepToReference, model, cancellationToken)));
 
                 var configurableGlobalVars = globalVars.Where(v => v.IsConfigurable);
                 var internalGlobalVars = globalVars.Where(v => !v.IsConfigurable);
@@ -138,11 +138,11 @@ namespace Dax.Template.Tables
                     result += CommentPrefixNewLine;
                     result += $"{CommentPrefixNewLine}   Configuration";
                     result += CommentPrefixNewLine;
-                    result += string.Join(string.Empty, configurableGlobalVars.Select(e => $"\r\n{GetComments(e, PadGlobalVarDefinition)}VAR {e.Name} = {ProcessDaxExpression(e.Expression, previousStepToReference, cancellationToken, model)}"));
+                    result += string.Join(string.Empty, configurableGlobalVars.Select(e => $"\r\n{GetComments(e, PadGlobalVarDefinition)}VAR {e.Name} = {ProcessDaxExpression(e.Expression, previousStepToReference, model, cancellationToken)}"));
                     result += CommentLineSeparator;
                 }
-                result += string.Join(string.Empty, internalGlobalVars.Select(e => $"\r\n{GetComments(e, PadGlobalVarDefinition)}VAR {e.Name} = {ProcessDaxExpression(e.Expression, previousStepToReference, cancellationToken, model)}"));
-                result += string.Join(string.Empty, daxSteps.Select(e => $"\r\n{GetComments(e, PadStepDefinition)}VAR {e.Name} = {ProcessDaxExpression(e.Expression, previousStepToReference, cancellationToken, model)}"));
+                result += string.Join(string.Empty, internalGlobalVars.Select(e => $"\r\n{GetComments(e, PadGlobalVarDefinition)}VAR {e.Name} = {ProcessDaxExpression(e.Expression, previousStepToReference, model, cancellationToken)}"));
+                result += string.Join(string.Empty, daxSteps.Select(e => $"\r\n{GetComments(e, PadStepDefinition)}VAR {e.Name} = {ProcessDaxExpression(e.Expression, previousStepToReference, model, cancellationToken)}"));
                 if (rowVars.Any() || columns.Any())
                 {
                     if (!columns.Any())
@@ -173,13 +173,13 @@ VAR {stepName} =
 
                         var daxElement = daxElements.FirstOrDefault() ?? defaultElement;
                         var daxRowVars = (rowVars?.Any() == true) ?
-                            string.Join("\r\n", rowVars.Select(e => $"{GetComments(e,PadRowVarDefinition)}{PadRowVarDefinition}VAR {e.Name} = {ProcessDaxExpression(e.Expression, previousStepToReference, cancellationToken, model)}")) + "\r\n        RETURN " :
+                            string.Join("\r\n", rowVars.Select(e => $"{GetComments(e,PadRowVarDefinition)}{PadRowVarDefinition}VAR {e.Name} = {ProcessDaxExpression(e.Expression, previousStepToReference, model, cancellationToken)}")) + "\r\n        RETURN " :
                             "        ";
-                        var columnsList = string.Join(",\r\n", columns.Select(c => $"{GetComments(c, PadColumnGenerateDefinition)}{PadColumnGenerateDefinition}\"{c.Name}\", {ProcessDaxExpression(c.Expression, previousStepToReference, cancellationToken, model)}"));
+                        var columnsList = string.Join(",\r\n", columns.Select(c => $"{GetComments(c, PadColumnGenerateDefinition)}{PadColumnGenerateDefinition}\"{c.Name}\", {ProcessDaxExpression(c.Expression, previousStepToReference, model, cancellationToken)}"));
                         var daxColumns = $@"ROW ( 
 {columnsList} 
         )";
-                        var x = ProcessDaxExpression(daxElement.Expression, previousStepToReference, cancellationToken, model)?.Replace("@@VARS@@", daxRowVars).Replace("@@COLUMNS@@", daxColumns);
+                        var x = ProcessDaxExpression(daxElement.Expression, previousStepToReference, model, cancellationToken)?.Replace("@@VARS@@", daxRowVars).Replace("@@COLUMNS@@", daxColumns);
                         result += x;
                     }
                     else
@@ -192,13 +192,13 @@ VAR {stepName} =
     )" };
 
                         var daxElement = daxElements.FirstOrDefault() ?? defaultElement;
-                        var columnsList = string.Join(",\r\n", columns.Select(e => $"{PadColumnAddColumnsDefinition}\"{e.Name}\", {ProcessDaxExpression(e.Expression, previousStepToReference, cancellationToken, model)}"));
+                        var columnsList = string.Join(",\r\n", columns.Select(e => $"{PadColumnAddColumnsDefinition}\"{e.Name}\", {ProcessDaxExpression(e.Expression, previousStepToReference, model, cancellationToken)}"));
                         string? replacedExpression = daxElement.Expression?.Replace("@@COLUMNS@@", columnsList);
                         if (replacedExpression == daxElement.Expression)
                         {
                             throw new TemplateException($"Missing columns list in DaxElement for {stepName}: columnsList: {columnsList}");
                         }
-                        result += ProcessDaxExpression(replacedExpression, previousStepToReference, cancellationToken, model);
+                        result += ProcessDaxExpression(replacedExpression, previousStepToReference, model, cancellationToken);
                     }
                     previousStepName = stepName;
                 }
@@ -224,7 +224,7 @@ VAR {stepName} =
                 {
                     throw new TemplateException($"Missing columns list in final result - are all columns hidden?");
                 }
-                result += ProcessDaxExpression(replacedExpression, (!string.IsNullOrEmpty(previousStepName) ? previousStepName : lastStepName), cancellationToken, model);
+                result += ProcessDaxExpression(replacedExpression, (!string.IsNullOrEmpty(previousStepName) ? previousStepName : lastStepName), model, cancellationToken);
                 previousStepName = stepName;
             }
             result += $"\r\nRETURN\r\n    {previousStepName}";

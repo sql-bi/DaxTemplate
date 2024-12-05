@@ -78,7 +78,7 @@ namespace Dax.Template.Tables.Dates
         protected override string? ProcessDaxExpression(string? expression, string lastStep, TabularModel? model = null, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            expression = base.ProcessDaxExpression(expression, lastStep, cancellationToken, model);
+            expression = base.ProcessDaxExpression(expression, lastStep, model, cancellationToken);
             if (string.IsNullOrEmpty(expression)) return expression;
 
             expression = GetConfig(expression);

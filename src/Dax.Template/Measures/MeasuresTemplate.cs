@@ -234,7 +234,7 @@ namespace Dax.Template.Measures
                     ReferenceMeasure = referenceMeasure,
                     DefaultVariables = Config.DefaultVariables
                 };
-                var modelMeasure = measureTemplate.ApplyTemplate(model, referenceMeasure?.Parent as Table ?? targetTable, cancellationToken, overrideExistingMeasures);
+                var modelMeasure = measureTemplate.ApplyTemplate(model, referenceMeasure?.Parent as Table ?? targetTable, overrideExistingMeasures, cancellationToken);
                 appliedMeasures.Add(modelMeasure);
             }
         }

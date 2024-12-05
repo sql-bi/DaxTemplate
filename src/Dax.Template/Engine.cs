@@ -134,7 +134,7 @@ namespace Dax.Template
                     throw new InvalidConfigurationException($"Undefined Template in class {templateEntry.Class} configuration");
                 }
                 template = new HolidaysDefinitionTable(_package.ReadDefinition<HolidaysDefinitionTable.HolidaysDefinitions>(templateEntry.Template));
-                template.ApplyTemplate(tableHolidaysDefinition, cancellationToken, templateEntry.IsHidden);
+                template.ApplyTemplate(tableHolidaysDefinition, templateEntry.IsHidden, cancellationToken);
                 tableHolidaysDefinition.RequestRefresh(RefreshType.Full);
             }
             void ApplyHolidaysTable(ITemplates.TemplateEntry templateEntry, CancellationToken cancellationToken = default)
@@ -159,7 +159,7 @@ namespace Dax.Template
                 }
                 CalculatedTableTemplateBase template;
                 template = new HolidaysTable(Configuration);
-                template.ApplyTemplate(tableHolidays, cancellationToken, templateEntry.IsHidden);
+                template.ApplyTemplate(tableHolidays, templateEntry.IsHidden, cancellationToken);
                 tableHolidays.RequestRefresh(RefreshType.Full);
             }
             void ApplyCustomDateTable(ITemplates.TemplateEntry templateEntry, CancellationToken cancellationToken = default)
@@ -184,7 +184,7 @@ namespace Dax.Template
                         model,
                         hideTable: true,
                         isoFormat: Configuration.IsoFormat,
-                        cancellationToken);
+                        cancellationToken: cancellationToken);
                 }
                 bool translationsEnabled = !string.IsNullOrWhiteSpace(Configuration.IsoTranslation);
                 ReferenceCalculatedTable visibleDateTemplate = CreateDateTable(
@@ -193,9 +193,9 @@ namespace Dax.Template
                     model, 
                     hideTable: templateEntry.IsHidden, 
                     isoFormat: Configuration.IsoFormat,
-                    cancellationToken,
                     referenceTable: templateEntry.ReferenceTable, 
-                    applyTranslations: translationsEnabled);
+                    applyTranslations: translationsEnabled,
+                    cancellationToken);
 
             }
             void ApplyMeasuresTemplate(ITemplates.TemplateEntry templateEntry, CancellationToken cancellationToken = default)
@@ -206,7 +206,7 @@ namespace Dax.Template
                 }
                 var measuresTemplateDefinition = _package.ReadDefinition<MeasuresTemplateDefinition>(templateEntry.Template);
                 var template = new MeasuresTemplate(Configuration, measuresTemplateDefinition, templateEntry.Properties);
-                template.ApplyTemplate(model, templateEntry.IsEnabled, cancellationToken);
+                template.ApplyTemplate(model, isEnabled: templateEntry.IsEnabled, cancellationToken: cancellationToken);
             }
         }
 
@@ -256,7 +256,7 @@ namespace Dax.Template
                 IsoFormat = isoFormat
             };
 
-            template.ApplyTemplate(tableDate, cancellationToken, hideTable);
+            template.ApplyTemplate(tableDate, hideTable, cancellationToken);
 
             tableDate.RequestRefresh(RefreshType.Full);
 
