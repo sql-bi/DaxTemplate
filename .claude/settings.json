@@ -1,0 +1,28 @@
+{
+  "enabledPlugins": {
+    "experiment-team@my-claude-teams": true,
+    "brainstorm@brainstorm-plan": true,
+    "andrej-karpathy-skills@karpathy-skills": true
+  },
+  "extraKnownMarketplaces": {
+    "my-claude-teams": {
+      "source": {
+        "source": "github",
+        "repo": "marcosqlbi/my-claude-teams",
+        "ref": "v0.4.1"
+      }
+    },
+    "brainstorm-plan": {
+      "source": {
+        "source": "github",
+        "repo": "thepushkarp/brainstorm-plan"
+      }
+    },
+    "karpathy-skills": {
+      "source": {
+        "source": "github",
+        "repo": "forrestchang/andrej-karpathy-skills"
+      }
+    }
+  }
+}
