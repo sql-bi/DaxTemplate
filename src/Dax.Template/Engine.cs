@@ -135,7 +135,7 @@ namespace Dax.Template
                 }
                 template = new HolidaysDefinitionTable(_package.ReadDefinition<HolidaysDefinitionTable.HolidaysDefinitions>(templateEntry.Template));
                 template.ApplyTemplate(tableHolidaysDefinition, templateEntry.IsHidden, cancellationToken);
-                tableHolidaysDefinition.RequestRefresh(RefreshType.Full);
+                RequestTableRefresh(tableHolidaysDefinition);
             }
             void ApplyHolidaysTable(ITemplates.TemplateEntry templateEntry, CancellationToken cancellationToken = default)
             {
@@ -160,7 +160,7 @@ namespace Dax.Template
                 CalculatedTableTemplateBase template;
                 template = new HolidaysTable(Configuration);
                 template.ApplyTemplate(tableHolidays, templateEntry.IsHidden, cancellationToken);
-                tableHolidays.RequestRefresh(RefreshType.Full);
+                RequestTableRefresh(tableHolidays);
             }
             void ApplyCustomDateTable(ITemplates.TemplateEntry templateEntry, CancellationToken cancellationToken = default)
             {
@@ -258,9 +258,20 @@ namespace Dax.Template
 
             template.ApplyTemplate(tableDate, hideTable, cancellationToken);
 
-            tableDate.RequestRefresh(RefreshType.Full);
+            RequestTableRefresh(tableDate);
 
             return template;
+        }
+
+        /// <summary>
+        /// Requests a full refresh of <paramref name="table"/> only when its model is connected to a server.
+        /// A disconnected (in-memory) model is read-only for refresh purposes and throws if asked to refresh,
+        /// so this guard keeps server deployments unchanged while allowing offline metadata generation and tests.
+        /// </summary>
+        private static void RequestTableRefresh(Table table)
+        {
+            if (table.Model?.Server != null)
+                table.RequestRefresh(RefreshType.Full);
         }
 
         private void ApplyConfigurationDefaults()
