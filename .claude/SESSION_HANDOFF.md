@@ -110,19 +110,36 @@ for explicit sign-off.
 1. Calendar column-binding approach: TMDL/JSON injection (preferred) vs reflection?
 2. Resume the test harness solo, or first get the experiment-team specialist subagents reachable?
 
-## Environment / delegation note
-The experiment-team@my-claude-teams specialist subagents (backend/frontend/qa/devops/reviewer/docs/
-experiment-lead) are NOT invocable from worktree sessions — and a restart does NOT fix it (verified
-2026-06-28 after a restart: agent probe still returned only built-ins + the user-scoped Power BI plugin
-agents). ROOT CAUSE: experiment-team, brainstorm, and andrej-karpathy-skills are installed at
-`"scope": "project"` bound to the MAIN repo path `c:\...\sql-bi\DaxTemplate`. Claude Code treats each
-git worktree (`.claude/worktrees/*`) as a SEPARATE project, so those project-scoped plugins don't load
-here. The user-scoped Power BI plugins (tabular-editor etc.) DO load. andrej-karpathy-skills is only a
-dependency of experiment-team and exposes one on-demand skill (`karpathy-guidelines`) — it is never
-auto-injected, so it was not applied during Phase 0.
-FIX (user must do via interactive `/plugin`): enable experiment-team at USER scope (pulls in brainstorm +
-andrej-karpathy-skills) so it applies across worktrees; OR run Claude Code from the main repo root; then
-verify with a trivial agent probe before delegating. Until then, work solo (as Phase 0 was done).
+## Environment / delegation note (CORRECTED 2026-06-28)
+SYMPTOM: invoking a specialist (e.g. `Agent(reviewer)`) fails with "Agent type 'reviewer' not found.
+Available agents:" (empty list). The lead loads fine, but its team is invisible to it.
+
+PRIOR ROOT CAUSE WAS WRONG. The earlier note blamed git worktrees / project-vs-user plugin scope. That
+theory is DISPROVEN — re-verified 2026-06-28 directly in the MAIN checkout (NOT a worktree:
+`git --git-dir` and `--git-common-dir` both = `.git` real dir):
+- `installed_plugins.json` has experiment-team@my-claude-teams at `scope: project`, bound to exactly
+  `C:\Users\MarcoRusso\source\repos\sql-bi\DaxTemplate`, version 0.5.0.
+- All 7 agent files exist in `.../cache/my-claude-teams/experiment-team/0.5.0/agents/`
+  (reviewer/backend/frontend/qa/devops/docs/experiment-lead) with valid frontmatter (`name:`, `model:`,
+  `tools:`). So install / scope / worktree / frontmatter are all FINE.
+- Yet the `Agent` tool registry is EMPTY. Delegation fails in the main repo too — location is irrelevant,
+  and a restart never helps.
+
+ACTUAL ROOT CAUSE: the `experiment-lead` is being run AS A SUBAGENT itself, and Claude Code enforces a
+shallow delegation tree — a subagent cannot spawn further subagents. So when the lead is entered as the
+active agent (e.g. via `--agent experiment-lead` / agent switch), the platform never populates the
+child-agent registry, and every `Agent(<specialist>)` resolves to "not found". The lead's
+`tools: Agent(backend)...Agent(reviewer)` allow-list is necessary but NOT sufficient — it only takes
+effect when the lead runs at the TOP LEVEL.
+
+FIX: the lead's coordinating behavior must belong to the TOP-LEVEL (main) agent, which IS allowed to spawn
+the specialist subagents. Do NOT launch the session with `experiment-lead` pre-selected as the driver
+(that demotes it to a subagent). Recommended, repo-local, auto-on-start approach: put the lead's
+coordinating instructions in the project `CLAUDE.md` (or a project-scoped output style), keep the
+specialists as plugin subagents, and let the normal top-level agent coordinate + delegate. Verify after
+launch with a trivial probe (a one-line `reviewer` invocation) BEFORE relying on delegation.
+andrej-karpathy-skills is only a dependency of experiment-team and exposes one on-demand skill
+(`karpathy-guidelines`); it is never auto-injected, so it was not applied during Phase 0.
 
 ## Working-tree state
 Phase 0 is COMMITTED as `972c8cc` on `add-calendar` (and `claude/magical-wilbur-213ce1` points at the same
