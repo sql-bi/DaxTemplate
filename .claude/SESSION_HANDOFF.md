@@ -1,7 +1,7 @@
 # Session Handoff — DAX Template: new DAX entities
 
 > Resume instructions: open this repo in Claude Code and say
-> **"Read .claude/SESSION_HANDOFF.md and resume Phase 0."**
+> **"Read .claude/SESSION_HANDOFF.md and start Phase M Stage 0 (test hardening)."**
 > Last updated: 2026-07-01
 
 ## Goal
@@ -155,7 +155,7 @@ for explicit sign-off.
   warning remains in `Dax.Template.TestUI` — unrelated to this upgrade (predates it).
 - **Supersedes** the "Keep `net6.0;net8.0`" decision recorded above under "Decisions locked in".
 
-### Phase M — Modernization & Refactor (planned, precedes Phase 1)
+### Phase M — Modernization & Refactor (IN PROGRESS — Stage 0 active, precedes Phase 1)
 Codebase inventory (verified 2026-07-01): 61 library `.cs` files, ~93 public types.
 Subsystems: Model(7) / Tables(11) / Measures(2) / Syntax(11) / Extensions(6) / Interfaces(7) /
 Enums(2) / Exceptions(7) / Constants(2) / root(6).
@@ -304,8 +304,9 @@ TOM class library — not a change to the Phase 1/2/3 checklists below, just the
 ### Phase 3 — User-defined functions (not started): backend -> qa + docs -> reviewer (revisit compat level)
 
 ## Phase M — locked decisions (2026-07-01)
-All five decisions below are LOCKED by the user. Phase M remains PLANNED/under user review — nothing in
-Stage 0-4 has started execution as a result of locking these.
+All five decisions below are LOCKED by the user. Phase M is now IN EXECUTION (kicked off 2026-07-01):
+Stage 0 (test hardening) is the ACTIVE work; Stages 1-4 remain queued behind it. The locks are the
+agreed constraints for that execution.
 
 1. **Warnings-as-errors: YES, CI-only.** Treat warnings as errors in the CI build, not necessarily in
    local dev builds. Stage 1 wires this into the CI pipeline(s).
@@ -378,10 +379,11 @@ Worktrees on the tree: main=add-calendar (@972c8cc), funny-blackwell-7789aa (@32
 (@972c8cc). The funny-blackwell worktree is now behind; prune it if unused.
 
 ## Next session — start here
-1. (Optional) Push `add-calendar` if you want it on the remote.
-2. Phase M is now the immediate next work, BEFORE resolving the Calendar-binding question or starting
-   Phase 1. Start with Stage 0 (test hardening): P0 public-API baseline + P0 coverage baseline first,
-   then the P1/P2 characterization tests listed under "Phase M" above.
+1. `add-calendar` is pushed to origin (@6bbad5d, 2026-07-01).
+2. Phase M is IN PROGRESS and is the active work, BEFORE resolving the Calendar-binding question or
+   starting Phase 1. Execute Stage 0 (test hardening): P0 public-API baseline + P0 coverage baseline
+   first, then the P1/P2 characterization tests listed under "Phase M" above. Use the kit tooling per
+   the "Phase M — dotnet-claude-kit alignment" subsection.
 3. The "Phase M — locked decisions" (warnings-as-errors, file-scoped namespaces + primary constructors,
    `required` migration, public-API scope, coverage threshold) are now LOCKED — proceed straight to
    Stage 1 (style/analyzer infrastructure) once Stage 0 exits.
