@@ -1,17 +1,14 @@
 {
+  "permissions": {
+    "allow": [
+      "mcp__serena"
+    ]
+  },
   "enabledPlugins": {
-    "experiment-team@my-claude-teams": true,
     "brainstorm@brainstorm-plan": true,
     "andrej-karpathy-skills@karpathy-skills": true
   },
   "extraKnownMarketplaces": {
-    "my-claude-teams": {
-      "source": {
-        "source": "github",
-        "repo": "marcosqlbi/my-claude-teams",
-        "ref": "v0.5.0"
-      }
-    },
     "brainstorm-plan": {
       "source": {
         "source": "github",
