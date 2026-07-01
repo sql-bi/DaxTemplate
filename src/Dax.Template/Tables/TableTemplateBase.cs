@@ -363,20 +363,6 @@ namespace Dax.Template.Tables
 
         protected virtual void AddHierarchies(Table dateTable, CancellationToken cancellationToken = default)
         {
-            // Create Tabular level for hierarchies
-            var levels = from h in Hierarchies from l in h.Levels select l;
-            foreach (var level in levels)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-                level.TabularLevel = new TabularLevel
-                {
-                    Name = level.Name,
-                    Column = level.Column.TabularColumn
-                };
-                if (dateTable.Model.Database.CompatibilityLevel >= 1540)
-                    level.TabularLevel.LineageTag = Guid.NewGuid().ToString();
-            }
-
             // Set the hierarchies
             foreach (var hierarchy in Hierarchies)
             {
@@ -389,10 +375,12 @@ namespace Dax.Template.Tables
                 };
                 if (dateTable.Model.Database.CompatibilityLevel >= 1540)
                     tabularHierarchy.LineageTag = Guid.NewGuid().ToString();
+                hierarchy.TabularHierarchy = tabularHierarchy;
                 dateTable.Hierarchies.Add(tabularHierarchy);
                 int ordinal = 0;
                 foreach (var level in hierarchy.Levels)
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
                     var tabularLevel = new TabularLevel
                     {
                         Name = level.Name,
@@ -401,6 +389,7 @@ namespace Dax.Template.Tables
                     };
                     if (dateTable.Model.Database.CompatibilityLevel >= 1540)
                         tabularLevel.LineageTag = Guid.NewGuid().ToString();
+                    level.TabularLevel = tabularLevel;
                     tabularHierarchy.Levels.Add(tabularLevel);
                 }
             }

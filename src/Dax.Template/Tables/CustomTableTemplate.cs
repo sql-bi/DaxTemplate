@@ -133,7 +133,6 @@ namespace Dax.Template.Tables
                     if (string.IsNullOrEmpty(level.Column)) throw new TemplateException("Missing Hierarchy Level Column definition");
                     var modelColumn = Columns.First(column => column.Name == level.Column);
                     Level modelLevel = new() { Name = level.Name, Column = modelColumn, Description = level.Description };
-                    modelLevel.Description = level.Description;
                     levels.Add(modelLevel);
                 });
                 Hierarchy hierarchy = new()

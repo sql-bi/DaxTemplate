@@ -2,7 +2,7 @@
 
 > Resume instructions: open this repo in Claude Code and say
 > **"Read .claude/SESSION_HANDOFF.md and resume Phase 0."**
-> Last updated: 2026-06-28
+> Last updated: 2026-07-01
 
 ## Goal
 Extend the Dax.Template library (creates TOM objects from JSON templates) to support three new DAX
@@ -94,6 +94,37 @@ a disconnected model genuinely cannot be refreshed; real deployments always oper
 model (TestUI does `server.Connect`), so production behavior is unchanged — this only stops the offline throw.
 Confirmed correct semantics via MS Learn docs. Low risk, but it IS a touch to the shipping engine — flagging
 for explicit sign-off.
+
+### Hierarchy back-reference fix (2026-07-01)
+- **Bug:** `AddHierarchies` in `src/Dax.Template/Tables/TableTemplateBase.cs` populated the internal
+  back-references `Model.Level.TabularLevel` / `Model.Hierarchy.TabularHierarchy` incorrectly. A first
+  loop created a `TabularLevel`, stored it on `level.TabularLevel`, then discarded it; a second loop
+  created a DIFFERENT `TabularLevel` (the one actually added to the model) but never stored it back.
+  `Hierarchy.TabularHierarchy` was never assigned (stayed null). Emitted BIM was correct, so the
+  golden-file test could not catch it — the defect was purely in internal back-reference bookkeeping.
+- **Fix:** Collapsed to a single loop mirroring the correct `AddColumns` pattern (same file): create the
+  `TabularHierarchy`/`TabularLevel` once, assign it to `hierarchy.TabularHierarchy` / `level.TabularLevel`,
+  and add that SAME instance to the model. Preserved Ordinal (0-based, declaration order),
+  Name/Column/IsHidden/DisplayFolder, and the `CompatibilityLevel >= 1540` LineageTag guard. Also restored
+  a per-level `cancellationToken.ThrowIfCancellationRequested()` inside the inner loop (parity with
+  `AddColumns`).
+- **Secondary cleanup:** Removed a redundant `modelLevel.Description = level.Description;` re-assignment
+  in `src/Dax.Template/Tables/CustomTableTemplate.cs` (value already set in the object initializer; pure
+  no-op).
+- **Tests added:** `src/Dax.Template.Tests/HierarchyTabularReferenceTests.cs` — 6 xUnit tests via a
+  minimal `TableTemplateBase` subclass exercising the real `ApplyTemplate` -> `AddHierarchies` path
+  offline. Two guard the back-reference identity contract (`Assert.Same` between
+  `Level.TabularLevel`/`Hierarchy.TabularHierarchy` and the instances in the model); four characterize
+  ordinal order, level->column binding, and `Level.Reset()`/`Hierarchy.Reset()`. Uses existing
+  `[InternalsVisibleTo("Dax.Template.Tests")]`.
+- **Output impact:** None — golden BIM snapshot byte-identical (internal back-references are not
+  serialized). Change is behavior-preserving for serialized output; fixes internal state relied on by
+  future consumers.
+- **Validation:** Build clean (0 warnings/errors); offline suite 13/13 pass on net6.0 + net8.0.
+- **Reviewer:** APPROVED (GO) on both the test file and the fix.
+- **Relevance to Calendars:** The date-table hierarchy path (Calendar/Fiscal) exercised here is the same
+  branch Phase 1 extends, so the now-correct `TabularHierarchy`/`TabularLevel` back-references are a
+  foundation for that work.
 
 ### Phase 1 — Calendars (not started)
 - [ ] backend: CalendarTemplateDefinition POCO + ApplyCalendarTemplate handler in Engine dispatch +
