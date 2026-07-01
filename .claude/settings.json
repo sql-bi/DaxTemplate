@@ -1,7 +1,19 @@
 {
   "permissions": {
+    "defaultMode": "bypassPermissions",
     "allow": [
-      "mcp__serena"
+      "mcp__serena",
+      "Bash(claude mcp *)",
+      "Bash(git -C \"C:/Users/MarcoRusso/source/repos/sql-bi/DaxTemplate\" log --oneline -10)",
+      "Bash(dotnet test *)",
+      "Bash(dotnet restore *)",
+      "Bash(dotnet pack *)",
+      "Bash(dotnet list *)",
+      "Bash(python *)",
+      "Bash(dir *)",
+      "Bash(Get-ChildItem *)",
+      "Bash(curl *)",
+      "Bash(git *)"
     ]
   },
   "enabledPlugins": {
