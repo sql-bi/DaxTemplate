@@ -6,7 +6,8 @@
   },
   "enabledPlugins": {
     "brainstorm@brainstorm-plan": true,
-    "andrej-karpathy-skills@karpathy-skills": true
+    "andrej-karpathy-skills@karpathy-skills": true,
+    "experiment-team@my-claude-teams": true
   },
   "extraKnownMarketplaces": {
     "brainstorm-plan": {
@@ -20,6 +21,13 @@
         "source": "github",
         "repo": "forrestchang/andrej-karpathy-skills"
       }
+    },
+    "my-claude-teams": {
+      "source": {
+        "source": "github",
+        "repo": "marcosqlbi/my-claude-teams"
+      },
+      "autoUpdate": true
     }
   }
 }
