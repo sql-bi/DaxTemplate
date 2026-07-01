@@ -51,6 +51,8 @@ Consumers load a template package, then call into the engine to mutate an in-mem
 - `[InternalsVisibleTo("Dax.Template.Tests")]` in `src/Dax.Template/AssemblyInfo.cs` lets tests observe internal `Tabular*` members directly.
 - Testing is an **offline golden-file (snapshot) harness**: CI gates only on these tests. Live-server tests exist but are opt-in and never required for sign-off (see [testing.md](docs/design/testing.md)).
 - Multi-phase roadmap (Calendars → Calc groups → UDFs) is tracked in [.claude/SESSION_HANDOFF.md](.claude/SESSION_HANDOFF.md) — read it before resuming that work.
+- A `cwm-roslyn-navigator` MCP server (from `dotnet-claude-kit`) is available for precise .NET semantic navigation — call graphs, overrides, type hierarchy, diagnostics, anti-patterns, dead/circular code — complementary to Serena (see `CLAUDE.md` for the full agent/tooling policy).
+- New C# should target the modern C# 14 / .NET 10 baseline (kit `modern-csharp` skill). The auto-format-on-edit hook is disabled for this repo; run `dotnet format` explicitly when needed.
 
 ## Documentation map
 

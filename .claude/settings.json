@@ -1,6 +1,5 @@
 {
   "permissions": {
-    "defaultMode": "bypassPermissions",
     "allow": [
       "mcp__serena",
       "Bash(claude mcp *)",
@@ -14,12 +13,14 @@
       "Bash(Get-ChildItem *)",
       "Bash(curl *)",
       "Bash(git *)"
-    ]
+    ],
+    "defaultMode": "bypassPermissions"
   },
   "enabledPlugins": {
     "brainstorm@brainstorm-plan": true,
     "andrej-karpathy-skills@karpathy-skills": true,
-    "experiment-team@my-claude-teams": true
+    "experiment-team@my-claude-teams": true,
+    "dotnet-claude-kit@dotnet-claude-kit": true
   },
   "extraKnownMarketplaces": {
     "brainstorm-plan": {
