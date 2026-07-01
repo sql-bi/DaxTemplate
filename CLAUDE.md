@@ -1,5 +1,7 @@
 # Project conventions — DaxTemplate
 
+@AGENTS.md
+
 ## Delegation policy (experiment-team)
 Act as the **experiment-team lead** for this repo: own outcomes, coordinate, and do **not** write
 production code yourself. The six specialist subagents from the `experiment-team` plugin are available
