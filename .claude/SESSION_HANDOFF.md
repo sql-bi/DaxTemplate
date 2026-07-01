@@ -217,8 +217,80 @@ decisions" below).
   Each item proposed/reviewed/gated individually; behavior-preserving.
 - **Stage 4 — Docs sync & closeout** — docs + reviewer.
   Update AGENTS.md/docs/design for any changed conventions; final reviewer gate.
-- **Specialist cadence (per subsystem):** qa (characterization tests) -> devops (infra, once) ->
-  backend/frontend (modernize) -> qa (verify green + byte-identical) -> reviewer (gate) -> docs (sync).
+
+### Phase M — dotnet-claude-kit alignment (2026-07-01)
+Additive to the five LOCKED decisions below — nothing here changes scope, targets, or coverage numbers;
+it only specifies which kit skills / Roslyn Navigator tools / kit agents each stage uses. Per CLAUDE.md
+"Using dotnet-claude-kit", the kit is the repo-wide default for ALL phases, not just Phase M — the
+per-stage detail below is simply Phase M's heaviest, most mechanical usage of it. The feature phases
+(1-3) share the common baseline captured in "Feature phases (Phase 1–3) — kit defaults" below.
+Composition happens at the lead.
+
+- **Stage 0 — Safety net (test hardening)** — kit `testing` / `tdd` skills ONLY for xUnit v3 idioms, the
+  AAA pattern, `FakeTimeProvider` (determinism), and Verify-style snapshot testing. SCOPE-OUT: their
+  WebApplicationFactory / Testcontainers / HTTP / Postgres guidance does NOT apply — DaxTemplate's
+  harness is offline golden-file BIM snapshots with no web/DB surface. Roslyn Navigator: `get_public_api`
+  -> the P0 public-API baseline change-detector; `get_test_coverage_map` -> a heuristic complement to
+  (not a replacement for) the coverlet-enforced coverage floor.
+- **Stage 1 — Style/analyzer infrastructure** — kit `ci-cd` skill for the `dotnet format
+  --verify-no-changes` gate and warnings-as-errors wiring — SCOPE-OUT the deploy / NuGet-push /
+  DB-service YAML (this CI is offline golden-file). Roslyn `get_diagnostics` to inventory current
+  analyzer/nullability warnings before escalating `.editorconfig` rules suggestion->warning. Kit
+  `build-error-resolver` agent for warnings-as-errors fallout.
+- **Stage 2 — Mechanical modernization sweeps** — kit `modern-csharp` skill IS the reference for the
+  feature list this stage already enumerates (primary constructors, collection expressions,
+  pattern/switch expressions, raw string literals for embedded DAX/JSON, `required`, the `field`
+  keyword) — fully consistent with the LOCKED house-style decisions. Kit `de-sloppify` skill provides
+  the ordered per-sweep engine (Step 1 format -> 2 unused usings -> 3 analyzer warnings -> 4 dead code ->
+  5 TODOs -> 6 seal -> 7 CancellationToken) with commit-per-step and build+test verification after each
+  step. CRITICAL: de-sloppify's "safe removals only" rule — verify no reflection / DI / serialization /
+  annotation string-references before deleting anything — is essential here because DaxTemplate is
+  reflection-heavy (`ReflectionHelper`, `GetModelChanges`, `SQLBI_Template` annotation lookups);
+  dead-code removal must cross-check string-based usage, not just Roslyn `find_references`. Kit agents:
+  `refactor-cleaner` for the structural de-sloppify steps (dead code / sealing / CancellationToken),
+  `dotnet-architect` for primary-constructor conversions that touch constructor shape.
+- **Stage 3 — Deeper refactors** — Roslyn `find_dead_code`, `detect_antipatterns` (async void,
+  sync-over-async, `DateTime.Now`), and `detect_circular_dependencies` (to validate the Extensions
+  dependency-sort / TSort subsystem) to target the refactors. Kit `error-handling` skill for the
+  exceptions/messages consistency pass (scoped to naming/message-consistency guidance only — NOT its
+  Result / RFC 9457 `ProblemDetails` HTTP-response patterns, which don't apply to this class library); `refactor-cleaner` / `dotnet-architect` agents for the
+  AddAnnotations-vs-ApplyAnnotations dedup and reflection encapsulation.
+- **Stage 4 — Docs sync & closeout** — kit `verify` skill's 7-phase pipeline as the closeout gate wrapper
+  (build -> `get_diagnostics` -> `detect_antipatterns` -> tests -> security -> format -> diff), with the
+  security phase SCOPED to `dotnet list package --vulnerable` + secrets detection only (Layers 1-2 of
+  the `security-scan` skill); the OWASP / auth / CORS layers do not apply to a class library. Kit
+  `code-reviewer` / `security-auditor` agents may supplement `experiment-team:reviewer` on C#-heavy
+  diffs.
+
+**Per-sweep gate (unchanged):** the existing hard gates — byte-identical golden BIM + full offline suite
++ public-API baseline unchanged + `experiment-team:reviewer` — REMAIN authoritative and unchanged; kit
+`verify` phases 1-4 and 6 (build, diagnostics, antipatterns, tests, format) serve as the specialist's
+pre-reviewer self-check, not a replacement for those gates.
+
+**Specialist cadence (per subsystem):** qa (characterization tests; `testing` skill, scoped) ->
+devops (infra once; `ci-cd` scoped + `get_diagnostics`) -> backend/frontend (modernize; `modern-csharp`
++ `de-sloppify`, `refactor-cleaner`/`dotnet-architect`) -> qa (verify green + byte-identical; kit
+`verify` pipeline) -> reviewer (gate; + kit `code-reviewer`/`security-auditor`) -> docs (sync).
+
+### Feature phases (Phase 1-3) — kit defaults
+Kit baseline for the greenfield template work (Calendars / Calc groups / UDFs), scoped to this offline
+TOM class library — not a change to the Phase 1/2/3 checklists below, just the kit framing for them.
+
+- **All new C#**: `modern-csharp` skill (C# 14 baseline); `dotnet-architect` agent for POCO + handler
+  design (e.g. `CalendarTemplateDefinition` + Engine dispatch wiring).
+- **Wiring into the engine**: Serena `find_symbol` / `find_implementations` (+ Roslyn `find_callers` /
+  `get_type_hierarchy`) to place each new `Class` handler in `Engine` dispatch and reuse the existing
+  template hierarchy (`BaseDateTemplate<T>` etc.); Roslyn `get_public_api` as the API-baseline
+  change-detector for each new public surface.
+- **Tests**: `tdd` / `testing` skills, scoped — red-green + xUnit v3 + AAA + `FakeTimeProvider` for
+  deterministic date/time fixtures (esp. Calendars) + Verify-style golden BIM snapshots; NOT
+  WebApplicationFactory / Testcontainers / HTTP.
+- **Gate**: kit `verify` (phases 1-4, 6) as the pre-reviewer self-check; `code-reviewer` /
+  `security-auditor` may supplement the mandatory `experiment-team:reviewer` gate. The existing hard
+  rules stay authoritative — additive JSON config, byte-identical golden BIM, opt-in-only live-server
+  tests.
+- **Out of scope** (same as Phase M): `api-designer`, `ef-core-specialist`, `ci-cd` deploy / NuGet-push
+  YAML, and the web/OWASP/auth/CORS layers of `security-scan` — no HTTP/EF/web surface here.
 
 ### Phase 1 — Calendars (not started)
 - [ ] backend: CalendarTemplateDefinition POCO + ApplyCalendarTemplate handler in Engine dispatch +
