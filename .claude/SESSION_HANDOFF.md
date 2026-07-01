@@ -14,7 +14,9 @@ entities, one at a time, with tests and no regressions:
 ## Decisions locked in
 - Implementation order: **Calendars -> Calc groups -> UDFs**
 - TOM upgrade to **latest released 19.114.0**, **no preview features**
-- Keep `net6.0;net8.0`; drop net6 only if forced (it was NOT forced — kept)
+- ~~Keep `net6.0;net8.0`; drop net6 only if forced (it was NOT forced — kept)~~
+  **SUPERSEDED 2026-07-01:** now **net10.0-only / C# 14 / SDK 10** — see "Toolchain upgrade" entry
+  under Progress below.
 - CI gates on **offline** tests; **live-server** tests included but NOT required for pipeline sign-off
 - All JSON template config changes must be **purely additive** (existing templates keep working)
 
@@ -125,6 +127,26 @@ for explicit sign-off.
 - **Relevance to Calendars:** The date-table hierarchy path (Calendar/Fiscal) exercised here is the same
   branch Phase 1 extends, so the now-correct `TabularHierarchy`/`TabularLevel` back-references are a
   foundation for that work.
+
+### Toolchain upgrade: .NET 10 / C# 14 / SDK 10 (2026-07-01)
+- **What changed:**
+  - `global.json`: SDK `8.0.400` -> `10.0.301` (`rollForward: latestFeature`, `allowPrerelease: false`
+    unchanged).
+  - `src/Dax.Template/Dax.Template.csproj`: target `net6.0;net8.0` -> `net10.0` (single TFM);
+    `LangVersion` `12.0` -> `14.0`.
+  - `src/Dax.Template.Tests/Dax.Template.Tests.csproj`: same change (`net6.0;net8.0` -> `net10.0`,
+    `LangVersion` `12.0` -> `14.0`).
+  - `src/Dax.Template.TestUI/Dax.Template.TestUI.csproj`: `net8.0-windows` -> `net10.0-windows`; added
+    explicit `LangVersion 14.0`.
+  - `.github/workflows/ci.yml`: `setup-dotnet` now installs `10.0.x` (was `6.0.x`); still resolves the
+    exact SDK via `global-json-file`.
+- **Consumer impact:** the published `Dax.Template` NuGet package now targets **net10.0 only**
+  (previously multi-targeted `net6.0;net8.0`) — this NARROWS supported frameworks for consumers on
+  older TFMs. See `CHANGELOG.md` `### Changed` under `[Unreleased]`.
+- **Verification:** build GREEN on the single net10.0 target; offline suite 13/13 pass; golden BIM
+  snapshot (`_data/Golden/Config-01 - Standard.bim`) byte-identical/unchanged. One pre-existing CS8602
+  warning remains in `Dax.Template.TestUI` — unrelated to this upgrade (predates it).
+- **Supersedes** the "Keep `net6.0;net8.0`" decision recorded above under "Decisions locked in".
 
 ### Phase 1 — Calendars (not started)
 - [ ] backend: CalendarTemplateDefinition POCO + ApplyCalendarTemplate handler in Engine dispatch +

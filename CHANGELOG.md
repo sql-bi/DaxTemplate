@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Target framework is now **.NET 10** only; the package no longer targets `net6.0` or `net8.0`.
+  **This is a breaking change** for consumers building against those older target frameworks.
+- Language version raised to **C# 14**; build/SDK pinned to **.NET SDK 10**.
+
 ### Fixed
 
 - `TableTemplateBase.AddHierarchies` now correctly links the internal back-references
