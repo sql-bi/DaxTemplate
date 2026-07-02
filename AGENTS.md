@@ -54,6 +54,14 @@ Consumers load a template package, then call into the engine to mutate an in-mem
 - A `cwm-roslyn-navigator` MCP server (from `dotnet-claude-kit`) is available for precise .NET semantic navigation — call graphs, overrides, type hierarchy, diagnostics, anti-patterns, dead/circular code — complementary to Serena (see `CLAUDE.md` for the full agent/tooling policy).
 - New C# should target the modern C# 14 / .NET 10 baseline (kit `modern-csharp` skill). The auto-format-on-edit hook is disabled for this repo; run `dotnet format` explicitly when needed.
 
+## Code style & analyzers
+
+- Analyzers are enabled repo-wide via `src/Directory.Build.props` (`EnableNETAnalyzers`, `AnalysisLevel=latest-recommended`, `EnforceCodeStyleInBuild=true`, `Nullable=enable`).
+- `dotnet format` is the formatting authority — run it explicitly (the auto-format-on-edit hook is disabled); CI verifies the baseline with `dotnet format --verify-no-changes` and fails on drift.
+- Warnings-as-errors is a **CI-only** gate: CI passes `-p:TreatWarningsAsErrors=true` to the build command (local dev builds stay lenient). A `WarningsNotAsErrors` allowlist in `src/Directory.Build.props` covers the analyzer codes with pre-existing, already-inventoried warnings so CI stays green today; any new warning of a code *not* in that list (including compiler `CSxxxx` warnings) fails CI. The allowlist is Stage-2 deferred debt — shrink it by removing a code only once that code's warnings are fixed across all subsystems.
+- `CA1707` (identifiers should not contain underscores) is disabled for `src/Dax.Template.Tests/**` only, via `.editorconfig`, because the idiomatic xUnit `Method_Scenario_Expected` test naming convention relies on underscores. The same rule stays active (and deferred) for `src/Dax.Template` production code.
+- File-scoped namespaces (`csharp_style_namespace_declarations = file_scoped:suggestion`) are the documented house style going forward; the existing block-scoped code is intentionally left as-is until a dedicated Stage 2 mechanical sweep converts it.
+
 ## Documentation map
 
 - [docs/design/README.md](docs/design/README.md) — index of all design docs; start here for anything not covered above.

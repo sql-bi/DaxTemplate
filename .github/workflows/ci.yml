@@ -28,7 +28,15 @@ jobs:
       - name: restore dotnet tools
         run: dotnet tool restore
       - name: build
-        run: dotnet build ./src/Dax.Template.sln --configuration Release --no-restore
+        # Phase M / Stage 1 step 1C: CI-only warnings-as-errors. TreatWarningsAsErrors is passed
+        # here (not in Directory.Build.props) so local dev builds stay lenient. The matching
+        # WarningsNotAsErrors allowlist (Stage-2 deferred debt) lives in src/Directory.Build.props
+        # so both this pipeline and .azure/pipelines/ci.yml share one source of truth.
+        run: dotnet build ./src/Dax.Template.sln --configuration Release --no-restore -p:TreatWarningsAsErrors=true
+      - name: format check
+        # Verifies the dotnet-format baseline (clean as of Stage 1B) doesn't drift. Runs against
+        # the same solution as the build step; --no-restore reuses the restore above.
+        run: dotnet format ./src/Dax.Template.sln --verify-no-changes --no-restore
       - name: test
         run: dotnet test ./src/Dax.Template.Tests/Dax.Template.Tests.csproj --configuration Release --no-build --verbosity normal --collect:"XPlat Code Coverage" --settings ./src/Dax.Template.Tests/coverlet.runsettings --results-directory ./artifacts/coverage
       - name: coverage report
