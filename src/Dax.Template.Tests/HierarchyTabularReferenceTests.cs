@@ -1,10 +1,10 @@
 namespace Dax.Template.Tests
 {
-    using System.Linq;
-    using System.Threading;
     using Dax.Template.Model;
     using Dax.Template.Tables;
     using Microsoft.AnalysisServices.Tabular;
+    using System.Linq;
+    using System.Threading;
     using Xunit;
     using Column = Dax.Template.Model.Column;
     using Hierarchy = Dax.Template.Model.Hierarchy;

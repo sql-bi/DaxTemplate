@@ -53,7 +53,7 @@ namespace Dax.Template.Tests
             var package = Package.LoadFromFile(StandardTemplatePath);
 
             Assert.NotNull(package.Configuration.TemplateUri);
-           
+
             var expected = Path.GetFullPath(StandardTemplatePath);
             var actual = (new Uri(package.Configuration.TemplateUri!)).LocalPath;
 

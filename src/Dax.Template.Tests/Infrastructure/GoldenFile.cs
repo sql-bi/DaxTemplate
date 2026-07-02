@@ -1,10 +1,10 @@
 namespace Dax.Template.Tests.Infrastructure
 {
+    using Microsoft.AnalysisServices.Tabular;
     using System;
     using System.IO;
-    using System.Text.RegularExpressions;
     using System.Runtime.CompilerServices;
-    using Microsoft.AnalysisServices.Tabular;
+    using System.Text.RegularExpressions;
     using Xunit;
 
     /// <summary>

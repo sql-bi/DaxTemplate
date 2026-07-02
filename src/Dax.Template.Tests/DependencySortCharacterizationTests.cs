@@ -1,9 +1,9 @@
 namespace Dax.Template.Tests
 {
-    using System.Linq;
     using Dax.Template.Exceptions;
     using Dax.Template.Extensions;
     using Dax.Template.Syntax;
+    using System.Linq;
     using Xunit;
 
     /// <summary>

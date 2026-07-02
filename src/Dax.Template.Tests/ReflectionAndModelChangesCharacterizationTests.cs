@@ -1,8 +1,8 @@
 namespace Dax.Template.Tests
 {
-    using System;
     using Dax.Template.Extensions;
     using Dax.Template.Tests.Infrastructure;
+    using System;
     using Xunit;
 
     /// <summary>

@@ -1,9 +1,9 @@
 namespace Dax.Template.Tests
 {
-    using System;
-    using System.Linq;
     using Dax.Template.Tests.Infrastructure;
     using Microsoft.AnalysisServices.Tabular;
+    using System;
+    using System.Linq;
     using Xunit;
 
     /// <summary>
