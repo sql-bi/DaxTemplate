@@ -18,7 +18,7 @@ namespace Dax.Template.Tests
             private string PrivateProperty { get; set; } = "hidden";
         }
 
-        private class SampleObjectDerived : SampleObject
+        private sealed class SampleObjectDerived : SampleObject
         {
             // Intentionally declares no members: PublicProperty/PrivateProperty are inherited, exercising
             // GetPropertyInfo's BaseType walk.

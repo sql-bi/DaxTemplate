@@ -250,7 +250,7 @@ public class ModelChanges
     // calculated table. Requires a real Analysis Services / Power BI connection; there is no
     // offline substitute, so this is unreachable in the CI test suite (see docs/design/coverage.md).
     [ExcludeFromCodeCoverage]
-    private static object? GetPreviewData(
+    private static List<object>? GetPreviewData(
         AdomdConnection connection,
         string? tableExpression,
         int previewRows,

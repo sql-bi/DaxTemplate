@@ -36,6 +36,8 @@ namespace Dax.Template.Tests
         {
             if (Directory.Exists(_tempDirectory))
                 Directory.Delete(_tempDirectory, recursive: true);
+
+            GC.SuppressFinalize(this);
         }
 
         [Fact]

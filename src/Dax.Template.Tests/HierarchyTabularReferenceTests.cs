@@ -32,7 +32,7 @@ namespace Dax.Template.Tests
         /// Minimal, non-abstract TableTemplateBase used purely to exercise AddHierarchies (via the public
         /// ApplyTemplate entry point) without any JSON template / DAX-generation machinery.
         /// </summary>
-        private class MinimalHierarchyTemplate : TableTemplateBase
+        private sealed class MinimalHierarchyTemplate : TableTemplateBase
         {
             protected override bool RemoveExistingPartitions(Table dateTable) => false;
             protected override void AddPartitions(Table dateTable, CancellationToken cancellationToken = default) { }

@@ -19,6 +19,12 @@ public class Package
     private readonly TemplateConfiguration _configuration;
     private readonly string _directoryName;
 
+    private static readonly JsonSerializerOptions s_saveToJsonSerializerOptions = new()
+    {
+        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+        WriteIndented = true
+    };
+
     /// <summary>
     /// Load a <see cref="Package"/> from a template file
     /// </summary>
@@ -119,13 +125,7 @@ public class Package
             package.Add(name, content);
         }
 
-        var options = new JsonSerializerOptions
-        {
-            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
-            WriteIndented = true
-        };
-
-        var packageText = JsonSerializer.Serialize(package, options);
+        var packageText = JsonSerializer.Serialize(package, s_saveToJsonSerializerOptions);
 
         File.WriteAllText(path, packageText);
     }
