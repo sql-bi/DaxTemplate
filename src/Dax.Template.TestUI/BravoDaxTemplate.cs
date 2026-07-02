@@ -3,8 +3,8 @@ using Dax.Template.Enums;
 using Dax.Template.Exceptions;
 using Dax.Template.Model;
 using Microsoft.AnalysisServices.AdomdClient;
-using TOM = Microsoft.AnalysisServices.Tabular;
 using System.Text.Json.Serialization;
+using TOM = Microsoft.AnalysisServices.Tabular;
 
 namespace Dax.Template.TestUI.Bravo
 {
@@ -77,7 +77,7 @@ namespace Dax.Template.TestUI.Bravo
 
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public AutoScanEnum? AutoScan { get; set; }
-        public DefaultVariables Defaults { get; init; } = new ();
+        public DefaultVariables Defaults { get; init; } = new();
         public string? TableSingleInstanceMeasures { get; set; }
 
         [JsonConverter(typeof(JsonStringEnumConverter))]
@@ -101,7 +101,7 @@ namespace Dax.Template.TestUI.Bravo
         /// <param name="previewRows">Number of rows to include in data preview</param>
         /// <returns>Changes applied to the model</returns>
         /// <exception cref="TemplateException">Errors executing template</exception>
-        public static ModelChanges? ApplyTemplate(DaxTemplateConfig config, TOM.Model model, string connectionString, bool commitChanges, int previewRows = 5) 
+        public static ModelChanges? ApplyTemplate(DaxTemplateConfig config, TOM.Model model, string connectionString, bool commitChanges, int previewRows = 5)
         {
             var package = Package.LoadFromFile(config.TemplatePath);
 
@@ -109,7 +109,7 @@ namespace Dax.Template.TestUI.Bravo
             Engine templateEngine = new(package);
             templateEngine.ApplyTemplates(model);
             var modelChanges = Engine.GetModelChanges(model);
-            
+
             if (commitChanges)
             {
                 model.SaveChanges();
@@ -201,16 +201,17 @@ namespace Dax.Template.TestUI.Bravo
         /// <exception cref="TemplateException">Error retrieving template configuration</exception>
         public static DaxTemplateConfig[] GetTemplates(string path)
         {
-            List<DaxTemplateConfig> daxTemplateConfigs = new ();
-            var templateFiles = Directory.EnumerateFiles(path, TEMPLATEJSON_WILDCARD );
-            foreach( var templatePath in templateFiles)
+            List<DaxTemplateConfig> daxTemplateConfigs = new();
+            var templateFiles = Directory.EnumerateFiles(path, TEMPLATEJSON_WILDCARD);
+            foreach (var templatePath in templateFiles)
             {
                 var package = Package.LoadFromFile(templatePath);
                 if (package?.Configuration == null)
                 {
                     throw new TemplateException($"Configuration {templatePath} not loaded.");
                 }
-                DaxTemplateConfig templateConfig = new(templatePath) {
+                DaxTemplateConfig templateConfig = new(templatePath)
+                {
                     Name = package.Configuration.Name,
                     Description = package.Configuration.Description,
                     IsoCountry = package.Configuration.IsoCountry,
@@ -260,7 +261,7 @@ namespace Dax.Template.TestUI.Bravo
                     if ((value[0] == '"') && (value[^1] == '"'))
                     {
                         value = value[1..^1];
-                    } 
+                    }
                     return value;
                 }
             }

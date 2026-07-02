@@ -1,18 +1,18 @@
-using TOM = Microsoft.AnalysisServices.Tabular;
-using Microsoft.Extensions.Configuration;
 using Dax.Template;
+using Dax.Template.Exceptions;
+using Dax.Template.Interfaces;
+using Dax.Template.Measures;
 using Dax.Template.Tables;
 using Dax.Template.Tables.Dates;
-using Dax.Template.Measures;
-using Dax.Template.Exceptions;
-using System.Text.Json;
-using TabularJsonSerializer = Microsoft.AnalysisServices.Tabular.JsonSerializer;
-using SystemJsonSerializer = System.Text.Json.JsonSerializer;
-using Dax.Template.Interfaces;
-using System.Reflection;
-using System.Collections;
 using Microsoft.AnalysisServices.AdomdClient;
+using Microsoft.Extensions.Configuration;
+using System.Collections;
+using System.Reflection;
 using System.Text.Encodings.Web;
+using System.Text.Json;
+using SystemJsonSerializer = System.Text.Json.JsonSerializer;
+using TabularJsonSerializer = Microsoft.AnalysisServices.Tabular.JsonSerializer;
+using TOM = Microsoft.AnalysisServices.Tabular;
 
 namespace Dax.Template.TestUI
 {
@@ -159,8 +159,9 @@ namespace Dax.Template.TestUI
                 var template = new CustomDateTable(ReadConfig<TemplateConfiguration>(), ReadTemplateDefinition(), null);
                 result = template?.GetDaxTableExpression(null);
             }
-            else { 
-                var template = new SimpleDateTable(ReadConfig<SimpleDateTemplateConfig>(),null);
+            else
+            {
+                var template = new SimpleDateTable(ReadConfig<SimpleDateTemplateConfig>(), null);
                 result = template.GetDaxTableExpression(null);
             }
             txtDax.Text = result;
@@ -174,7 +175,7 @@ namespace Dax.Template.TestUI
             MessageBox.Show($"Read config {txtConfig.Text} completed");
         }
 
-        private T ReadConfig<T>() where T: TemplateConfiguration
+        private T ReadConfig<T>() where T : TemplateConfiguration
         {
             return ReadConfig<T>(txtConfig.Text);
         }
@@ -271,7 +272,7 @@ namespace Dax.Template.TestUI
             if (SystemJsonSerializer.Deserialize(templateJson, typeof(MeasuresTemplateDefinition)) is not MeasuresTemplateDefinition measuresTemplate) throw new TemplateConfigurationException("Invalid configuration");
 
             var config = ReadConfig<TemplateConfiguration>();
-            var template = new MeasuresTemplate(config, measuresTemplate,new Dictionary<string, object>());
+            var template = new MeasuresTemplate(config, measuresTemplate, new Dictionary<string, object>());
 
             TOM.Server server = new();
             server.Connect(txtServer.Text);
@@ -302,7 +303,7 @@ namespace Dax.Template.TestUI
             string path = txtPath.Text;
             var templateFiles =
                 from file in Directory.EnumerateFiles(path, fileSystemWatcher.Filter)
-                select Path.GetFileNameWithoutExtension(file).Replace(".template","");
+                select Path.GetFileNameWithoutExtension(file).Replace(".template", "");
             comboTemplates.Items.Clear();
             if (templateFiles != null)
             {
@@ -344,7 +345,7 @@ namespace Dax.Template.TestUI
             UpdateTemplateList();
         }
 
-        private void DisplayChanges(Dax.Template.Model.ModelChanges modelChanges) 
+        private void DisplayChanges(Dax.Template.Model.ModelChanges modelChanges)
         {
             var options = new JsonSerializerOptions
             {
@@ -397,7 +398,7 @@ namespace Dax.Template.TestUI
 
         private void ApplyTemplate_Click(object sender, EventArgs e)
         {
-            ApplyTemplate(commitChanges:true);
+            ApplyTemplate(commitChanges: true);
         }
 
         private void CopyDebug_Click(object sender, EventArgs e)
