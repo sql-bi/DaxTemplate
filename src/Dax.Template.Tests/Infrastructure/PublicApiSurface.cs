@@ -234,6 +234,7 @@ namespace Dax.Template.Tests.Infrastructure
             }
 
             var modifiers = new List<string>();
+            if (field.IsDefined(typeof(RequiredMemberAttribute), inherit: false)) modifiers.Add("required");
             if (field.IsStatic) modifiers.Add("static");
             if (field.IsInitOnly) modifiers.Add("readonly");
             var modifierText = modifiers.Count > 0 ? string.Join(" ", modifiers) + " " : "";
@@ -259,6 +260,7 @@ namespace Dax.Template.Tests.Infrastructure
             };
 
             var accessorMethod = (getMethod ?? setMethod)!;
+            var requiredText = property.IsDefined(typeof(RequiredMemberAttribute), inherit: false) ? "required " : "";
             var staticText = accessorMethod.IsStatic ? "static " : "";
 
             var accessors = new List<string>();
@@ -270,7 +272,7 @@ namespace Dax.Template.Tests.Infrastructure
                 ? $"this[{FormatParameters(indexParameters)}]"
                 : property.Name;
 
-            return $"property {dominant} {staticText}{FormatTypeName(property.PropertyType, true)} {propertyName} {{ {string.Join(" ", accessors)} }}";
+            return $"property {dominant} {requiredText}{staticText}{FormatTypeName(property.PropertyType, true)} {propertyName} {{ {string.Join(" ", accessors)} }}";
         }
 
         private static string FormatAccessor(MethodInfo accessor, string dominantAccessibility, string keyword)

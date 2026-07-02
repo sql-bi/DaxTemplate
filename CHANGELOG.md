@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **BREAKING (next release: 2.0.0):** `EntityBase.Name` (and therefore `Column.Name`,
+  `DateColumn.Name`, `Hierarchy.Name`, `Level.Name`, `Measure.Name`), `Level.Column`,
+  `Var.Name` (and therefore `VarGlobal.Name`, `VarRow.Name`), and
+  `DaxStep.Name` are now `required` members. This is source-breaking for consumers who
+  construct these types via object initializers without setting these properties; it is
+  behavior-preserving at runtime and does not affect JSON template configuration, which is
+  unaffected (these types are never deserialized from JSON).
 - Target framework is now **.NET 10** only; the package no longer targets `net6.0` or `net8.0`.
   **This is a breaking change** for consumers building against those older target frameworks.
 - Language version raised to **C# 14**; build/SDK pinned to **.NET SDK 10**.

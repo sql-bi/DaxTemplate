@@ -223,8 +223,8 @@ public abstract class Dax.Template.Model.EntityBase
   ctor protected EntityBase()
   method public abstract void Reset()
   method public virtual string ToString()
+  property public required string Name { get; init; }
   property public string Description { get; set; }
-  property public string Name { get; init; }
 public class Dax.Template.Model.Hierarchy : Dax.Template.Model.EntityBase
   ctor public Hierarchy()
   method public virtual void Reset()
@@ -234,7 +234,7 @@ public class Dax.Template.Model.Hierarchy : Dax.Template.Model.EntityBase
 public class Dax.Template.Model.Level : Dax.Template.Model.EntityBase
   ctor public Level()
   method public virtual void Reset()
-  property public Dax.Template.Model.Column Column { get; init; }
+  property public required Dax.Template.Model.Column Column { get; init; }
 public class Dax.Template.Model.Measure : Dax.Template.Model.EntityBase, Dax.Template.Syntax.IDaxComment
   ctor public Measure()
   method public virtual void Reset()
@@ -299,8 +299,8 @@ public class Dax.Template.Syntax.DaxElement : Dax.Template.Syntax.DaxBase, Dax.T
 public class Dax.Template.Syntax.DaxStep : Dax.Template.Syntax.DaxElement, Dax.Template.Syntax.IDaxComment, Dax.Template.Syntax.IDaxName, Dax.Template.Syntax.IDependencies<Dax.Template.Syntax.DaxBase>
   ctor public DaxStep()
   method public virtual string ToString()
+  property public required string Name { get; init; }
   property public string DaxName { get; }
-  property public string Name { get; init; }
   property public string[] Comments { get; set; }
 public interface Dax.Template.Syntax.IDaxComment
   property public string[] Comments { get; set; }
@@ -319,9 +319,9 @@ public abstract class Dax.Template.Syntax.Var : Dax.Template.Syntax.DaxBase, Dax
   property public Dax.Template.Syntax.IDependencies<Dax.Template.Syntax.DaxBase>[] Dependencies { get; set; }
   property public Dax.Template.Syntax.VarScope Scope { get; init; }
   property public bool IgnoreAutoDependency { get; init; }
+  property public required string Name { get; init; }
   property public string DaxName { get; }
   property public string Expression { get; set; }
-  property public string Name { get; init; }
   property public string[] Comments { get; set; }
 public class Dax.Template.Syntax.VarGlobal : Dax.Template.Syntax.Var, Dax.Template.Syntax.IDaxComment, Dax.Template.Syntax.IDaxName, Dax.Template.Syntax.IDependencies<Dax.Template.Syntax.DaxBase>, Dax.Template.Syntax.IGlobalScope
   ctor public VarGlobal()

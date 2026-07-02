@@ -8,7 +8,7 @@
 /// </summary>
 public class DaxStep : DaxElement, IDaxName, IDaxComment
 {
-    public string Name { get; init; } = default!;
+    public required string Name { get; init; }
     public string DaxName => Name;
     public string[]? Comments { get; set; }
 

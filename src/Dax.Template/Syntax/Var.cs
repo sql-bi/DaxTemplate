@@ -6,7 +6,7 @@ public abstract class Var : DaxBase, IDependencies<DaxBase>, IDaxName, IDaxComme
     public bool IgnoreAutoDependency { get; init; }
 
     public VarScope Scope { get; init; }
-    public string Name { get; init; } = default!;
+    public required string Name { get; init; }
     public string? Expression { get; set; }
     public string[]? Comments { get; set; }
     public string DaxName => Name;
