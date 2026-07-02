@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.AnalysisServices.Tabular;
 using Microsoft.AnalysisServices.AdomdClient;
@@ -235,7 +236,7 @@ namespace Dax.Template.Model
                 return varName;
             }
         }
-        
+
         static string RenameTableReferences(string queryExpression, string[] renameTableNames)
         {
             foreach (var tableName in renameTableNames)
@@ -245,6 +246,10 @@ namespace Dax.Template.Model
             return queryExpression;
         }
 
+        // Executes a live DAX query over an open AdomdConnection to fetch preview rows for a
+        // calculated table. Requires a real Analysis Services / Power BI connection; there is no
+        // offline substitute, so this is unreachable in the CI test suite (see docs/design/coverage.md).
+        [ExcludeFromCodeCoverage]
         private static object? GetPreviewData(
             AdomdConnection connection,
             string? tableExpression,
@@ -276,6 +281,12 @@ namespace Dax.Template.Model
                     : columnName;
         }
 
+        // Populates the Preview property on each modified TableChanges by running live DAX queries
+        // against a connected Analysis Services / Power BI model (via AdomdConnection). This is a
+        // live-server-only feature (used only from Dax.Template.TestUI's manual harness) with no
+        // offline equivalent, so it cannot be exercised by the offline golden-file suite; see
+        // docs/design/coverage.md for the exclusion policy.
+        [ExcludeFromCodeCoverage]
         public void PopulatePreview(AdomdConnection connection, TabularModel model, int previewRows = 5, CancellationToken cancellationToken = default)
         {
             foreach( var tableChanges in ModifiedObjects )

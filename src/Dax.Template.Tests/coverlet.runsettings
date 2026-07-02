@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  Coverlet configuration for the offline golden-file test suite (Phase M / Stage 0 / P0-b — see
+  .claude/SESSION_HANDOFF.md, locked decision #5, and docs/design/coverage.md).
+
+  Scope: the CI-enforced coverage metric targets the shipped library, Dax.Template, ONLY.
+  - <Include> restricts instrumentation to the Dax.Template assembly, so neither the test assembly
+    itself nor any third-party dependency (e.g. Microsoft.AnalysisServices.*, xunit.*) can dilute or
+    inflate the reported line-rate.
+  - <Exclude> is a defense-in-depth backstop for the test assembly in case Include's module filter
+    ever needs loosening.
+  - <ExcludeByAttribute> lets production code opt individual members out of the metric via
+    [ExcludeFromCodeCoverage] (System.Diagnostics.CodeAnalysis) for justified, offline-unreachable or
+    generated/trivial members (see docs/design/coverage.md for the policy and the current list).
+  - <SkipAutoProps> excludes trivial auto-implemented property accessors from being counted as
+    separate coverable lines, so the metric reflects logic, not boilerplate.
+
+  Consumed by .github/workflows/ci.yml's "test" step via the "settings" option, and by the
+  reportgenerator / threshold-gate steps that follow it (they read the Cobertura output this file
+  requests).
+-->
+<RunSettings>
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <DataCollector friendlyName="XPlat code coverage">
+        <Configuration>
+          <Format>cobertura</Format>
+          <Include>[Dax.Template]*</Include>
+          <Exclude>[Dax.Template.Tests]*</Exclude>
+          <ExcludeByAttribute>ExcludeFromCodeCoverageAttribute,GeneratedCodeAttribute,CompilerGeneratedAttribute</ExcludeByAttribute>
+          <SkipAutoProps>true</SkipAutoProps>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+</RunSettings>

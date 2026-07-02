@@ -63,6 +63,7 @@ Consumers load a template package, then call into the engine to mutate an in-mem
 - [docs/design/measures.md](docs/design/measures.md) — read before touching `Measures/` or the `SQLBI_Template` idempotency logic.
 - [docs/design/domain-model-and-conventions.md](docs/design/domain-model-and-conventions.md) — read before touching `Model/`, the `Syntax/` DAX expression subsystem, or dependency ordering.
 - [docs/design/testing.md](docs/design/testing.md) — read before adding/changing tests or the golden-file harness.
+- [docs/design/coverage.md](docs/design/coverage.md) — read before changing the coverlet configuration, the CI coverage gate, `[ExcludeFromCodeCoverage]` usage, or the Stryker.NET mutation-testing setup.
 
 ## Documentation maintenance
 

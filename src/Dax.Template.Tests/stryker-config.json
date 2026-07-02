@@ -1,0 +1,28 @@
+{
+  "stryker-config": {
+    "project": "Dax.Template.csproj",
+    "test-projects": [
+      "Dax.Template.Tests.csproj"
+    ],
+    "configuration": "Release",
+    "mutation-level": "Standard",
+    "mutate": [
+      "Tables/**/*.cs",
+      "Measures/**/*.cs",
+      "Extensions/TSort.cs",
+      "Extensions/ComputeDependencies.cs",
+      "Extensions/GetDependencies.cs",
+      "Extensions/GetScanColumns.cs"
+    ],
+    "reporters": [
+      "html",
+      "markdown",
+      "progress"
+    ],
+    "thresholds": {
+      "high": 80,
+      "low": 60,
+      "break": 0
+    }
+  }
+}

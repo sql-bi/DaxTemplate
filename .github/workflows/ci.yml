@@ -42,21 +42,22 @@ jobs:
       - name: coverage threshold gate (Dax.Template core library)
         shell: pwsh
         # Phase M / Stage 0 / P0-b (see .claude/SESSION_HANDOFF.md, locked decision #5): the CI-enforced
-        # target is 80% line coverage on Dax.Template only. The measured baseline recorded in
-        # docs/design/coverage.md (2026-07-01) is ~68.4%, below that target, so this gate is wired as a
-        # non-regression floor (COVERAGE_LINE_THRESHOLD, comfortably under the baseline) rather than the
-        # aspirational 80% -- it fails only on a material coverage regression, not on missing the 80%
-        # target yet. Raise COVERAGE_LINE_THRESHOLD (and eventually make it 80) as Stage 0 P1/P2
-        # characterization tests land; see docs/design/coverage.md for the plan.
+        # target is 80% line coverage on Dax.Template only. This is now the enforced LOCKED TARGET, not
+        # an interim floor: a targeted Measures + Package characterization-test top-up (2026-07-02, 41
+        # new tests, offline suite grown from 88 to 129 passed + 1 skipped) raised the measured overall
+        # from 75.2% to 81.1%, clearing 80% with headroom. COVERAGE_LINE_THRESHOLD is set to 80 and the
+        # gate fails only if line coverage drops below it (a real regression), not as a step toward a
+        # still-pending target; see docs/design/coverage.md for the measured baseline, the per-subsystem
+        # breakdown, and the remaining per-subsystem (~90%) gaps.
         env:
-          COVERAGE_LINE_THRESHOLD: "65"
+          COVERAGE_LINE_THRESHOLD: "80"
         run: |
           [xml]$cobertura = Get-Content ./artifacts/coverage/report/Cobertura.xml
           $linePct = [math]::Round([double]$cobertura.coverage.'line-rate' * 100, 1)
           $thresholdPct = [double]$env:COVERAGE_LINE_THRESHOLD
-          Write-Host "Dax.Template line coverage: $linePct% (interim floor: $thresholdPct%; target: 80%)"
+          Write-Host "Dax.Template line coverage: $linePct% (locked target / floor: $thresholdPct%)"
           if ($linePct -lt $thresholdPct) {
-            Write-Error "Dax.Template line coverage $linePct% dropped below the interim floor of $thresholdPct%."
+            Write-Error "Dax.Template line coverage $linePct% dropped below the locked target of $thresholdPct%."
             exit 1
           }
       - name: upload coverage report
