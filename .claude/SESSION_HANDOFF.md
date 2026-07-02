@@ -1,7 +1,7 @@
 # Session Handoff — DAX Template: new DAX entities
 
 > Resume instructions: open this repo in Claude Code and say
-> **"Read .claude/SESSION_HANDOFF.md and start Phase M Stage 2 (mechanical modernization sweeps)."**
+> **"Read .claude/SESSION_HANDOFF.md and start Phase M Stage 3 (deeper refactors)."**
 > Last updated: 2026-07-02
 
 ## Goal
@@ -155,7 +155,7 @@ for explicit sign-off.
   warning remains in `Dax.Template.TestUI` — unrelated to this upgrade (predates it).
 - **Supersedes** the "Keep `net6.0;net8.0`" decision recorded above under "Decisions locked in".
 
-### Phase M — Modernization & Refactor (IN PROGRESS — Stage 0 + Stage 1 COMPLETE, Stage 2 active, precedes Phase 1)
+### Phase M — Modernization & Refactor (IN PROGRESS — Stage 0 + Stage 1 + Stage 2 COMPLETE, Stage 3 active, precedes Phase 1)
 Codebase inventory (verified 2026-07-01): 61 library `.cs` files, ~93 public types.
 Subsystems: Model(7) / Tables(11) / Measures(2) / Syntax(11) / Extensions(6) / Interfaces(7) /
 Enums(2) / Exceptions(7) / Constants(2) / root(6).
@@ -297,8 +297,8 @@ list shrinks toward empty as sweeps land. Code -> work mapping to plan the sweep
   `GetHierarchies` bare exception, cycle-detection weakness, etc. — see "Defect backlog surfaced by
   Stage 0 characterization" above) as Stage 2/3 fix-tests.
 
-- **Stage 2 — Mechanical modernization sweeps (low-risk), subsystem by subsystem — ACTIVE** — backend (+
-  frontend for the TestUI WinForms project).
+- **Stage 2 — Mechanical modernization sweeps (low-risk), subsystem by subsystem — COMPLETE (2026-07-02)**
+  — backend (+ frontend for the TestUI WinForms project).
   Order leaf->core: Constants/Enums -> Exceptions -> Extensions -> Model -> Syntax -> Measures ->
   Tables (date branch last) -> Engine/Package -> TestUI.
   Per sweep: file-scoped namespaces, using cleanup/sort, target-typed new, collection expressions,
@@ -306,8 +306,42 @@ list shrinks toward empty as sweeps land. Code -> work mapping to plan the sweep
   expression-bodied members where clearer, `required` for the 4 `= default!` members (LOCKED, 2026-07-01:
   approved — source-breaking for NuGet consumers, ships under a MAJOR VERSION BUMP), primary
   constructors where they cut boilerplate (LOCKED as house style alongside file-scoped namespaces).
-  Gate each: golden byte-identical + full offline suite + API baseline unchanged + reviewer.
-- **Stage 3 — Deeper refactors (higher-risk, opt-in per item)** — backend.
+  Gate each: golden byte-identical + full offline suite + API baseline unchanged + reviewer. See
+  "Stage 2 — outcomes (2026-07-02)" below for the full result.
+
+#### Stage 2 — outcomes (2026-07-02)
+- **10 subsystem modernization sweeps** (leaf->core), all behavior-preserving & reviewed: 2.1
+  Constants/Enums/Exceptions, 2.2 Extensions, 2.3 Model, 2.4 Syntax, 2.5 Measures, 2.6a Tables base +
+  2.6b Tables/Dates, 2.7a Interfaces + 2.7b Engine/Package/root, 2.8 TestUI, plus a bucket-C
+  analyzer-cleanup pass. Applied: file-scoped namespaces (whole library), primary constructors (simple
+  exceptions), collection expressions, expression-bodied members, `is null`/pattern matching, and
+  mechanical analyzer fixes. Golden BIM + `PublicApi.txt` byte-identical across all non-breaking
+  sweeps; suite steady at **129 passed + 1 skipped**; UTF-8 BOM preserved per file.
+- **WAE allowlist ratcheted 17 -> 3 codes**: cleared CA1510, CA1868, CA1860, CA1874, CA1805, CA2263,
+  CA1816, CA1852, CA1859, CA1869, CA1707, CA1711, CA1716, CA1725 (each fully eliminated repo-wide +
+  de-allowlisted with the CI warnings-as-errors build re-verified green). **Remaining allowlist: CA1051
+  (deferred field-design), CA1305, CA1309 (Stage 3 culture).**
+- **API-breaking pass (ships as 2.0.0):** 2.10a — `required` migration (EntityBase.Name, Level.Column,
+  Var.Name, DaxStep.Name) + version bump to **2.0.0** + CHANGELOG; also enhanced `PublicApiSurface` to
+  detect `RequiredMemberAttribute` (the change-detector was blind to `required`) and regenerated the
+  baseline. 2.10b — renamed public identifiers (de-underscored 18 constants with values unchanged;
+  dropped `*Enum` suffixes -> AutoScan/AutoNaming/Substitute/WeekDay; param `template`->
+  `templateDefinition`; nested type `Step`->`TemplateStep`; `dateTable`->`tabularTable`). Emitted BIM
+  byte-identical + JSON config still loads (identifier-only changes); `PublicApi.txt` regenerated.
+  Design docs + test comments synced.
+- **NOTE for maintainer:** the Azure DevOps pipeline `AppVersionMajor` variable must be bumped to **2**
+  (ADO variables can't be changed from the repo).
+- Committed as ~15 commits on `add-calendar` (`e2f4028`..`3536cc0`); pushed through `be0b053` (Stage
+  2.1-2.8 + bucket-C); the 2.10a/2.10b/doc-sync commits (`52d9676`,`86f2ddb`,`3536cc0`) may be unpushed
+  unless the lead notes otherwise.
+
+#### Stage 2 tail — CA1051 deferred follow-up
+The last non-culture allowlist code, **CA1051** (visible/protected instance fields in
+`TableTemplateBase`/`MeasureTemplateBase`), was deliberately deferred — it's a field->property design
+change (source+binary breaking, base-class shape) that warrants a `dotnet-architect`-led pass with its
+own review, ideally bundled into the 2.0.0 breaking release. Decide at Stage 3 entry whether to do it.
+
+- **Stage 3 — Deeper refactors (higher-risk, opt-in per item) — ACTIVE** — backend.
   De-duplicate AddAnnotations vs MeasuresTemplateBase.ApplyAnnotations (existing TODO) and unify
   column/hierarchy add patterns; encapsulate/modernize reflection (ReflectionHelper, GetModelChanges)
   with documented TOM-version fragility; readability pass on the Syntax subsystem; consistency pass on
@@ -497,19 +531,35 @@ Worktrees on the tree: main=add-calendar (@972c8cc), funny-blackwell-7789aa (@32
    outcomes (2026-07-02)" under "Phase M" above (`Directory.Build.props`, 72-file `dotnet format`
    baseline, CI-only warnings-as-errors with a 17-code `WarningsNotAsErrors` allowlist, the CS8602 fix,
    `AGENTS.md` style docs; suite still 129 passed + 1 skipped).
-4. Phase M is now on **Stage 2 (mechanical modernization sweeps)** — backend (+ frontend for TestUI).
-   Work leaf->core: Constants/Enums -> Exceptions -> Extensions -> Model -> Syntax -> Measures ->
-   Tables (date branch last) -> Engine/Package -> TestUI, applying file-scoped namespaces + primary
-   constructors (LOCKED house style), the `required` migration (major version bump), collection
-   expressions, and the rest of the Stage 2 feature list, gated per-subsystem (golden byte-identical +
-   full offline suite + API baseline + reviewer). Per subsystem, also FIX and REMOVE the corresponding
-   code(s) from the `WarningsNotAsErrors` allowlist per the "Stage 2 entry — analyzer-debt ratchet"
-   note above, so the allowlist shrinks toward empty as sweeps land. Use the kit tooling per the
-   "Phase M — dotnet-claude-kit alignment" subsection (Stage 2 entry).
-5. The "Phase M — locked decisions" (warnings-as-errors, file-scoped namespaces + primary constructors,
-   `required` migration, public-API scope, coverage threshold) remain LOCKED and govern Stage 2 work.
-6. Once Phase M reaches its Stage 4 closeout, resolve Open Question #1 (Calendar column-binding:
+4. Phase M Stage 2 (mechanical modernization sweeps) is COMPLETE (2026-07-02) — see "Stage 2 —
+   outcomes (2026-07-02)" under "Phase M" above (10 subsystem sweeps, WAE allowlist ratcheted 17 -> 3,
+   the `required`/2.0.0 API-breaking pass; suite still 129 passed + 1 skipped). The Azure DevOps
+   `AppVersionMajor` variable still needs bumping to 2 (repo-side change is done; ADO variable is not).
+5. Phase M is now on **Stage 3 (deeper refactors)** — backend. Opt-in per item, each proposed/reviewed/
+   gated individually, behavior-preserving:
+   - De-duplicate `AddAnnotations` vs `MeasuresTemplateBase.ApplyAnnotations` (existing TODO); unify
+     column/hierarchy add patterns.
+   - Encapsulate/modernize reflection (`ReflectionHelper`, `Engine.GetModelChanges`), with the
+     TOM-version fragility explicitly documented.
+   - Readability pass on the `Syntax` subsystem.
+   - Consistency pass on exceptions/messages, including the pre-existing "Circulare" typo in
+     `CircularDependencyException`.
+   - Decide the CA1305/CA1309 culture-correctness question (does DAX/number formatting need
+     `InvariantCulture`?) — the last two allowlisted analyzer codes hinge on this.
+   - Fold in the Stage 0 defect backlog (see "Defect backlog surfaced by Stage 0 characterization"
+     above) as fix-tests: dropped Hierarchy/Level `Description` in `AddHierarchies`; Holidays
+     phantom-table-on-validation-throw; `CustomDateTable`-disabled no-cleanup; `GetHierarchies` bare
+     `InvalidOperationException`; 2-node cycle-detection weakness; the `GetModelChanges`
+     empty-offline XML-doc note.
+   - Decide and, if approved, execute the deferred **CA1051** follow-up (see "Stage 2 tail" above) —
+     route to `dotnet-architect`.
+   - Address the deferred `PublicApiSurface` renderer nits (see "Deferred PublicApiSurface renderer
+     nits" above) if convenient.
+6. The "Phase M — locked decisions" (warnings-as-errors, file-scoped namespaces + primary constructors,
+   `required` migration, public-API scope, coverage threshold) remain LOCKED and continue to govern
+   Stage 3 work.
+7. Once Phase M reaches its Stage 4 closeout, resolve Open Question #1 (Calendar column-binding:
    TMDL/JSON injection vs reflection) BEFORE Phase 1 backend.
-7. Begin Phase 1 (Calendars): CalendarTemplateDefinition POCO + ApplyCalendarTemplate handler in Engine dispatch
+8. Begin Phase 1 (Calendars): CalendarTemplateDefinition POCO + ApplyCalendarTemplate handler in Engine dispatch
    + additive TemplateEntry/config + idempotency via SQLBI_Template annotation. Add a Calendar golden test next
    to ApplyTemplatesGoldenTests (extend OfflineModelFixture as needed) + opt-in live-server check.
