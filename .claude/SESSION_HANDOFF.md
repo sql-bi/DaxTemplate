@@ -1,8 +1,8 @@
 # Session Handoff — DAX Template: new DAX entities
 
 > Resume instructions: open this repo in Claude Code and say
-> **"Read .claude/SESSION_HANDOFF.md and start Phase M Stage 0 (test hardening)."**
-> Last updated: 2026-07-01
+> **"Read .claude/SESSION_HANDOFF.md and start Phase M Stage 1 (style/analyzer infrastructure)."**
+> Last updated: 2026-07-02
 
 ## Goal
 Extend the Dax.Template library (creates TOM objects from JSON templates) to support three new DAX
@@ -155,7 +155,7 @@ for explicit sign-off.
   warning remains in `Dax.Template.TestUI` — unrelated to this upgrade (predates it).
 - **Supersedes** the "Keep `net6.0;net8.0`" decision recorded above under "Decisions locked in".
 
-### Phase M — Modernization & Refactor (IN PROGRESS — Stage 0 active, precedes Phase 1)
+### Phase M — Modernization & Refactor (IN PROGRESS — Stage 0 COMPLETE, Stage 1 active, precedes Phase 1)
 Codebase inventory (verified 2026-07-01): 61 library `.cs` files, ~93 public types.
 Subsystems: Model(7) / Tables(11) / Measures(2) / Syntax(11) / Extensions(6) / Interfaces(7) /
 Enums(2) / Exceptions(7) / Constants(2) / root(6).
@@ -169,29 +169,81 @@ breaking changes are acceptable — there is no Web API surface to preserve, and
 to adapt on the next major version. This is NOT a hard freeze constraint (see "Phase M — locked
 decisions" below).
 
-- **Stage 0 — Safety net first (test hardening before refactor)** — qa + devops.
+- **Stage 0 — Safety net first (test hardening before refactor) — COMPLETE (2026-07-02)** — qa + devops.
   Prioritized tests:
-  - P0: public-API baseline (PublicApiAnalyzers or a committed API-dump snapshot). LOCKED scope: this
-    is a change-detector to surface intended vs. accidental public-surface changes for review in each
-    PR — NOT a hard freeze/gate (public API is open to improvement; see "Phase M — locked decisions").
-  - P0: coverage baseline (activate the currently-inert coverlet, record baseline). LOCKED target
-    (2026-07-01): CI-enforced floor of 80% line coverage on the core library `Dax.Template` only
+  - [x] P0 DELIVERED: public-API baseline (PublicApiAnalyzers or a committed API-dump snapshot). LOCKED
+    scope: this is a change-detector to surface intended vs. accidental public-surface changes for
+    review in each PR — NOT a hard freeze/gate (public API is open to improvement; see "Phase M —
+    locked decisions").
+  - [x] P0 DELIVERED: coverage baseline (activate the currently-inert coverlet, record baseline). LOCKED
+    target (2026-07-01): CI-enforced floor of 80% line coverage on the core library `Dax.Template` only
     (`Dax.Template.TestUI` excluded from the metric); ~90% on the refactor-target subsystems (Tables,
     Measures, Model, Extensions dependency-sort, Engine/Package dispatch); justified, attributed
     exclusions for live-server-only branches and generated/trivial members; add Stryker.NET mutation
     testing on the 2-3 highest-risk subsystems alongside the golden-file gate. 100% remains aspirational
     for the core transformation logic; the CI floor may be raised (e.g. to 85%) once Stage 0 reveals the
     real baseline.
-  - P1: broaden golden coverage with synthetic configs beyond Config-01 (custom non-date table w/
-    hierarchies, measures-only, holidays variants); Engine dispatch tests (each Class -> handler,
+  - [x] P1 DELIVERED: broaden golden coverage with synthetic configs beyond Config-01 (custom non-date
+    table w/ hierarchies, measures-only, holidays variants); Engine dispatch tests (each Class -> handler,
     unknown/invalid Class); idempotency (apply-twice identical normalized BIM + SQLBI_Template orphan
     cleanup); dependency ordering (TSort DAG + cycle -> CircularDependencyException,
     ComputeDependencies/GetDependencies/GetScanColumns); reflection paths
     (ReflectionHelper/GetModelChanges diff correctness).
-  - P2: StringExtensions macro/var substitution, Package load/invalid-config,
+  - [x] P2 DELIVERED: StringExtensions macro/var substitution, Package load/invalid-config,
     CustomTableTemplate.GetHierarchies non-date path, MeasuresTemplate wrapping, determinism +
     cancellation honoring.
-  - Exit: API + coverage baselines committed, new tests green.
+  - [x] Exit MET: API + coverage baselines committed, new tests green. See "Stage 0 — outcomes
+    (2026-07-02)" below for the full result.
+
+#### Stage 0 — outcomes (2026-07-02)
+- **Suite growth:** offline suite grew from 13 -> **129 passed + 1 skipped** (116 new tests: 1
+  public-API baseline + 28 P1 + 46 P2 + 41 Measures/Package top-up).
+- **Public-API baseline:** change-detector committed — `src/Dax.Template.Tests/_data/Golden/PublicApi.txt`
+  via `Infrastructure/PublicApiSurface.cs` (reflection dump) + `PublicApiGoldenTests.cs`; regenerate with
+  `UPDATE_GOLDEN=1`. Confirmed change-detector, not a freeze gate.
+- **Coverage:** baseline recorded in `docs/design/coverage.md`; core `Dax.Template` line coverage
+  **81.1%**; **CI floor raised to the locked 80%** target in `.github/workflows/ci.yml` (~1.1pt
+  headroom). Per-subsystem: Extensions ~97.6%, Measures 98.9%, Package 100%, Engine 81.2%, Engine+Package
+  dispatch 88.3%, Tables 79.9%, Model 6.9%. Restored the missing `coverlet.runsettings` (CI had been
+  broken referencing it). 3 justified `[ExcludeFromCodeCoverage]` sites (`ModelChanges.PopulatePreview`,
+  `ModelChanges.GetPreviewData`, `EntityBase.ToString`).
+- **Stryker.NET** wired (non-gating) via `stryker-config.json` (Tables/Measures/dependency-sort);
+  dependency-sort baseline mutation score **52.25%** — a blind-spot signal despite 97.8% line coverage.
+- **Commits:** 5 commits on `add-calendar` (`50eb033`..`8a49b46`); not pushed.
+- **Residual subsystem gaps vs the ~90% target** (tracked, accepted): Tables 79.9%, Engine 81.2%, and
+  Model 6.9% (Model's low figure is reflection-heavy, live-server-tilted `ModelChanges` diff code — not
+  core transformation logic).
+
+#### Defect backlog surfaced by Stage 0 characterization (for Stage 2/3)
+Pinned as CURRENT BEHAVIOR today (characterization tests lock the existing behavior); convert to
+fix-tests when each is scheduled.
+- **Hierarchy/Level `Description` silently dropped** — `Tables/TableTemplateBase.cs` `AddHierarchies`
+  (~lines 370-389) never copies `Description` onto the TOM `Hierarchy`/`Level` (source values set in
+  `Tables/CustomTableTemplate.cs` `GetHierarchies`). Medium (metadata data-loss). Fix: add
+  `Description = hierarchy.Description` / `= level.Description`.
+- **`GetHierarchies` unknown-column -> bare `InvalidOperationException`** —
+  `Tables/CustomTableTemplate.cs:134` unguarded `Columns.First(...)`. Medium (debuggability). Fix:
+  `FirstOrDefault` + `TemplateException` naming the column/hierarchy.
+- **Holidays phantom empty table on validation throw** — `Engine.cs` `ApplyHolidaysDefinitionTable`
+  (~124-136) adds the table BEFORE validating empty `Template`. Medium (idempotency/retry). Fix: hoist
+  the validation above the `Tables.Add`.
+- **`CustomDateTable` disabled never cleans up its table** (asymmetric `IsEnabled=false` handling across
+  the 4 dispatch handlers) — `Engine.cs`. Medium.
+- **Cycle detection inconsistency** — a 1-node self-cycle throws `CircularDependencyException`
+  immediately; a 2-node A<->B cycle is only caught after ~1000 recursive calls via `MAX_NESTED_CALLS` —
+  `Extensions/TSort.cs` `VisitDependencies`. Low/Med (Stage 3).
+- **Inconsistent `Package` exception mapping** (BCL vs `Template*` exceptions) — `Package.cs`. Low
+  (API-shape decision).
+- **`GetModelChanges` returns empty after an offline apply** (needs a connected model for
+  `HasLocalChanges`) — `Engine.cs:29-62`. Pin-only + add an XML-doc note in Stage 4.
+
+#### Deferred PublicApiSurface renderer nits (Stage 1/2)
+Cosmetic only — do not affect baseline determinism:
+- `sealed override` mislabels implicit interface implementations.
+- Redundant transitively-inherited interfaces listed in type headers.
+- Latent `ulong`-enum `OverflowException` risk in `FormatField`.
+- `CancellationToken = default` renders as `= null`.
+
 - **Stage 1 — Style/analyzer infrastructure** — devops.
   Add `Directory.Build.props` (centralize TargetFramework/LangVersion 14/Nullable/analyzers); enable
   .NET analyzers (+ optional Roslynator); escalate key `.editorconfig` rules suggestion->warning;
@@ -305,8 +357,9 @@ TOM class library — not a change to the Phase 1/2/3 checklists below, just the
 
 ## Phase M — locked decisions (2026-07-01)
 All five decisions below are LOCKED by the user. Phase M is now IN EXECUTION (kicked off 2026-07-01):
-Stage 0 (test hardening) is the ACTIVE work; Stages 1-4 remain queued behind it. The locks are the
-agreed constraints for that execution.
+Stage 0 (test hardening) is COMPLETE (2026-07-02); Stage 1 (style/analyzer infrastructure) is the
+ACTIVE work; Stages 2-4 remain queued behind it. The locks are the agreed constraints for that
+execution.
 
 1. **Warnings-as-errors: YES, CI-only.** Treat warnings as errors in the CI build, not necessarily in
    local dev builds. Stage 1 wires this into the CI pipeline(s).
@@ -388,16 +441,21 @@ Worktrees on the tree: main=add-calendar (@972c8cc), funny-blackwell-7789aa (@32
 (@972c8cc). The funny-blackwell worktree is now behind; prune it if unused.
 
 ## Next session — start here
-1. `add-calendar` is pushed to origin (@6bbad5d, 2026-07-01).
-2. Phase M is IN PROGRESS and is the active work, BEFORE resolving the Calendar-binding question or
-   starting Phase 1. Execute Stage 0 (test hardening): P0 public-API baseline + P0 coverage baseline
-   first, then the P1/P2 characterization tests listed under "Phase M" above. Use the kit tooling per
-   the "Phase M — dotnet-claude-kit alignment" subsection.
-3. The "Phase M — locked decisions" (warnings-as-errors, file-scoped namespaces + primary constructors,
-   `required` migration, public-API scope, coverage threshold) are now LOCKED — proceed straight to
-   Stage 1 (style/analyzer infrastructure) once Stage 0 exits.
-4. Once Phase M reaches its Stage 4 closeout, resolve Open Question #1 (Calendar column-binding:
+1. `add-calendar` is pushed to origin (@6bbad5d, 2026-07-01); Stage 0 work landed as 5 further commits
+   (`50eb033`..`8a49b46`) NOT yet pushed.
+2. Phase M Stage 0 (test hardening) is COMPLETE (2026-07-02) — see "Stage 0 — outcomes (2026-07-02)"
+   under "Phase M" above for the full result (129 passed + 1 skipped, public-API baseline, coverage
+   baseline + CI floor, Stryker.NET wired).
+3. Phase M is now on **Stage 1 (style/analyzer infrastructure)** — devops. Add `Directory.Build.props`
+   (centralize TargetFramework/LangVersion 14/Nullable/analyzers); enable .NET analyzers (+ optional
+   Roslynator); escalate key `.editorconfig` rules suggestion->warning; file-scoped namespaces are house
+   style (LOCKED); add CI `dotnet format --verify-no-changes` gate; wire warnings-as-errors into the CI
+   build (LOCKED, CI-only); fix the pre-existing CS8602 in `TestUI/ApplyDaxTemplate.cs:315`. Use the kit
+   tooling per the "Phase M — dotnet-claude-kit alignment" subsection (Stage 1 entry).
+4. The "Phase M — locked decisions" (warnings-as-errors, file-scoped namespaces + primary constructors,
+   `required` migration, public-API scope, coverage threshold) remain LOCKED and govern Stage 1-2 work.
+5. Once Phase M reaches its Stage 4 closeout, resolve Open Question #1 (Calendar column-binding:
    TMDL/JSON injection vs reflection) BEFORE Phase 1 backend.
-5. Begin Phase 1 (Calendars): CalendarTemplateDefinition POCO + ApplyCalendarTemplate handler in Engine dispatch
+6. Begin Phase 1 (Calendars): CalendarTemplateDefinition POCO + ApplyCalendarTemplate handler in Engine dispatch
    + additive TemplateEntry/config + idempotency via SQLBI_Template annotation. Add a Calendar golden test next
    to ApplyTemplatesGoldenTests (extend OfflineModelFixture as needed) + opt-in live-server check.
