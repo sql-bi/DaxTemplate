@@ -319,8 +319,9 @@ list shrinks toward empty as sweeps land. Code -> work mapping to plan the sweep
   sweeps; suite steady at **129 passed + 1 skipped**; UTF-8 BOM preserved per file.
 - **WAE allowlist ratcheted 17 -> 3 codes**: cleared CA1510, CA1868, CA1860, CA1874, CA1805, CA2263,
   CA1816, CA1852, CA1859, CA1869, CA1707, CA1711, CA1716, CA1725 (each fully eliminated repo-wide +
-  de-allowlisted with the CI warnings-as-errors build re-verified green). **Remaining allowlist: CA1051
-  (deferred field-design), CA1305, CA1309 (Stage 3 culture).**
+  de-allowlisted with the CI warnings-as-errors build re-verified green). CA1051 was also completed as a
+  Stage 2 tail (protected fields -> properties, `9ead9ae`). **Remaining allowlist: CA1305, CA1309 only
+  (Stage 3 culture decision).**
 - **API-breaking pass (ships as 2.0.0):** 2.10a — `required` migration (EntityBase.Name, Level.Column,
   Var.Name, DaxStep.Name) + version bump to **2.0.0** + CHANGELOG; also enhanced `PublicApiSurface` to
   detect `RequiredMemberAttribute` (the change-detector was blind to `required`) and regenerated the
@@ -335,11 +336,13 @@ list shrinks toward empty as sweeps land. Code -> work mapping to plan the sweep
   2.1-2.8 + bucket-C); the 2.10a/2.10b/doc-sync commits (`52d9676`,`86f2ddb`,`3536cc0`) may be unpushed
   unless the lead notes otherwise.
 
-#### Stage 2 tail — CA1051 deferred follow-up
-The last non-culture allowlist code, **CA1051** (visible/protected instance fields in
-`TableTemplateBase`/`MeasureTemplateBase`), was deliberately deferred — it's a field->property design
-change (source+binary breaking, base-class shape) that warrants a `dotnet-architect`-led pass with its
-own review, ideally bundled into the 2.0.0 breaking release. Decide at Stage 3 entry whether to do it.
+#### Stage 2 tail — CA1051 follow-up (DONE 2026-07-02, `9ead9ae`)
+**CA1051** (visible/protected instance fields) is COMPLETE: `MeasureTemplateBase.Template` (get-only),
+`TableTemplateBase.FixRelationshipsTo`/`FixRelationshipsFrom` (get/set), and
+`Translations.LanguageDefinitions` (get/set) converted field->property (source/binary-breaking for
+subclasses, part of the 2.0.0 release; no runtime/DAX-BIM/JSON impact — verified no ref/out usage, none
+JSON-bound). CA1051 removed from the allowlist. **The full 2.0.0 public-API cleanup is now complete; the
+allowlist holds only CA1305/CA1309 (Stage 3 culture).**
 
 - **Stage 3 — Deeper refactors (higher-risk, opt-in per item) — ACTIVE** — backend.
   De-duplicate AddAnnotations vs MeasuresTemplateBase.ApplyAnnotations (existing TODO) and unify
@@ -551,8 +554,7 @@ Worktrees on the tree: main=add-calendar (@972c8cc), funny-blackwell-7789aa (@32
      phantom-table-on-validation-throw; `CustomDateTable`-disabled no-cleanup; `GetHierarchies` bare
      `InvalidOperationException`; 2-node cycle-detection weakness; the `GetModelChanges`
      empty-offline XML-doc note.
-   - Decide and, if approved, execute the deferred **CA1051** follow-up (see "Stage 2 tail" above) —
-     route to `dotnet-architect`.
+   - ~~CA1051 follow-up~~ DONE (`9ead9ae`) — allowlist now CA1305/CA1309 only.
    - Address the deferred `PublicApiSurface` renderer nits (see "Deferred PublicApiSurface renderer
      nits" above) if convenient.
 6. The "Phase M — locked decisions" (warnings-as-errors, file-scoped namespaces + primary constructors,
