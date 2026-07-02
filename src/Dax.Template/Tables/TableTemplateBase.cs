@@ -15,7 +15,7 @@ namespace Dax.Template.Tables;
 
 public abstract class TableTemplateBase
 {
-    public const string ANNOTATION_ATTRIBUTE_TYPE = "SQLBI_AttributeTypes";
+    public const string AnnotationAttributeType = "SQLBI_AttributeTypes";
 
     public List<Column> Columns { get; set; } = [];
     public List<Hierarchy> Hierarchies { get; set; } = [];
@@ -280,7 +280,7 @@ public abstract class TableTemplateBase
                     column.TabularColumn.Annotations.Add(
                         new Annotation
                         {
-                            Name = ANNOTATION_ATTRIBUTE_TYPE,
+                            Name = AnnotationAttributeType,
                             Value = string.Join(", ", column.AttributeType.Select(attr => attr.ToString()))
                         }
                     );
@@ -317,7 +317,7 @@ public abstract class TableTemplateBase
                     TabularColumn? existingColumn;
                     while ((existingColumn = dateTable.Columns.FirstOrDefault(existingColumn => existingColumn.Name == c.Name)) is not null)
                     {
-                        c.Name = Prefixes.CONFLICT_RENAME_PREFIX + c.Name;
+                        c.Name = Prefixes.ConflictRenamePrefix + c.Name;
                     }
 
                     dateTable.Columns.Add(c);

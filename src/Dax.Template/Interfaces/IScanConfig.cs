@@ -9,5 +9,5 @@ public interface IScanConfig
     public string[]? ExceptTablesColumns { get; set; }
 
     [JsonConverter(typeof(JsonStringEnumConverter))]
-    public AutoScanEnum? AutoScan { get; set; }
+    public AutoScan? AutoScan { get; set; }
 }

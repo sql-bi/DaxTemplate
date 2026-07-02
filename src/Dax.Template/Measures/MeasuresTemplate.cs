@@ -81,7 +81,7 @@ public class MeasuresTemplate
             return
                 from t in model.Tables
                 from m in t.Measures
-                where !m.Annotations.Any(a => a.Name == Attributes.SQLBI_TEMPLATE_ATTRIBUTE)
+                where !m.Annotations.Any(a => a.Name == Attributes.SqlbiTemplate)
                 select m;
         }
 
@@ -93,7 +93,7 @@ public class MeasuresTemplate
                 from t in model.Tables
                 from m in t.Measures
                 where m.Name == tm.Name    // TODO - modify the matching algorithm to manage wildcards and/or attributes
-                   && !m.Annotations.Any(a => a.Name == Attributes.SQLBI_TEMPLATE_ATTRIBUTE)
+                   && !m.Annotations.Any(a => a.Name == Attributes.SqlbiTemplate)
                 select m
             );
         }
@@ -112,7 +112,7 @@ public class MeasuresTemplate
             var scanColumns = model.GetScanColumns(Config);
             if (scanColumns == null)
             {
-                if (Config.AutoScan == AutoScanEnum.Disabled)
+                if (Config.AutoScan == AutoScan.Disabled)
                 {
                     if (matchGetMinDates.Success)
                     {
@@ -146,8 +146,8 @@ public class MeasuresTemplate
     }
     protected internal virtual string GetTargetMeasureName(string templateName, string referenceMeasureName)
     {
-        string prefix = (Config.AutoNaming == AutoNamingEnum.Prefix) ? $"{templateName}{Config.AutoNamingSeparator}" : string.Empty;
-        string suffix = (Config.AutoNaming == AutoNamingEnum.Suffix) ? $"{Config.AutoNamingSeparator}{templateName}" : string.Empty;
+        string prefix = (Config.AutoNaming == AutoNaming.Prefix) ? $"{templateName}{Config.AutoNamingSeparator}" : string.Empty;
+        string suffix = (Config.AutoNaming == AutoNaming.Suffix) ? $"{Config.AutoNamingSeparator}{templateName}" : string.Empty;
         return $"{prefix}{referenceMeasureName}{suffix}";
     }
 
@@ -159,7 +159,7 @@ public class MeasuresTemplate
             (from t in model.Tables
              from m in t.Measures
              where m.Annotations.Any(a =>
-                a.Name == Attributes.SQLBI_TEMPLATE_ATTRIBUTE
+                a.Name == Attributes.SqlbiTemplate
                 && (string.IsNullOrEmpty(SqlbiTemplateValue) || a.Value == SqlbiTemplateValue))
              select m).ToList();
 
@@ -263,7 +263,7 @@ public class MeasuresTemplate
     /// <returns>Value of SQLBI_Template used by the current template</returns>
     private string GetSqlbiTemplateValue()
     {
-        return Template.TemplateAnnotations.FirstOrDefault(a => a.Key == Attributes.SQLBI_TEMPLATE_ATTRIBUTE).Value;
+        return Template.TemplateAnnotations.FirstOrDefault(a => a.Key == Attributes.SqlbiTemplate).Value;
     }
 
     private static Table? FindTable(TabularModel model, string tableName)

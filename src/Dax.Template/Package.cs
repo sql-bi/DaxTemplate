@@ -11,8 +11,8 @@ namespace Dax.Template;
 
 public class Package
 {
-    public const string TEMPLATE_FILE_EXTENSION = ".template.json";
-    public const string PACKAGE_CONFIG = "Config";
+    public const string TemplateFileExtension = ".template.json";
+    public const string PackageConfig = "Config";
 
     private readonly string _path;
     private readonly JsonDocument _document;
@@ -37,10 +37,10 @@ public class Package
 
         string configurationText;
 
-        if (packageDocument.RootElement.TryGetProperty(PACKAGE_CONFIG, out var configurationElement))
+        if (packageDocument.RootElement.TryGetProperty(PackageConfig, out var configurationElement))
         {
             if (configurationElement.ValueKind != JsonValueKind.Object)
-                throw new TemplateConfigurationException($"Invalid json value kind [{PACKAGE_CONFIG}]");
+                throw new TemplateConfigurationException($"Invalid json value kind [{PackageConfig}]");
 
             // File is a packaged template which contains the config and all referenced templates as embeded objects
             configurationText = configurationElement.GetRawText();
@@ -68,7 +68,7 @@ public class Package
     /// </summary>
     /// <param name="path">The relative or absolute path to the directory to search</param>
     public static IEnumerable<string> FindTemplateFiles(string path) =>
-        Directory.EnumerateFiles(path, searchPattern: $"*{TEMPLATE_FILE_EXTENSION}");
+        Directory.EnumerateFiles(path, searchPattern: $"*{TemplateFileExtension}");
 
     private Package(FileInfo file, JsonDocument document, TemplateConfiguration configuration)
     {
@@ -101,7 +101,7 @@ public class Package
     public void SaveTo(string path)
     {
         Dictionary<string, object> package = new();
-        package.Add(PACKAGE_CONFIG, Configuration);
+        package.Add(PackageConfig, Configuration);
 
         var fileNames =
             from t in Configuration.Templates

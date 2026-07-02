@@ -11,7 +11,7 @@ namespace Dax.Template.Tables.Dates;
 
 public class HolidaysDefinitionTable : CalculatedTableTemplateBase
 {
-    public enum SubstituteEnum
+    public enum Substitute
     {
         NoSubstituteHoliday = 0,
         SubstituteHolidayWithNextWorkingDay = 1,
@@ -60,7 +60,7 @@ public class HolidaysDefinitionTable : CalculatedTableTemplateBase
         /// the date is already a non-working day (e.g. "in lieu of...")
         /// </summary>
         [JsonConverter(typeof(JsonStringEnumConverter))]
-        public SubstituteEnum SubstituteHoliday { get; set; } = SubstituteEnum.NoSubstituteHoliday;
+        public Substitute SubstituteHoliday { get; set; } = Substitute.NoSubstituteHoliday;
         /// <summary>
         /// Priority in case of two or more holidays in the same date - lower number --> higher priority
         /// For example: marking Easter relative days with 150 and other holidays with 100 means that other holidays take   
@@ -88,8 +88,8 @@ public class HolidaysDefinitionTable : CalculatedTableTemplateBase
     public HolidaysDefinitionTable(HolidaysDefinitions holidaysDefinitions)
     {
         string padding = new(' ', 8);
-        Annotations.Add(Attributes.SQLBI_TEMPLATE_ATTRIBUTE, Attributes.SQLBI_TEMPLATE_HOLIDAYS);
-        Annotations.Add(Attributes.SQLBI_TEMPLATETABLE_ATTRIBUTE, Attributes.SQLBI_TEMPLATETABLE_HOLIDAYSDEFINITION);
+        Annotations.Add(Attributes.SqlbiTemplate, Attributes.SqlbiTemplateHolidays);
+        Annotations.Add(Attributes.SqlbiTemplateTable, Attributes.SqlbiTemplateTableHolidaysDefinition);
         __HolidaysDefinition = new()
         {
             Name = "__HolidayParameters",

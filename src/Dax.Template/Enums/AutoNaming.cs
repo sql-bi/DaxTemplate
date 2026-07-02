@@ -1,6 +1,6 @@
 ﻿namespace Dax.Template.Enums;
 
-public enum AutoNamingEnum
+public enum AutoNaming
 {
     Suffix = 0,
     Prefix

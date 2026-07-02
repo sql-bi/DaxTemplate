@@ -34,7 +34,7 @@ namespace Dax.Template.Tests
             var database = OfflineModelFixture.Build();
             var config = new TemplateConfiguration
             {
-                AutoScan = AutoScanEnum.Disabled,
+                AutoScan = AutoScan.Disabled,
                 OnlyTablesColumns = Array.Empty<string>(),
                 ExceptTablesColumns = Array.Empty<string>(),
                 DefaultVariables = new Dictionary<string, string>(),
@@ -42,7 +42,7 @@ namespace Dax.Template.Tests
             var definition = new MeasuresTemplateDefinition
             {
                 TargetTable = new Dictionary<string, string> { ["Name"] = "Sales" },
-                TemplateAnnotations = new Dictionary<string, string> { [Attributes.SQLBI_TEMPLATE_ATTRIBUTE] = "Range" },
+                TemplateAnnotations = new Dictionary<string, string> { [Attributes.SqlbiTemplate] = "Range" },
                 MeasureTemplates = new[]
                 {
                     new MeasuresTemplateDefinition.MeasureTemplate
@@ -74,7 +74,7 @@ namespace Dax.Template.Tests
             var database = OfflineModelFixture.Build();
             var config = new TemplateConfiguration
             {
-                AutoScan = AutoScanEnum.SelectedTablesColumns,
+                AutoScan = AutoScan.SelectedTablesColumns,
                 OnlyTablesColumns = Array.Empty<string>(),
                 ExceptTablesColumns = Array.Empty<string>(),
                 DefaultVariables = new Dictionary<string, string>(),
@@ -82,7 +82,7 @@ namespace Dax.Template.Tests
             var definition = new MeasuresTemplateDefinition
             {
                 TargetTable = new Dictionary<string, string> { ["Name"] = "Sales" },
-                TemplateAnnotations = new Dictionary<string, string> { [Attributes.SQLBI_TEMPLATE_ATTRIBUTE] = "Range" },
+                TemplateAnnotations = new Dictionary<string, string> { [Attributes.SqlbiTemplate] = "Range" },
                 MeasureTemplates = new[]
                 {
                     new MeasuresTemplateDefinition.MeasureTemplate
@@ -113,7 +113,7 @@ namespace Dax.Template.Tests
             var database = OfflineModelFixture.Build();
             var config = new TemplateConfiguration
             {
-                AutoNaming = AutoNamingEnum.Suffix,
+                AutoNaming = AutoNaming.Suffix,
                 AutoNamingSeparator = " ",
                 TargetMeasures = new[] { new IMeasureTemplateConfig.TargetMeasure { Name = "Sales Amount" } },
                 DefaultVariables = new Dictionary<string, string>(),
@@ -121,7 +121,7 @@ namespace Dax.Template.Tests
             var definition = new MeasuresTemplateDefinition
             {
                 TargetTable = new Dictionary<string, string> { ["Name"] = "Sales" },
-                TemplateAnnotations = new Dictionary<string, string> { [Attributes.SQLBI_TEMPLATE_ATTRIBUTE] = "Wrap" },
+                TemplateAnnotations = new Dictionary<string, string> { [Attributes.SqlbiTemplate] = "Wrap" },
                 MeasureTemplates = new[]
                 {
                     new MeasuresTemplateDefinition.MeasureTemplate { Name = "Rounded", Expression = "ROUND ( @@GETMEASURE(), 0 )" }
@@ -149,7 +149,7 @@ namespace Dax.Template.Tests
             var definition = new MeasuresTemplateDefinition
             {
                 TargetTable = new Dictionary<string, string> { ["MissingAttr"] = "X" },
-                TemplateAnnotations = new Dictionary<string, string> { [Attributes.SQLBI_TEMPLATE_ATTRIBUTE] = "Wrap" },
+                TemplateAnnotations = new Dictionary<string, string> { [Attributes.SqlbiTemplate] = "Wrap" },
                 MeasureTemplates = new[]
                 {
                     new MeasuresTemplateDefinition.MeasureTemplate { Name = "Dummy", IsSingleInstance = true, Expression = "1" }
@@ -175,7 +175,7 @@ namespace Dax.Template.Tests
             var definition = new MeasuresTemplateDefinition
             {
                 TargetTable = new Dictionary<string, string> { ["DupAttr"] = "X" },
-                TemplateAnnotations = new Dictionary<string, string> { [Attributes.SQLBI_TEMPLATE_ATTRIBUTE] = "Wrap" },
+                TemplateAnnotations = new Dictionary<string, string> { [Attributes.SqlbiTemplate] = "Wrap" },
                 MeasureTemplates = new[]
                 {
                     new MeasuresTemplateDefinition.MeasureTemplate { Name = "Dummy", IsSingleInstance = true, Expression = "1" }
@@ -199,7 +199,7 @@ namespace Dax.Template.Tests
             var definition = new MeasuresTemplateDefinition
             {
                 TargetTable = new Dictionary<string, string> { ["AttrA"] = "1", ["AttrB"] = "2" },
-                TemplateAnnotations = new Dictionary<string, string> { [Attributes.SQLBI_TEMPLATE_ATTRIBUTE] = "Wrap" },
+                TemplateAnnotations = new Dictionary<string, string> { [Attributes.SqlbiTemplate] = "Wrap" },
                 MeasureTemplates = new[]
                 {
                     new MeasuresTemplateDefinition.MeasureTemplate { Name = "Dummy", IsSingleInstance = true, Expression = "1" }
@@ -222,7 +222,7 @@ namespace Dax.Template.Tests
             var definition = new MeasuresTemplateDefinition
             {
                 TargetTable = new Dictionary<string, string>(),
-                TemplateAnnotations = new Dictionary<string, string> { [Attributes.SQLBI_TEMPLATE_ATTRIBUTE] = "Wrap" },
+                TemplateAnnotations = new Dictionary<string, string> { [Attributes.SqlbiTemplate] = "Wrap" },
                 MeasureTemplates = new[]
                 {
                     new MeasuresTemplateDefinition.MeasureTemplate { Name = "Dummy", IsSingleInstance = true, Expression = "1" }

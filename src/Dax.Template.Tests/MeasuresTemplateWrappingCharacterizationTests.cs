@@ -23,7 +23,7 @@ namespace Dax.Template.Tests
     /// </summary>
     public class MeasuresTemplateWrappingCharacterizationTests
     {
-        private static TemplateConfiguration BuildConfig(AutoNamingEnum autoNaming, string separator = " ")
+        private static TemplateConfiguration BuildConfig(AutoNaming autoNaming, string separator = " ")
         {
             return new TemplateConfiguration
             {
@@ -39,11 +39,11 @@ namespace Dax.Template.Tests
         {
             // Arrange
             var database = OfflineModelFixture.Build();
-            var config = BuildConfig(AutoNamingEnum.Suffix);
+            var config = BuildConfig(AutoNaming.Suffix);
             var definition = new MeasuresTemplateDefinition
             {
                 TargetTable = new Dictionary<string, string> { ["Name"] = "Sales" },
-                TemplateAnnotations = new Dictionary<string, string> { [Attributes.SQLBI_TEMPLATE_ATTRIBUTE] = "Wrap" },
+                TemplateAnnotations = new Dictionary<string, string> { [Attributes.SqlbiTemplate] = "Wrap" },
                 MeasureTemplates = new[]
                 {
                     new MeasuresTemplateDefinition.MeasureTemplate { Name = "Rounded", Expression = "ROUND ( @@GETMEASURE(), 0 )" }
@@ -66,11 +66,11 @@ namespace Dax.Template.Tests
         {
             // Arrange
             var database = OfflineModelFixture.Build();
-            var config = BuildConfig(AutoNamingEnum.Prefix);
+            var config = BuildConfig(AutoNaming.Prefix);
             var definition = new MeasuresTemplateDefinition
             {
                 TargetTable = new Dictionary<string, string> { ["Name"] = "Sales" },
-                TemplateAnnotations = new Dictionary<string, string> { [Attributes.SQLBI_TEMPLATE_ATTRIBUTE] = "Wrap" },
+                TemplateAnnotations = new Dictionary<string, string> { [Attributes.SqlbiTemplate] = "Wrap" },
                 MeasureTemplates = new[]
                 {
                     new MeasuresTemplateDefinition.MeasureTemplate { Name = "Rounded", Expression = "ROUND ( @@GETMEASURE(), 0 )" }
@@ -92,11 +92,11 @@ namespace Dax.Template.Tests
         {
             // Arrange
             var database = OfflineModelFixture.Build();
-            var config = BuildConfig(AutoNamingEnum.Suffix);
+            var config = BuildConfig(AutoNaming.Suffix);
             var definition = new MeasuresTemplateDefinition
             {
                 TargetTable = new Dictionary<string, string> { ["Name"] = "Sales" },
-                TemplateAnnotations = new Dictionary<string, string> { [Attributes.SQLBI_TEMPLATE_ATTRIBUTE] = "MyWrapper" },
+                TemplateAnnotations = new Dictionary<string, string> { [Attributes.SqlbiTemplate] = "MyWrapper" },
                 MeasureTemplates = new[]
                 {
                     new MeasuresTemplateDefinition.MeasureTemplate { Name = "Rounded", Expression = "ROUND ( @@GETMEASURE(), 0 )" }
@@ -111,7 +111,7 @@ namespace Dax.Template.Tests
             // and is present on every measure the template generates.
             var sales = database.Model.Tables.Find("Sales")!;
             var generated = sales.Measures.Find("Sales Amount Rounded")!;
-            var annotation = generated.Annotations.FirstOrDefault(a => a.Name == Attributes.SQLBI_TEMPLATE_ATTRIBUTE);
+            var annotation = generated.Annotations.FirstOrDefault(a => a.Name == Attributes.SqlbiTemplate);
             Assert.NotNull(annotation);
             Assert.Equal("MyWrapper", annotation!.Value);
         }
@@ -124,11 +124,11 @@ namespace Dax.Template.Tests
             // @_TEMPLATEFOLDER_@ / @_MEASURE_@ are substituted with the template's own DisplayFolder and the
             // target measure's Name, respectively.
             var database = OfflineModelFixture.Build();
-            var config = BuildConfig(AutoNamingEnum.Suffix);
+            var config = BuildConfig(AutoNaming.Suffix);
             var definition = new MeasuresTemplateDefinition
             {
                 TargetTable = new Dictionary<string, string> { ["Name"] = "Sales" },
-                TemplateAnnotations = new Dictionary<string, string> { [Attributes.SQLBI_TEMPLATE_ATTRIBUTE] = "Wrap" },
+                TemplateAnnotations = new Dictionary<string, string> { [Attributes.SqlbiTemplate] = "Wrap" },
                 MeasureTemplates = new[]
                 {
                     new MeasuresTemplateDefinition.MeasureTemplate

@@ -19,6 +19,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Target framework is now **.NET 10** only; the package no longer targets `net6.0` or `net8.0`.
   **This is a breaking change** for consumers building against those older target frameworks.
 - Language version raised to **C# 14**; build/SDK pinned to **.NET SDK 10**.
+- **BREAKING (next release: 2.0.0):** public API naming cleanup (Roslyn CA1707/CA1711/CA1716/CA1725) —
+  identifiers only; the underlying string/enum-member values, emitted DAX/BIM output, and JSON template
+  configuration are all unaffected.
+  - De-underscored public constants to PascalCase, e.g. `Attributes.SQLBI_TEMPLATE_ATTRIBUTE` →
+    `Attributes.SqlbiTemplate` (and its 7 siblings), `Prefixes.CONFLICT_RENAME_PREFIX` →
+    `Prefixes.ConflictRenamePrefix`, `Package.TEMPLATE_FILE_EXTENSION` / `PACKAGE_CONFIG` →
+    `Package.TemplateFileExtension` / `PackageConfig`, `MeasureTemplateBase.ENTITY_*` →
+    `MeasureTemplateBase.Entity*`, `BaseDateTemplate<T>.DATACATEGORY_TIME` / `ANNOTATION_CALENDAR_TYPE` →
+    `DataCategoryTime` / `AnnotationCalendarType`, `TableTemplateBase.ANNOTATION_ATTRIBUTE_TYPE` →
+    `AnnotationAttributeType`. Assigned string values are byte-identical.
+  - Dropped the `Enum` suffix from enum types: `Enums.AutoNamingEnum` → `Enums.AutoNaming`,
+    `Enums.AutoScanEnum` → `Enums.AutoScan` (the `AutoNaming`/`AutoScan` config properties now share
+    their name with their enum type, which is legal C# and compiles/runs unchanged),
+    `HolidaysDefinitionTable.SubstituteEnum` → `HolidaysDefinitionTable.Substitute`. Enum member names
+    and values are unchanged, so JSON template configuration (which binds enum members by name) is
+    unaffected.
+  - `CustomTemplateDefinition.Step` (nested type) → `CustomTemplateDefinition.TemplateStep`, to avoid
+    the reserved-keyword name `Step`. The unrelated `Column.Step` JSON-bound string property keeps its
+    name.
+  - `CustomTableTemplate<T>.GetColumns`/`InitTemplate` (and the `CustomDateTable.InitTemplate`
+    override) rename their `template` parameter to `templateDefinition`, to avoid the reserved-keyword
+    name `template`.
+  - `BaseDateTemplate<T>.ApplyTemplate`'s `dateTable` parameter is renamed to `tabularTable` to match
+    the base `TableTemplateBase.ApplyTemplate` signature.
 
 ### Fixed
 

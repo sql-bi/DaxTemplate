@@ -40,7 +40,7 @@
     -->
     <WarningsNotAsErrors>
       $(WarningsNotAsErrors);
-      CA1051;CA1305;CA1309;CA1707;CA1711;CA1716;CA1725
+      CA1051;CA1305;CA1309
     </WarningsNotAsErrors>
   </PropertyGroup>
 

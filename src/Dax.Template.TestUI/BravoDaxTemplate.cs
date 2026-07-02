@@ -10,7 +10,7 @@ namespace Dax.Template.TestUI.Bravo;
 
 public class DaxTemplateConfig
 {
-    public enum WeeklyTypeEnum
+    public enum WeeklyType
     {
         Last,
         Nearest
@@ -21,13 +21,13 @@ public class DaxTemplateConfig
         FirstDayOfFiscalYear = 0,
         LastDayOfFiscalYear = 1
     }
-    public enum QuarterWeekTypeEnum
+    public enum QuarterWeekType
     {
         Weekly445 = 445,
         Weekly454 = 454,
         Weekly544 = 544
     }
-    public enum DayOfWeekEnum
+    public enum WeekDay
     {
         Sunday = 0,
         Monday = 1,
@@ -42,7 +42,7 @@ public class DaxTemplateConfig
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public int? FirstFiscalMonth { get; set; }
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public DayOfWeekEnum? FirstDayOfWeek { get; set; }
+        public WeekDay? FirstDayOfWeek { get; set; }
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public int? MonthsInYear { get; set; }
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -52,10 +52,10 @@ public class DaxTemplateConfig
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public TypeStartFiscalYear? TypeStartFiscalYear { get; set; }
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public QuarterWeekTypeEnum? QuarterWeekType { get; set; }
+        public QuarterWeekType? QuarterWeekType { get; set; }
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         [JsonConverter(typeof(JsonStringEnumConverter))]
-        public WeeklyTypeEnum? WeeklyType { get; set; }
+        public WeeklyType? WeeklyType { get; set; }
     }
 
     public DaxTemplateConfig(string templatePath)
@@ -76,12 +76,12 @@ public class DaxTemplateConfig
     public int? LastYear { get; set; }
 
     [JsonConverter(typeof(JsonStringEnumConverter))]
-    public AutoScanEnum? AutoScan { get; set; }
+    public AutoScan? AutoScan { get; set; }
     public DefaultVariables Defaults { get; init; } = new();
     public string? TableSingleInstanceMeasures { get; set; }
 
     [JsonConverter(typeof(JsonStringEnumConverter))]
-    public AutoNamingEnum? AutoNaming { get; set; }
+    public AutoNaming? AutoNaming { get; set; }
     public string[]? TargetMeasures { get; set; }
 }
 public class BravoDaxTemplate
@@ -221,16 +221,16 @@ public class BravoDaxTemplate
                 AutoNaming = package.Configuration.AutoNaming
             };
             templateConfig.Defaults.FirstFiscalMonth = GetIntParameter(nameof(templateConfig.Defaults.FirstFiscalMonth));
-            templateConfig.Defaults.FirstDayOfWeek = (DaxTemplateConfig.DayOfWeekEnum?)GetIntParameter(nameof(templateConfig.Defaults.FirstDayOfWeek));
+            templateConfig.Defaults.FirstDayOfWeek = (DaxTemplateConfig.WeekDay?)GetIntParameter(nameof(templateConfig.Defaults.FirstDayOfWeek));
             templateConfig.Defaults.MonthsInYear = GetIntParameter(nameof(templateConfig.Defaults.MonthsInYear));
             templateConfig.Defaults.WorkingDayType = GetQuotedStringParameter(nameof(templateConfig.Defaults.WorkingDayType));
             templateConfig.Defaults.NonWorkingDayType = GetQuotedStringParameter(nameof(templateConfig.Defaults.NonWorkingDayType));
             templateConfig.Defaults.TypeStartFiscalYear = (DaxTemplateConfig.TypeStartFiscalYear?)GetIntParameter(nameof(templateConfig.Defaults.TypeStartFiscalYear));
-            if (Enum.TryParse(GetQuotedStringParameter(nameof(templateConfig.Defaults.QuarterWeekType)), out DaxTemplateConfig.QuarterWeekTypeEnum qwtValue))
+            if (Enum.TryParse(GetQuotedStringParameter(nameof(templateConfig.Defaults.QuarterWeekType)), out DaxTemplateConfig.QuarterWeekType qwtValue))
             {
                 templateConfig.Defaults.QuarterWeekType = qwtValue;
             }
-            if (Enum.TryParse(GetQuotedStringParameter(nameof(templateConfig.Defaults.WeeklyType)), out DaxTemplateConfig.WeeklyTypeEnum wtValue))
+            if (Enum.TryParse(GetQuotedStringParameter(nameof(templateConfig.Defaults.WeeklyType)), out DaxTemplateConfig.WeeklyType wtValue))
             {
                 templateConfig.Defaults.WeeklyType = wtValue;
             }

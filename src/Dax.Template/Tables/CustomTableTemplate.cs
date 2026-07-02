@@ -81,21 +81,21 @@ public class CustomTableTemplate<T> : ReferenceCalculatedTable where T : ICustom
         InitTemplate(config, template, skipColumn ?? ((c) => false), model);
     }
 
-    protected virtual void InitTemplate(T config, CustomTemplateDefinition template, Predicate<CustomTemplateDefinition.Column> skipColumn, TabularModel? model)
+    protected virtual void InitTemplate(T config, CustomTemplateDefinition templateDefinition, Predicate<CustomTemplateDefinition.Column> skipColumn, TabularModel? model)
     {
         // Add prefixes
         List<FormatPrefix> Prefixes = new();
-        template.FormatPrefixes.ToList().ForEach(prefixDefinition => Prefixes.Add(new FormatPrefix(prefixDefinition)));
+        templateDefinition.FormatPrefixes.ToList().ForEach(prefixDefinition => Prefixes.Add(new FormatPrefix(prefixDefinition)));
 
-        List<DaxStep> steps = GetSteps(template);
-        List<VarGlobal> globalVariables = GetGlobalVariables(template, Prefixes);
+        List<DaxStep> steps = GetSteps(templateDefinition);
+        List<VarGlobal> globalVariables = GetGlobalVariables(templateDefinition, Prefixes);
         UpdateDefaultVariables(globalVariables.Where(v => v.IsConfigurable), config.DefaultVariables);
 
-        List<VarRow> rowVariables = GetRowVariables(template, Prefixes);
+        List<VarRow> rowVariables = GetRowVariables(templateDefinition, Prefixes);
 
-        GetColumns(template, Prefixes, steps, skipColumn);
-        GetHierarchies(template);
-        GetAnnotations(template);
+        GetColumns(templateDefinition, Prefixes, steps, skipColumn);
+        GetHierarchies(templateDefinition);
+        GetAnnotations(templateDefinition);
 
         List<IDaxName> templateItems = new();
         templateItems.AddRange(steps);
@@ -166,9 +166,9 @@ public class CustomTableTemplate<T> : ReferenceCalculatedTable where T : ICustom
             DataType = dataType
         };
 
-    protected virtual void GetColumns(CustomTemplateDefinition template, List<FormatPrefix> Prefixes, List<DaxStep> steps, Predicate<CustomTemplateDefinition.Column> skipColumn) // bool hasHolidays)
+    protected virtual void GetColumns(CustomTemplateDefinition templateDefinition, List<FormatPrefix> Prefixes, List<DaxStep> steps, Predicate<CustomTemplateDefinition.Column> skipColumn) // bool hasHolidays)
     {
-        template.Columns.ToList().ForEach(columnDefinition =>
+        templateDefinition.Columns.ToList().ForEach(columnDefinition =>
         {
             if (string.IsNullOrEmpty(columnDefinition.Name)) throw new TemplateException("Missing Column Name definition");
             string? expression = null;
@@ -234,7 +234,7 @@ public class CustomTableTemplate<T> : ReferenceCalculatedTable where T : ICustom
         });
 
         // Fix SortByColumn
-        template.Columns
+        templateDefinition.Columns
             .Where(columnDefinition => !string.IsNullOrEmpty(columnDefinition.SortByColumn))
             .ToList().ForEach(columnDefinition =>
             {

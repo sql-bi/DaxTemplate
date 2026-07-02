@@ -29,7 +29,7 @@ namespace Dax.Template.Tests
             // Engine.ApplyConfigurationDefaults never defaults IScanConfig.AutoScan, so it stays null.
             // The single-instance measure's expression references @@GETMINDATE()/@@GETMAXDATE(), which
             // MeasuresTemplate.ReplaceMacros resolves via model.GetScanColumns(Config) -- with AutoScan
-            // null, GetScanColumns returns null, and since null != AutoScanEnum.Disabled, ReplaceMacros
+            // null, GetScanColumns returns null, and since null != AutoScan.Disabled, ReplaceMacros
             // throws instead of silently falling back to TODAY().
             var database = OfflineModelFixture.Build();
             var engine = new Engine(Package.LoadFromFile($@"{TemplatesDirectory}\AutoScanOmitted-01.template.json"));

@@ -47,7 +47,7 @@ public static partial class Extensions
         var exceptTables = exceptTargets.Where(x => string.IsNullOrEmpty(x.columnName)).ToList();
         var exceptColumns = exceptTargets.Where(x => !string.IsNullOrEmpty(x.columnName)).ToList();
 
-        if ((Config.AutoScan & AutoScanEnum.SelectedTablesColumns) == AutoScanEnum.SelectedTablesColumns)
+        if ((Config.AutoScan & AutoScan.SelectedTablesColumns) == AutoScan.SelectedTablesColumns)
         {
             List<Column> columnsToScan = new();
             bool scanAll = (Config.OnlyTablesColumns == null) || Config.OnlyTablesColumns.Length == 0;
@@ -66,11 +66,11 @@ public static partial class Extensions
                     )
                     && !exceptTables.Any(o => o.tableName == t.Name)
                     && !exceptColumns.Any(o => o.columnName == c.Name && o.tableName == t.Name)
-                    && (dataCategory == null || t.DataCategory != dataCategory) // DATACATEGORY_TIME
+                    && (dataCategory == null || t.DataCategory != dataCategory) // DataCategoryTime
                 select c;
         }
-        bool checkInactive = (Config.AutoScan & AutoScanEnum.ScanInactiveRelationships) == AutoScanEnum.ScanInactiveRelationships;
-        bool checkActive = (Config.AutoScan & AutoScanEnum.ScanActiveRelationships) == AutoScanEnum.ScanActiveRelationships || checkInactive;
+        bool checkInactive = (Config.AutoScan & AutoScan.ScanInactiveRelationships) == AutoScan.ScanInactiveRelationships;
+        bool checkActive = (Config.AutoScan & AutoScan.ScanActiveRelationships) == AutoScan.ScanActiveRelationships || checkInactive;
         if (checkInactive || checkActive)
         {
             var scanRelationshipsFrom =
@@ -80,7 +80,7 @@ public static partial class Extensions
                     select r as SingleColumnRelationship)
                 where r.FromColumn.DataType == DataType.DateTime
                     && r.FromCardinality == RelationshipEndCardinality.Many
-                    && (dataCategory == null || r.FromTable.DataCategory != dataCategory) // DATACATEGORY_TIME
+                    && (dataCategory == null || r.FromTable.DataCategory != dataCategory) // DataCategoryTime
                     && ((checkActive && r.IsActive) || (checkInactive && !r.IsActive))
                     && !exceptTables.Any(o => o.tableName == r.FromTable.Name)
                     && !exceptColumns.Any(o => o.columnName == r.FromColumn.Name && o.tableName == r.FromTable.Name)
@@ -92,7 +92,7 @@ public static partial class Extensions
                     select r as SingleColumnRelationship)
                 where r.ToColumn.DataType == DataType.DateTime
                     && r.ToCardinality == RelationshipEndCardinality.Many
-                    && (dataCategory == null || r.ToTable.DataCategory != dataCategory) // DATACATEGORY_TIME
+                    && (dataCategory == null || r.ToTable.DataCategory != dataCategory) // DataCategoryTime
                     && ((checkActive && r.IsActive) || (checkInactive && !r.IsActive))
                     && !exceptTables.Any(o => o.tableName == r.ToTable.Name)
                     && !exceptColumns.Any(o => o.columnName == r.ToColumn.Name && o.tableName == r.ToTable.Name)

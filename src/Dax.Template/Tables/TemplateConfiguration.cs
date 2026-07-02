@@ -31,7 +31,7 @@ public class TemplateConfiguration : IScanConfig, IDateTemplateConfig, IMeasureT
     public string[]? ExceptTablesColumns { get; set; }
 
     [JsonConverter(typeof(JsonStringEnumConverter))]
-    public AutoScanEnum? AutoScan { get; set; }
+    public AutoScan? AutoScan { get; set; }
 
     // IDateTemplateConfig implementation
     public int? FirstYearMin { get; set; }
@@ -55,7 +55,7 @@ public class TemplateConfiguration : IScanConfig, IDateTemplateConfig, IMeasureT
 
     // IMeasureTemplateConfig implementation
     [JsonConverter(typeof(JsonStringEnumConverter))]
-    public AutoNamingEnum? AutoNaming { get; set; }
+    public AutoNaming? AutoNaming { get; set; }
     public string? AutoNamingSeparator { get; set; }
     public IMeasureTemplateConfig.TargetMeasure[]? TargetMeasures { get; set; }
     public string? TableSingleInstanceMeasures { get; set; }

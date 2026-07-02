@@ -15,8 +15,8 @@ namespace Dax.Template.Tables.Dates;
 
 public abstract class BaseDateTemplate<T> : CustomTableTemplate<T> where T : IDateTemplateConfig
 {
-    protected const string DATACATEGORY_TIME = "Time";
-    protected const string ANNOTATION_CALENDAR_TYPE = "SQLBI_CalendarType";
+    protected const string DataCategoryTime = "Time";
+    protected const string AnnotationCalendarType = "SQLBI_CalendarType";
 
     public string[]? CalendarType { get; init; }
 
@@ -39,7 +39,7 @@ public abstract class BaseDateTemplate<T> : CustomTableTemplate<T> where T : IDa
                && relationship.ToColumn.DataType == DataType.DateTime;
     }
 
-    public override void ApplyTemplate(Table dateTable, CancellationToken cancellationToken = default)
+    public override void ApplyTemplate(Table tabularTable, CancellationToken cancellationToken = default)
     {
         foreach (var column in Columns.Where(c => c is Model.DateColumn))
         {
@@ -49,13 +49,13 @@ public abstract class BaseDateTemplate<T> : CustomTableTemplate<T> where T : IDa
         if (CalendarType != null)
         {
             string calendarTypes = string.Join(", ", CalendarType);
-            Annotations.Add(ANNOTATION_CALENDAR_TYPE, calendarTypes);
+            Annotations.Add(AnnotationCalendarType, calendarTypes);
         }
 
-        base.ApplyTemplate(dateTable, cancellationToken);
+        base.ApplyTemplate(tabularTable, cancellationToken);
 
         // Mark as Date table (Date column already set as Key)
-        dateTable.DataCategory = DATACATEGORY_TIME;
+        tabularTable.DataCategory = DataCategoryTime;
     }
 
     private static readonly Regex regexGetHolidayName = new(@"@@GETHOLIDAYNAME[ \r\n\t]*\(([^\)]*)\)", RegexOptions.Compiled);
@@ -87,7 +87,7 @@ public abstract class BaseDateTemplate<T> : CustomTableTemplate<T> where T : IDa
         expression = GetLastStep(expression, lastStep);
         if (model != null)
         {
-            var scanColumns = model.GetScanColumns(Config, dataCategory: DATACATEGORY_TIME);
+            var scanColumns = model.GetScanColumns(Config, dataCategory: DataCategoryTime);
             expression = GetMinDates(expression, scanColumns);
             expression = GetMaxDates(expression, scanColumns);
             expression = GetCalendar(expression, model);
@@ -324,7 +324,7 @@ $@"
 
     protected string? GenerateMinYearExpression(TabularModel model, string? firstYear = null)
     {
-        IEnumerable<TabularColumn>? scanColumns = model.GetScanColumns(Config, dataCategory: DATACATEGORY_TIME);
+        IEnumerable<TabularColumn>? scanColumns = model.GetScanColumns(Config, dataCategory: DataCategoryTime);
 
         if (string.IsNullOrEmpty(firstYear) && scanColumns != null)
         {
@@ -344,7 +344,7 @@ $@"
 
     protected string? GenerateMaxYearExpression(TabularModel model, string? lastYear = null)
     {
-        IEnumerable<TabularColumn>? scanColumns = model.GetScanColumns(Config, dataCategory: DATACATEGORY_TIME);
+        IEnumerable<TabularColumn>? scanColumns = model.GetScanColumns(Config, dataCategory: DataCategoryTime);
 
         if (string.IsNullOrEmpty(lastYear) && scanColumns != null)
         {

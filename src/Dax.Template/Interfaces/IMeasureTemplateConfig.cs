@@ -9,7 +9,7 @@ public interface IMeasureTemplateConfig : IScanConfig
     {
         public string? Name { get; set; }
     }
-    public AutoNamingEnum? AutoNaming { get; set; }
+    public AutoNaming? AutoNaming { get; set; }
     public string? AutoNamingSeparator { get; set; }
     // public IScanConfig DateColumns { get; set; } = new();
     public TargetMeasure[]? TargetMeasures { get; set; }

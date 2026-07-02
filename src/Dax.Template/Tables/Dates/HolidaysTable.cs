@@ -13,8 +13,8 @@ public class HolidaysTable : BaseDateTemplate<IHolidaysConfig> // CalculatedTabl
     private readonly DaxStep __HolidaysTable;
     public HolidaysTable(IHolidaysConfig config) : base(config)
     {
-        Annotations.Add(Attributes.SQLBI_TEMPLATE_ATTRIBUTE, Attributes.SQLBI_TEMPLATE_HOLIDAYS);
-        Annotations.Add(Attributes.SQLBI_TEMPLATETABLE_ATTRIBUTE, Attributes.SQLBI_TEMPLATETABLE_HOLIDAYS);
+        Annotations.Add(Attributes.SqlbiTemplate, Attributes.SqlbiTemplateHolidays);
+        Annotations.Add(Attributes.SqlbiTemplateTable, Attributes.SqlbiTemplateTableHolidays);
         __HolidaysTable = new()
         {
             Name = "__HolidayParameters",

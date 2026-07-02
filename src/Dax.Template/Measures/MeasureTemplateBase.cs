@@ -68,10 +68,10 @@ public class MeasureTemplateBase : Model.Measure
                     ? match.Groups[groupName].Value : null;
     }
 
-    public const string ENTITY_SINGLE_COLUMN = "C";
-    public const string ENTITY_COLUMNS_LIST = "CL";
-    public const string ENTITY_SINGLE_TABLE = "T";
-    public const string ENTITY_COLUMNS_TABLE = "CT";
+    public const string EntitySingleColumn = "C";
+    public const string EntityColumnsList = "CL";
+    public const string EntitySingleTable = "T";
+    public const string EntityColumnsTable = "CT";
     internal static TabularMeasure? FindMeasure(TabularModel model, string measureName)
     {
         foreach (var table in model.Tables)
@@ -217,10 +217,10 @@ public class MeasureTemplateBase : Model.Measure
             {
                 replace = entity switch
                 {
-                    ENTITY_SINGLE_COLUMN => FindSingleColumn(model, attribute, value),
-                    ENTITY_SINGLE_TABLE => FindSingleTable(model, attribute, value),
-                    ENTITY_COLUMNS_LIST => FindColumnsList(model, attribute, value),
-                    ENTITY_COLUMNS_TABLE => FindTablesList(model, attribute, value),
+                    EntitySingleColumn => FindSingleColumn(model, attribute, value),
+                    EntitySingleTable => FindSingleTable(model, attribute, value),
+                    EntityColumnsList => FindColumnsList(model, attribute, value),
+                    EntityColumnsTable => FindTablesList(model, attribute, value),
                     _ => throw new InvalidMacroReferenceException(match.Value, TemplateExpression),
                 };
             }

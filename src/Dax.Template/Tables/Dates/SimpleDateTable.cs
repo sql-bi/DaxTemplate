@@ -25,8 +25,8 @@ public class SimpleDateTable : BaseDateTemplate<SimpleDateTemplateConfig>
 
     public SimpleDateTable(SimpleDateTemplateConfig config, TabularModel? model) : base(config)
     {
-        Annotations.Add(Attributes.SQLBI_TEMPLATE_ATTRIBUTE, Attributes.SQLBI_TEMPLATE_DATES);
-        Annotations.Add(Attributes.SQLBI_TEMPLATETABLE_ATTRIBUTE, Attributes.SQLBI_TEMPLATETABLE_DATE);
+        Annotations.Add(Attributes.SqlbiTemplate, Attributes.SqlbiTemplateDates);
+        Annotations.Add(Attributes.SqlbiTemplateTable, Attributes.SqlbiTemplateTableDate);
 
         string quarterFormatPrefix = string.Concat(from c in Config.QuarterPrefix select @"\" + c);
         string fiscalYearFormatPrefix = string.Concat(from c in Config.FiscalYearPrefix select @"\" + c);

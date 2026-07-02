@@ -45,7 +45,7 @@ namespace Dax.Template.Tests
 
             var sales = database.Model.Tables.Find("Sales")!;
             var generatedFromMargin = sales.Measures
-                .Where(m => m.Annotations.Any(a => a.Name == Attributes.SQLBI_TEMPLATE_ATTRIBUTE) && m.Name.Contains("Margin"))
+                .Where(m => m.Annotations.Any(a => a.Name == Attributes.SqlbiTemplate) && m.Name.Contains("Margin"))
                 .ToArray();
             Assert.NotEmpty(generatedFromMargin); // sanity check on the initial state
 
@@ -55,13 +55,13 @@ namespace Dax.Template.Tests
 
             // Assert: the measures generated from the now-removed target measures are gone...
             var remainingGeneratedFromMargin = sales.Measures
-                .Where(m => m.Annotations.Any(a => a.Name == Attributes.SQLBI_TEMPLATE_ATTRIBUTE) && m.Name.Contains("Margin"))
+                .Where(m => m.Annotations.Any(a => a.Name == Attributes.SqlbiTemplate) && m.Name.Contains("Margin"))
                 .ToArray();
             Assert.Empty(remainingGeneratedFromMargin);
 
             // ...while measures generated for the still-configured target measures remain.
             var remainingGeneratedFromSalesAmount = sales.Measures
-                .Where(m => m.Annotations.Any(a => a.Name == Attributes.SQLBI_TEMPLATE_ATTRIBUTE) && m.Name.Contains("Sales Amount"))
+                .Where(m => m.Annotations.Any(a => a.Name == Attributes.SqlbiTemplate) && m.Name.Contains("Sales Amount"))
                 .ToArray();
             Assert.NotEmpty(remainingGeneratedFromSalesAmount);
         }

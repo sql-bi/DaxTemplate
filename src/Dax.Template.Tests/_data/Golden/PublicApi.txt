@@ -1,21 +1,21 @@
 public static class Dax.Template.Constants.Attributes
-  field public const string SQLBI_TEMPLATETABLE_ATTRIBUTE = "SQLBI_TemplateTable"
-  field public const string SQLBI_TEMPLATETABLE_DATE = "Date"
-  field public const string SQLBI_TEMPLATETABLE_DATEAUTOTEMPLATE = "DateAutoTemplate"
-  field public const string SQLBI_TEMPLATETABLE_HOLIDAYS = "Holidays"
-  field public const string SQLBI_TEMPLATETABLE_HOLIDAYSDEFINITION = "HolidaysDefinition"
-  field public const string SQLBI_TEMPLATE_ATTRIBUTE = "SQLBI_Template"
-  field public const string SQLBI_TEMPLATE_DATES = "Dates"
-  field public const string SQLBI_TEMPLATE_HOLIDAYS = "Holidays"
+  field public const string SqlbiTemplate = "SQLBI_Template"
+  field public const string SqlbiTemplateDates = "Dates"
+  field public const string SqlbiTemplateHolidays = "Holidays"
+  field public const string SqlbiTemplateTable = "SQLBI_TemplateTable"
+  field public const string SqlbiTemplateTableDate = "Date"
+  field public const string SqlbiTemplateTableDateAutoTemplate = "DateAutoTemplate"
+  field public const string SqlbiTemplateTableHolidays = "Holidays"
+  field public const string SqlbiTemplateTableHolidaysDefinition = "HolidaysDefinition"
 public static class Dax.Template.Constants.Prefixes
-  field public const string CONFLICT_RENAME_PREFIX = "_old"
+  field public const string ConflictRenamePrefix = "_old"
 public class Dax.Template.CustomTemplateDefinition
   ctor public CustomTemplateDefinition()
   property public Dax.Template.CustomTemplateDefinition.Column[] Columns { get; set; }
   property public Dax.Template.CustomTemplateDefinition.GlobalVariable[] GlobalVariables { get; set; }
   property public Dax.Template.CustomTemplateDefinition.Hierarchy[] Hierarchies { get; set; }
   property public Dax.Template.CustomTemplateDefinition.RowVariable[] RowVariables { get; set; }
-  property public Dax.Template.CustomTemplateDefinition.Step[] Steps { get; set; }
+  property public Dax.Template.CustomTemplateDefinition.TemplateStep[] Steps { get; set; }
   property public System.Collections.Generic.Dictionary<string, string> Annotations { get; set; }
   property public string[] FormatPrefixes { get; set; }
 public class Dax.Template.CustomTemplateDefinition.Column : Dax.Template.CustomTemplateDefinition.DaxExpression
@@ -57,8 +57,8 @@ public class Dax.Template.CustomTemplateDefinition.HierarchyLevel
   property public string Name { get; set; }
 public class Dax.Template.CustomTemplateDefinition.RowVariable : Dax.Template.CustomTemplateDefinition.DaxExpression
   ctor public RowVariable()
-public class Dax.Template.CustomTemplateDefinition.Step : Dax.Template.CustomTemplateDefinition.DaxExpression
-  ctor public Step()
+public class Dax.Template.CustomTemplateDefinition.TemplateStep : Dax.Template.CustomTemplateDefinition.DaxExpression
+  ctor public TemplateStep()
 public abstract class Dax.Template.CustomTemplateDefinition.Variable : Dax.Template.CustomTemplateDefinition.DaxExpression
   ctor protected Variable()
 public class Dax.Template.Engine
@@ -66,15 +66,15 @@ public class Dax.Template.Engine
   method public static Dax.Template.Model.ModelChanges GetModelChanges(Microsoft.AnalysisServices.Tabular.Model model, System.Threading.CancellationToken cancellationToken = null)
   method public void ApplyTemplates(Microsoft.AnalysisServices.Tabular.Model model, System.Threading.CancellationToken cancellationToken = null)
   property public Dax.Template.Tables.TemplateConfiguration Configuration { get; }
-public enum Dax.Template.Enums.AutoNamingEnum : int
-  field public const Dax.Template.Enums.AutoNamingEnum Prefix = 1
-  field public const Dax.Template.Enums.AutoNamingEnum Suffix = 0
-public enum Dax.Template.Enums.AutoScanEnum : short
-  field public const Dax.Template.Enums.AutoScanEnum Disabled = 0
-  field public const Dax.Template.Enums.AutoScanEnum Full = 127
-  field public const Dax.Template.Enums.AutoScanEnum ScanActiveRelationships = 2
-  field public const Dax.Template.Enums.AutoScanEnum ScanInactiveRelationships = 4
-  field public const Dax.Template.Enums.AutoScanEnum SelectedTablesColumns = 1
+public enum Dax.Template.Enums.AutoNaming : int
+  field public const Dax.Template.Enums.AutoNaming Prefix = 1
+  field public const Dax.Template.Enums.AutoNaming Suffix = 0
+public enum Dax.Template.Enums.AutoScan : short
+  field public const Dax.Template.Enums.AutoScan Disabled = 0
+  field public const Dax.Template.Enums.AutoScan Full = 127
+  field public const Dax.Template.Enums.AutoScan ScanActiveRelationships = 2
+  field public const Dax.Template.Enums.AutoScan ScanInactiveRelationships = 4
+  field public const Dax.Template.Enums.AutoScan SelectedTablesColumns = 1
 public class Dax.Template.Exceptions.CircularDependencyException : Dax.Template.Exceptions.TemplateException, System.Runtime.Serialization.ISerializable
   ctor public CircularDependencyException(string variableName, string daxExpressionmessage)
 public class Dax.Template.Exceptions.ExistingTableException : Dax.Template.Exceptions.TemplateException, System.Runtime.Serialization.ISerializable
@@ -129,7 +129,7 @@ public interface Dax.Template.Interfaces.ILocalization
   property public string IsoTranslation { get; set; }
   property public string[] LocalizationFiles { get; set; }
 public interface Dax.Template.Interfaces.IMeasureTemplateConfig : Dax.Template.Interfaces.IScanConfig
-  property public Dax.Template.Enums.AutoNamingEnum? AutoNaming { get; set; }
+  property public Dax.Template.Enums.AutoNaming? AutoNaming { get; set; }
   property public Dax.Template.Interfaces.IMeasureTemplateConfig.TargetMeasure[] TargetMeasures { get; set; }
   property public System.Collections.Generic.Dictionary<string, string> DefaultVariables { get; set; }
   property public string AutoNamingSeparator { get; set; }
@@ -138,7 +138,7 @@ public class Dax.Template.Interfaces.IMeasureTemplateConfig.TargetMeasure
   ctor public TargetMeasure()
   property public string Name { get; set; }
 public interface Dax.Template.Interfaces.IScanConfig
-  property public Dax.Template.Enums.AutoScanEnum? AutoScan { get; set; }
+  property public Dax.Template.Enums.AutoScan? AutoScan { get; set; }
   property public string[] ExceptTablesColumns { get; set; }
   property public string[] OnlyTablesColumns { get; set; }
 public interface Dax.Template.Interfaces.ITemplates
@@ -157,10 +157,10 @@ public class Dax.Template.Interfaces.ITemplates.TemplateEntry
 public class Dax.Template.Measures.MeasureTemplateBase : Dax.Template.Model.Measure, Dax.Template.Syntax.IDaxComment
   ctor public MeasureTemplateBase(Dax.Template.Measures.MeasuresTemplate template)
   field protected readonly Dax.Template.Measures.MeasuresTemplate Template
-  field public const string ENTITY_COLUMNS_LIST = "CL"
-  field public const string ENTITY_COLUMNS_TABLE = "CT"
-  field public const string ENTITY_SINGLE_COLUMN = "C"
-  field public const string ENTITY_SINGLE_TABLE = "T"
+  field public const string EntityColumnsList = "CL"
+  field public const string EntityColumnsTable = "CT"
+  field public const string EntitySingleColumn = "C"
+  field public const string EntitySingleTable = "T"
   method public string GetDaxExpression(Microsoft.AnalysisServices.Tabular.Model model)
   method public virtual Microsoft.AnalysisServices.Tabular.Measure ApplyTemplate(Microsoft.AnalysisServices.Tabular.Model model, Microsoft.AnalysisServices.Tabular.Table targetTable, bool overrideExistingMeasure = true, System.Threading.CancellationToken cancellationToken = null)
   method public virtual string GetDaxExpression(Microsoft.AnalysisServices.Tabular.Model model, string originalMeasureName)
@@ -282,8 +282,8 @@ public class Dax.Template.Model.ModelChanges.TableChanges : Dax.Template.Model.M
   property public object Preview { get; set; }
   property public string Expression { get; set; }
 public class Dax.Template.Package
-  field public const string PACKAGE_CONFIG = "Config"
-  field public const string TEMPLATE_FILE_EXTENSION = ".template.json"
+  field public const string PackageConfig = "Config"
+  field public const string TemplateFileExtension = ".template.json"
   method public static Dax.Template.Package LoadFromFile(string path)
   method public static System.Collections.Generic.IEnumerable<string> FindTemplateFiles(string path)
   method public void SaveTo(string path)
@@ -354,8 +354,8 @@ public class Dax.Template.Tables.CustomTableTemplate<T> : Dax.Template.Tables.Re
   ctor public CustomTableTemplate(T config, Dax.Template.CustomTemplateDefinition template, Microsoft.AnalysisServices.Tabular.Model model)
   method protected static string ReplacePrefixes(string expression, System.Collections.Generic.List<Dax.Template.Tables.CustomTableTemplate<T>.FormatPrefix> prefixes)
   method protected virtual Dax.Template.Model.Column CreateColumn(string name, Microsoft.AnalysisServices.Tabular.DataType dataType)
-  method protected virtual void GetColumns(Dax.Template.CustomTemplateDefinition template, System.Collections.Generic.List<Dax.Template.Tables.CustomTableTemplate<T>.FormatPrefix> Prefixes, System.Collections.Generic.List<Dax.Template.Syntax.DaxStep> steps, System.Predicate<Dax.Template.CustomTemplateDefinition.Column> skipColumn)
-  method protected virtual void InitTemplate(T config, Dax.Template.CustomTemplateDefinition template, System.Predicate<Dax.Template.CustomTemplateDefinition.Column> skipColumn, Microsoft.AnalysisServices.Tabular.Model model)
+  method protected virtual void GetColumns(Dax.Template.CustomTemplateDefinition templateDefinition, System.Collections.Generic.List<Dax.Template.Tables.CustomTableTemplate<T>.FormatPrefix> Prefixes, System.Collections.Generic.List<Dax.Template.Syntax.DaxStep> steps, System.Predicate<Dax.Template.CustomTemplateDefinition.Column> skipColumn)
+  method protected virtual void InitTemplate(T config, Dax.Template.CustomTemplateDefinition templateDefinition, System.Predicate<Dax.Template.CustomTemplateDefinition.Column> skipColumn, Microsoft.AnalysisServices.Tabular.Model model)
   property public T Config { get; init; }
 protected class Dax.Template.Tables.CustomTableTemplate<T>.FormatPrefix
   ctor public FormatPrefix(string name)
@@ -366,20 +366,20 @@ public abstract class Dax.Template.Tables.Dates.BaseDateTemplate<T> : Dax.Templa
   ctor public BaseDateTemplate(T config)
   ctor public BaseDateTemplate(T config, Dax.Template.CustomTemplateDefinition template, Microsoft.AnalysisServices.Tabular.Model model)
   ctor public BaseDateTemplate(T config, Dax.Template.CustomTemplateDefinition template, System.Predicate<Dax.Template.CustomTemplateDefinition.Column> skipColumn, Microsoft.AnalysisServices.Tabular.Model model)
-  field protected const string ANNOTATION_CALENDAR_TYPE = "SQLBI_CalendarType"
-  field protected const string DATACATEGORY_TIME = "Time"
+  field protected const string AnnotationCalendarType = "SQLBI_CalendarType"
+  field protected const string DataCategoryTime = "Time"
   method protected string GenerateCalendarExpression(Microsoft.AnalysisServices.Tabular.Model model)
   method protected string GenerateMaxYearExpression(Microsoft.AnalysisServices.Tabular.Model model, string lastYear = null)
   method protected string GenerateMinYearExpression(Microsoft.AnalysisServices.Tabular.Model model, string firstYear = null)
   method protected virtual bool IsRelationshipToSaveAndRestore(Microsoft.AnalysisServices.Tabular.SingleColumnRelationship relationship)
   method protected virtual string GetDefaultFormatString(Dax.Template.Model.Column column, Microsoft.AnalysisServices.Tabular.Model model)
   method protected virtual string ProcessDaxExpression(string expression, string lastStep, Microsoft.AnalysisServices.Tabular.Model model = null, System.Threading.CancellationToken cancellationToken = null)
-  method public virtual void ApplyTemplate(Microsoft.AnalysisServices.Tabular.Table dateTable, System.Threading.CancellationToken cancellationToken = null)
+  method public virtual void ApplyTemplate(Microsoft.AnalysisServices.Tabular.Table tabularTable, System.Threading.CancellationToken cancellationToken = null)
   property public string[] CalendarType { get; init; }
 public class Dax.Template.Tables.Dates.CustomDateTable : Dax.Template.Tables.Dates.BaseDateTemplate<Dax.Template.Interfaces.IDateTemplateConfig>
   ctor public CustomDateTable(Dax.Template.Interfaces.IDateTemplateConfig config, Dax.Template.Tables.Dates.CustomDateTemplateDefinition template, Microsoft.AnalysisServices.Tabular.Model model, string referenceTable = null)
   method protected virtual Dax.Template.Model.Column CreateColumn(string name, Microsoft.AnalysisServices.Tabular.DataType dataType)
-  method protected virtual void InitTemplate(Dax.Template.Interfaces.IDateTemplateConfig config, Dax.Template.CustomTemplateDefinition template, System.Predicate<Dax.Template.CustomTemplateDefinition.Column> skipColumn, Microsoft.AnalysisServices.Tabular.Model model)
+  method protected virtual void InitTemplate(Dax.Template.Interfaces.IDateTemplateConfig config, Dax.Template.CustomTemplateDefinition templateDefinition, System.Predicate<Dax.Template.CustomTemplateDefinition.Column> skipColumn, Microsoft.AnalysisServices.Tabular.Model model)
 public class Dax.Template.Tables.Dates.CustomDateTemplateDefinition : Dax.Template.CustomTemplateDefinition
   ctor public CustomDateTemplateDefinition()
   property public string CalendarType { get; set; }
@@ -396,7 +396,7 @@ public class Dax.Template.Tables.Dates.HolidaysDefinitionTable : Dax.Template.Ta
   method public virtual string GetDaxTableExpression(Microsoft.AnalysisServices.Tabular.Model model, System.Threading.CancellationToken cancellationToken = null)
 public class Dax.Template.Tables.Dates.HolidaysDefinitionTable.HolidayLine
   ctor public HolidayLine()
-  property public Dax.Template.Tables.Dates.HolidaysDefinitionTable.SubstituteEnum SubstituteHoliday { get; set; }
+  property public Dax.Template.Tables.Dates.HolidaysDefinitionTable.Substitute SubstituteHoliday { get; set; }
   property public int ConflictPriority { get; set; }
   property public int DayNumber { get; set; }
   property public int FirstYear { get; set; }
@@ -410,11 +410,11 @@ public class Dax.Template.Tables.Dates.HolidaysDefinitionTable.HolidayLine
 public class Dax.Template.Tables.Dates.HolidaysDefinitionTable.HolidaysDefinitions
   ctor public HolidaysDefinitions()
   property public Dax.Template.Tables.Dates.HolidaysDefinitionTable.HolidayLine[] Holidays { get; set; }
-public enum Dax.Template.Tables.Dates.HolidaysDefinitionTable.SubstituteEnum : int
-  field public const Dax.Template.Tables.Dates.HolidaysDefinitionTable.SubstituteEnum FridayIfSaturdayOrMondayIfSunday = -1
-  field public const Dax.Template.Tables.Dates.HolidaysDefinitionTable.SubstituteEnum NoSubstituteHoliday = 0
-  field public const Dax.Template.Tables.Dates.HolidaysDefinitionTable.SubstituteEnum SubstituteHolidayWithNextNextWorkingDay = 2
-  field public const Dax.Template.Tables.Dates.HolidaysDefinitionTable.SubstituteEnum SubstituteHolidayWithNextWorkingDay = 1
+public enum Dax.Template.Tables.Dates.HolidaysDefinitionTable.Substitute : int
+  field public const Dax.Template.Tables.Dates.HolidaysDefinitionTable.Substitute FridayIfSaturdayOrMondayIfSunday = -1
+  field public const Dax.Template.Tables.Dates.HolidaysDefinitionTable.Substitute NoSubstituteHoliday = 0
+  field public const Dax.Template.Tables.Dates.HolidaysDefinitionTable.Substitute SubstituteHolidayWithNextNextWorkingDay = 2
+  field public const Dax.Template.Tables.Dates.HolidaysDefinitionTable.Substitute SubstituteHolidayWithNextWorkingDay = 1
 public class Dax.Template.Tables.Dates.HolidaysTable : Dax.Template.Tables.Dates.BaseDateTemplate<Dax.Template.Interfaces.IHolidaysConfig>
   ctor public HolidaysTable(Dax.Template.Interfaces.IHolidaysConfig config)
   method public virtual string GetDaxTableExpression(Microsoft.AnalysisServices.Tabular.Model model, System.Threading.CancellationToken cancellationToken = null)
@@ -434,7 +434,7 @@ public abstract class Dax.Template.Tables.TableTemplateBase
   ctor protected TableTemplateBase()
   field protected System.Collections.Generic.IEnumerable<System.ValueTuple<Microsoft.AnalysisServices.Tabular.SingleColumnRelationship, string, bool>> FixRelationshipsFrom
   field protected System.Collections.Generic.IEnumerable<System.ValueTuple<Microsoft.AnalysisServices.Tabular.SingleColumnRelationship, string, bool>> FixRelationshipsTo
-  field public const string ANNOTATION_ATTRIBUTE_TYPE = "SQLBI_AttributeTypes"
+  field public const string AnnotationAttributeType = "SQLBI_AttributeTypes"
   method protected abstract bool RemoveExistingPartitions(Microsoft.AnalysisServices.Tabular.Table dateTable)
   method protected abstract void AddPartitions(Microsoft.AnalysisServices.Tabular.Table dateTable, System.Threading.CancellationToken cancellationToken = null)
   method protected virtual bool IsRelationshipToSaveAndRestore(Microsoft.AnalysisServices.Tabular.SingleColumnRelationship relationship)
@@ -457,8 +457,8 @@ public abstract class Dax.Template.Tables.TableTemplateBase
   property public System.Collections.Generic.List<Dax.Template.Model.Hierarchy> Hierarchies { get; set; }
 public class Dax.Template.Tables.TemplateConfiguration : Dax.Template.Interfaces.ICustomTableConfig, Dax.Template.Interfaces.IDateTemplateConfig, Dax.Template.Interfaces.IHolidaysConfig, Dax.Template.Interfaces.ILocalization, Dax.Template.Interfaces.IMeasureTemplateConfig, Dax.Template.Interfaces.IScanConfig, Dax.Template.Interfaces.ITemplates
   ctor public TemplateConfiguration()
-  property public Dax.Template.Enums.AutoNamingEnum? AutoNaming { get; set; }
-  property public Dax.Template.Enums.AutoScanEnum? AutoScan { get; set; }
+  property public Dax.Template.Enums.AutoNaming? AutoNaming { get; set; }
+  property public Dax.Template.Enums.AutoScan? AutoScan { get; set; }
   property public Dax.Template.Interfaces.IMeasureTemplateConfig.TargetMeasure[] TargetMeasures { get; set; }
   property public Dax.Template.Interfaces.ITemplates.TemplateEntry[] Templates { get; set; }
   property public Dax.Template.Tables.Dates.HolidaysConfig HolidaysReference { get; set; }

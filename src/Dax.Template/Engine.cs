@@ -309,7 +309,7 @@ public class Engine
         //
         // IMeasureTemplateConfig
         //
-        Configuration.AutoNaming ??= AutoNamingEnum.Suffix;
+        Configuration.AutoNaming ??= AutoNaming.Suffix;
         Configuration.AutoNamingSeparator ??= " ";
         Configuration.TargetMeasures ??= [];
     }

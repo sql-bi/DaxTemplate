@@ -26,10 +26,10 @@ public class CustomDateTable : BaseDateTemplate<IDateTemplateConfig>
         : base(config, template, model)
     {
         HiddenTable = referenceTable;
-        Annotations.Add(Attributes.SQLBI_TEMPLATE_ATTRIBUTE, Attributes.SQLBI_TEMPLATE_DATES);
+        Annotations.Add(Attributes.SqlbiTemplate, Attributes.SqlbiTemplateDates);
         Annotations.Add(
-            Attributes.SQLBI_TEMPLATETABLE_ATTRIBUTE,
-            (referenceTable == null) ? Attributes.SQLBI_TEMPLATETABLE_DATEAUTOTEMPLATE : Attributes.SQLBI_TEMPLATETABLE_DATE);
+            Attributes.SqlbiTemplateTable,
+            (referenceTable == null) ? Attributes.SqlbiTemplateTableDateAutoTemplate : Attributes.SqlbiTemplateTableDate);
 
         if (!string.IsNullOrWhiteSpace(template.CalendarType))
         {
@@ -40,7 +40,7 @@ public class CustomDateTable : BaseDateTemplate<IDateTemplateConfig>
             CalendarType = template.CalendarTypes;
         }
     }
-    protected override void InitTemplate(IDateTemplateConfig config, CustomTemplateDefinition template, Predicate<CustomTemplateDefinition.Column> skipColumn, TabularModel? model)
+    protected override void InitTemplate(IDateTemplateConfig config, CustomTemplateDefinition templateDefinition, Predicate<CustomTemplateDefinition.Column> skipColumn, TabularModel? model)
     {
         bool hasHolidays = HolidaysConfig.HasHolidays(config.HolidaysReference);
         if (hasHolidays)
@@ -52,7 +52,7 @@ public class CustomDateTable : BaseDateTemplate<IDateTemplateConfig>
         }
         base.InitTemplate(
             config,
-            template,
+            templateDefinition,
             // Skip columns related to holidays if no holidays configuration available
             ((columnDefinition) => columnDefinition.RequiresHolidays && !hasHolidays),
             model);

@@ -53,7 +53,7 @@ namespace Dax.Template.Tests
             // Assert: SaveTo writes the "Config" section plus one embedded entry per non-empty
             // Template/LocalizationFiles reference declared in the config's Templates[] entries. Config-01's
             // "HolidaysTable" entry has Template: null so it contributes nothing; the other three do.
-            Assert.True(document.RootElement.TryGetProperty(Package.PACKAGE_CONFIG, out var configElement));
+            Assert.True(document.RootElement.TryGetProperty(Package.PackageConfig, out var configElement));
             Assert.Equal(JsonValueKind.Object, configElement.ValueKind);
 
             foreach (var expectedDefinition in new[] { "HolidaysDefinition", "DateTemplate-01", "TimeIntelligence-01" })

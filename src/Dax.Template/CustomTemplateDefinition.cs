@@ -25,7 +25,7 @@ public class CustomTemplateDefinition
                 : Expression;
         }
     }
-    public class Step : DaxExpression
+    public class TemplateStep : DaxExpression
     {
     }
     public abstract class Variable : DaxExpression
@@ -67,7 +67,7 @@ public class CustomTemplateDefinition
         public HierarchyLevel[] Levels { get; set; } = [];
     }
     public string[] FormatPrefixes { get; set; } = [];
-    public Step[] Steps { get; set; } = [];
+    public TemplateStep[] Steps { get; set; } = [];
     public GlobalVariable[] GlobalVariables { get; set; } = [];
     public RowVariable[] RowVariables { get; set; } = [];
     public Column[] Columns { get; set; } = [];

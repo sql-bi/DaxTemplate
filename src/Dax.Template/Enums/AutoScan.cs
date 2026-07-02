@@ -3,7 +3,7 @@
 namespace Dax.Template.Enums;
 
 [Flags]
-public enum AutoScanEnum : short
+public enum AutoScan : short
 {
     /// <summary>
     /// Does not scan data to find min/max date
