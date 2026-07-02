@@ -33,13 +33,13 @@ Three extension methods under [src/Dax.Template/Extensions/](../../src/Dax.Templ
 - `ComputeDependencies.cs` (`AddDependenciesFromExpression`) — scans each element's `Expression` text with a regex, resolves referenced tokens against the set of known `IDaxName` elements, and throws `InvalidVariableReferenceException` for an unresolved reference.
 - `GetDependencies.cs` (`GetDependencies`) — walks an item's `Dependencies` graph.
 - `TSort.cs` (`TSort`) — topologically sorts elements by dependency, assigning each a nesting "level" (used to decide which `VAR`s belong at which step of the generated DAX); it detects and reports cycles via `CircularDependencyException`.
-- `GetScanColumns.cs` (`GetScanColumns`) — given an `IScanConfig` (`OnlyTablesColumns`/`ExceptTablesColumns`/`AutoScan`), finds the model columns to consider for auto-detection (e.g. the min/max date range for `MeasuresTemplate`, or the date columns for the date-table templates' `AutoScanEnum`-driven year-range detection).
+- `GetScanColumns.cs` (`GetScanColumns`) — given an `IScanConfig` (`OnlyTablesColumns`/`ExceptTablesColumns`/`AutoScan`), finds the model columns to consider for auto-detection (e.g. the min/max date range for `MeasuresTemplate`, or the date columns for the date-table templates' `AutoScan`-driven year-range detection).
 
-`AutoScanEnum` (`Enums/AutoScanEnum.cs`, `[Flags]`) controls *how* columns are auto-detected (`Disabled`, `SelectedTablesColumns`, `ScanActiveRelationships`, `ScanInactiveRelationships`, `Full`).
-`AutoNamingEnum` (`Enums/AutoNamingEnum.cs`) controls whether generated measure names use a `Suffix` or `Prefix` naming style.
+`AutoScan` (`Enums/AutoScan.cs`, `[Flags]`) controls *how* columns are auto-detected (`Disabled`, `SelectedTablesColumns`, `ScanActiveRelationships`, `ScanInactiveRelationships`, `Full`).
+`AutoNaming` (`Enums/AutoNaming.cs`) controls whether generated measure names use a `Suffix` or `Prefix` naming style.
 
 ## Constants & exceptions
 
-- `Constants/Attributes.cs` — well-known TOM annotation names, including `SQLBI_TEMPLATE_ATTRIBUTE = "SQLBI_Template"` (see [measures.md](measures.md) for its idempotency role).
-- `Constants/Prefixes.cs` — string prefixes used when a template needs to rename a conflicting existing object out of the way (`CONFLICT_RENAME_PREFIX = "_old"`).
+- `Constants/Attributes.cs` — well-known TOM annotation names, including `SqlbiTemplate = "SQLBI_Template"` (see [measures.md](measures.md) for its idempotency role).
+- `Constants/Prefixes.cs` — string prefixes used when a template needs to rename a conflicting existing object out of the way (`ConflictRenamePrefix = "_old"`).
 - `Exceptions/` — typed exceptions raised by the subsystems above: `CircularDependencyException`, `InvalidVariableReferenceException`, `InvalidMacroReferenceException`, `InvalidAttributeException`, `InvalidConfigurationException`, `ExistingTableException`, `TemplateException`.

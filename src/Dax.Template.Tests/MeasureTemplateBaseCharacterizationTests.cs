@@ -104,7 +104,7 @@ namespace Dax.Template.Tests
         [Fact]
         public void GetDaxExpression_SingleTablePlaceholder_ResolvesToQuotedTableName()
         {
-            // Arrange: the @_T-...@ entity (ENTITY_SINGLE_TABLE) is never used by the shipped Config-01
+            // Arrange: the @_T-...@ entity (EntitySingleTable) is never used by the shipped Config-01
             // template, which only exercises @_C-...@ (single column).
             var database = OfflineModelFixture.Build();
             database.Model.Tables.Find("Sales")!.Annotations.Add(new Annotation { Name = "TableAttr", Value = "Y" });
@@ -146,7 +146,7 @@ namespace Dax.Template.Tests
         [Fact]
         public void GetDaxExpression_ColumnsListPlaceholder_ResolvesToCommaSeparatedColumnList()
         {
-            // Arrange: the @_CL-...@ entity (ENTITY_COLUMNS_LIST) is never used by the shipped template.
+            // Arrange: the @_CL-...@ entity (EntityColumnsList) is never used by the shipped template.
             var database = OfflineModelFixture.Build();
             database.Model.Tables.Find("Sales")!.Columns.Find("Order Date")!.Annotations.Add(new Annotation { Name = "ColAttr", Value = "Z" });
             database.Model.Tables.Find("Orders")!.Columns.Find("Delivery Date")!.Annotations.Add(new Annotation { Name = "ColAttr", Value = "Z" });
@@ -162,7 +162,7 @@ namespace Dax.Template.Tests
         [Fact]
         public void GetDaxExpression_TablesListPlaceholder_ResolvesToCommaSeparatedTableList()
         {
-            // Arrange: the @_CT-...@ entity (ENTITY_COLUMNS_TABLE) is never used by the shipped template.
+            // Arrange: the @_CT-...@ entity (EntityColumnsTable) is never used by the shipped template.
             var database = OfflineModelFixture.Build();
             database.Model.Tables.Find("Sales")!.Annotations.Add(new Annotation { Name = "TabAttr", Value = "W" });
             database.Model.Tables.Find("Orders")!.Annotations.Add(new Annotation { Name = "TabAttr", Value = "W" });

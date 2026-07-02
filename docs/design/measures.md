@@ -17,7 +17,7 @@ Code: [src/Dax.Template/Measures/MeasuresTemplate.cs](../../src/Dax.Template/Mea
 
 ## Idempotency: the `SQLBI_Template` annotation
 
-`Constants/Attributes.cs` defines `SQLBI_TEMPLATE_ATTRIBUTE = "SQLBI_Template"`.
+`Constants/Attributes.cs` defines `SqlbiTemplate = "SQLBI_Template"`.
 Every measure `MeasuresTemplate` generates carries this annotation (value identifies the specific template).
 On each run, the template:
 
