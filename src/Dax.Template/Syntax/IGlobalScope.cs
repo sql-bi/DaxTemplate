@@ -1,7 +1,5 @@
-﻿using System;
-namespace Dax.Template.Syntax
+﻿namespace Dax.Template.Syntax;
+
+internal interface IGlobalScope
 {
-    internal interface IGlobalScope
-    {
-    }
 }

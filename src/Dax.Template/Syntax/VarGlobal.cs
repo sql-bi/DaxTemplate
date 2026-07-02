@@ -1,8 +1,7 @@
-﻿namespace Dax.Template.Syntax
+﻿namespace Dax.Template.Syntax;
+
+public class VarGlobal : Var, IGlobalScope
 {
-    public class VarGlobal : Var, IGlobalScope
-    {
-        public VarGlobal() { Scope = VarScope.Global; }
-        public bool IsConfigurable { get; set; } = false;
-    }
+    public VarGlobal() => Scope = VarScope.Global;
+    public bool IsConfigurable { get; set; }
 }

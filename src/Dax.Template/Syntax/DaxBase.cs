@@ -1,6 +1,5 @@
-﻿namespace Dax.Template.Syntax
+﻿namespace Dax.Template.Syntax;
+
+public abstract class DaxBase
 {
-    public abstract class DaxBase
-    {
-    }
 }

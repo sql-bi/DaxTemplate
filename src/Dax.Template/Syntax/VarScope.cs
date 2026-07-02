@@ -1,8 +1,7 @@
-﻿namespace Dax.Template.Syntax
+﻿namespace Dax.Template.Syntax;
+
+public enum VarScope
 {
-    public enum VarScope
-    {
-        Global,
-        Row
-    }
+    Global,
+    Row
 }

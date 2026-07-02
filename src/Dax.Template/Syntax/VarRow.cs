@@ -1,7 +1,6 @@
-﻿namespace Dax.Template.Syntax
+﻿namespace Dax.Template.Syntax;
+
+public class VarRow : Var
 {
-    public class VarRow : Var
-    {
-        public VarRow() { Scope = VarScope.Row; }
-    }
+    public VarRow() => Scope = VarScope.Row;
 }

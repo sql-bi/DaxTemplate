@@ -1,7 +1,6 @@
-﻿namespace Dax.Template.Syntax
+﻿namespace Dax.Template.Syntax;
+
+public interface IDaxComment
 {
-    public interface IDaxComment
-    {
-        public string[]? Comments { get; set; }
-    }
+    public string[]? Comments { get; set; }
 }

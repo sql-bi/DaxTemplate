@@ -1,7 +1,6 @@
-﻿namespace Dax.Template.Syntax
+﻿namespace Dax.Template.Syntax;
+
+public interface IDaxName : IDependencies<DaxBase>
 {
-    public interface IDaxName : IDependencies<DaxBase>
-    {
-        public string DaxName { get; }
-    }
+    public string DaxName { get; }
 }
