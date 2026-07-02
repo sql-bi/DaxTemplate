@@ -2,8 +2,6 @@
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
-    <LangVersion>14.0</LangVersion>
-    <Nullable>enable</Nullable>
     <NeutralLanguage>en-US</NeutralLanguage>
     <IsPackable>true</IsPackable>
 

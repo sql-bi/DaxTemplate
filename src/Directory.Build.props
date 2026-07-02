@@ -1,0 +1,28 @@
+<Project>
+
+  <!--
+    Centralizes build settings shared by all three projects under src/
+    (Dax.Template, Dax.Template.Tests, Dax.Template.TestUI).
+
+    TargetFramework is intentionally NOT centralized here: Dax.Template.TestUI targets
+    net10.0-windows (WinForms) while the other two target net10.0. Overriding it per-project
+    would work too, but leaving TargetFramework in each .csproj is the lower-risk choice for
+    this pass - it keeps the TFM decision visible where it already lives and avoids any chance
+    of a centralized default TFM silently leaking into the wrong project.
+
+    TreatWarningsAsErrors is intentionally NOT set here - warnings-as-errors is planned as a
+    CI-only gate (via the CI build command) in a later Phase M stage, so local dev builds stay
+    lenient while these analyzer settings are measured.
+  -->
+
+  <PropertyGroup>
+    <LangVersion>14.0</LangVersion>
+    <Nullable>enable</Nullable>
+
+    <!-- Conservative analyzer baseline for Stage 1 measurement; escalation is deliberate and staged. -->
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisLevel>latest-recommended</AnalysisLevel>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+  </PropertyGroup>
+
+</Project>

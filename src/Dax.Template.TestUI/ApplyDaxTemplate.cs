@@ -312,7 +312,7 @@ namespace Dax.Template.TestUI
         }
         private string GetSelectedTemplatePath()
         {
-            string? templateSelection = comboTemplates.SelectedItem.ToString();
+            string? templateSelection = comboTemplates.SelectedItem?.ToString();
             if (templateSelection == null)
             {
                 throw new TemplateException("Template not selected");
