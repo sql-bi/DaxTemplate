@@ -45,7 +45,7 @@ public class Translations
         public Language[] Translations { get; set; } = [];
     }
 
-    protected Definitions LanguageDefinitions;
+    protected Definitions LanguageDefinitions { get; set; }
 
     /// <summary>
     /// Define the Iso translation to use as default name, ignoring translations

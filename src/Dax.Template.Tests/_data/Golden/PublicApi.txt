@@ -156,7 +156,6 @@ public class Dax.Template.Interfaces.ITemplates.TemplateEntry
   property public string[] LocalizationFiles { get; set; }
 public class Dax.Template.Measures.MeasureTemplateBase : Dax.Template.Model.Measure, Dax.Template.Syntax.IDaxComment
   ctor public MeasureTemplateBase(Dax.Template.Measures.MeasuresTemplate template)
-  field protected readonly Dax.Template.Measures.MeasuresTemplate Template
   field public const string EntityColumnsList = "CL"
   field public const string EntityColumnsTable = "CT"
   field public const string EntitySingleColumn = "C"
@@ -164,6 +163,7 @@ public class Dax.Template.Measures.MeasureTemplateBase : Dax.Template.Model.Meas
   method public string GetDaxExpression(Microsoft.AnalysisServices.Tabular.Model model)
   method public virtual Microsoft.AnalysisServices.Tabular.Measure ApplyTemplate(Microsoft.AnalysisServices.Tabular.Model model, Microsoft.AnalysisServices.Tabular.Table targetTable, bool overrideExistingMeasure = true, System.Threading.CancellationToken cancellationToken = null)
   method public virtual string GetDaxExpression(Microsoft.AnalysisServices.Tabular.Model model, string originalMeasureName)
+  property protected Dax.Template.Measures.MeasuresTemplate Template { get; }
   property public Microsoft.AnalysisServices.Tabular.Measure ReferenceMeasure { get; set; }
   property public System.Collections.Generic.Dictionary<string, string> DefaultVariables { get; set; }
   property public string Expression { get; }
@@ -432,8 +432,6 @@ public abstract class Dax.Template.Tables.ReferenceCalculatedTable : Dax.Templat
   property public string HiddenTable { get; init; }
 public abstract class Dax.Template.Tables.TableTemplateBase
   ctor protected TableTemplateBase()
-  field protected System.Collections.Generic.IEnumerable<System.ValueTuple<Microsoft.AnalysisServices.Tabular.SingleColumnRelationship, string, bool>> FixRelationshipsFrom
-  field protected System.Collections.Generic.IEnumerable<System.ValueTuple<Microsoft.AnalysisServices.Tabular.SingleColumnRelationship, string, bool>> FixRelationshipsTo
   field public const string AnnotationAttributeType = "SQLBI_AttributeTypes"
   method protected abstract bool RemoveExistingPartitions(Microsoft.AnalysisServices.Tabular.Table dateTable)
   method protected abstract void AddPartitions(Microsoft.AnalysisServices.Tabular.Table dateTable, System.Threading.CancellationToken cancellationToken = null)
@@ -451,6 +449,8 @@ public abstract class Dax.Template.Tables.TableTemplateBase
   method protected virtual void RenameWithTranslation(Microsoft.AnalysisServices.Tabular.Table tabularTable, Dax.Template.Translations.Language language, System.Threading.CancellationToken cancellationToken = null)
   method public virtual void ApplyTemplate(Microsoft.AnalysisServices.Tabular.Table tabularTable, System.Threading.CancellationToken cancellationToken = null)
   method public void ApplyTemplate(Microsoft.AnalysisServices.Tabular.Table tabularTable, bool hideTable = false, System.Threading.CancellationToken cancellationToken = null)
+  property protected System.Collections.Generic.IEnumerable<System.ValueTuple<Microsoft.AnalysisServices.Tabular.SingleColumnRelationship, string, bool>> FixRelationshipsFrom { get; set; }
+  property protected System.Collections.Generic.IEnumerable<System.ValueTuple<Microsoft.AnalysisServices.Tabular.SingleColumnRelationship, string, bool>> FixRelationshipsTo { get; set; }
   property public Dax.Template.Translations Translation { get; set; }
   property public System.Collections.Generic.Dictionary<string, string> Annotations { get; set; }
   property public System.Collections.Generic.List<Dax.Template.Model.Column> Columns { get; set; }
@@ -489,9 +489,9 @@ public static class Dax.Template.Tables.TemplateConfigurationExtensions
   method public static string ToTemplateUri(System.IO.FileInfo file)
 public class Dax.Template.Translations
   ctor public Translations(Dax.Template.Translations.Definitions definitions)
-  field protected Dax.Template.Translations.Definitions LanguageDefinitions
   method public Dax.Template.Translations.Language GetTranslationIso(string iso)
   method public System.Collections.Generic.IEnumerable<Dax.Template.Translations.Language> GetTranslations()
+  property protected Dax.Template.Translations.Definitions LanguageDefinitions { get; set; }
   property public bool ApplyAllIso { get; set; }
   property public string DefaultIso { get; set; }
   property public string[] ApplyIso { get; set; }

@@ -31,7 +31,7 @@ public class MeasureTemplateBase : Model.Measure
             Value = value;
         }
     }
-    protected readonly MeasuresTemplate Template;
+    protected MeasuresTemplate Template { get; }
 
     public MeasureTemplateBase(MeasuresTemplate template) : base()
     {

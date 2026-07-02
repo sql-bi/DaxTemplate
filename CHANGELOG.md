@@ -43,6 +43,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     name `template`.
   - `BaseDateTemplate<T>.ApplyTemplate`'s `dateTable` parameter is renamed to `tabularTable` to match
     the base `TableTemplateBase.ApplyTemplate` signature.
+- **BREAKING (next release: 2.0.0):** the 4 remaining visible instance fields flagged by Roslyn
+  CA1051 (do not declare visible instance fields) are now properties: `MeasureTemplateBase.Template`
+  (`protected`, get-only), `TableTemplateBase.FixRelationshipsTo` / `FixRelationshipsFrom` (`protected`,
+  get/set), and `Translations.LanguageDefinitions` (`protected`, get/set). This is source/binary-breaking
+  for subclasses that referenced these as fields (e.g. via `ref`/`out`, though no such usage exists in
+  this codebase); read/write access from subclasses is otherwise unaffected. No runtime behavior, emitted
+  DAX/BIM output, or JSON template configuration is affected — these hold template-build state, not
+  JSON-deserialized or emitted values.
 
 ### Fixed
 

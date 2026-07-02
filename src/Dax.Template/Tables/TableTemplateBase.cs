@@ -142,8 +142,8 @@ public abstract class TableTemplateBase
         }
     }
 
-    protected IEnumerable<(SingleColumnRelationship relationshipTo, string columnName, bool isKey)>? FixRelationshipsTo;
-    protected IEnumerable<(SingleColumnRelationship relationshipFrom, string columnName, bool isKey)>? FixRelationshipsFrom;
+    protected IEnumerable<(SingleColumnRelationship relationshipTo, string columnName, bool isKey)>? FixRelationshipsTo { get; set; }
+    protected IEnumerable<(SingleColumnRelationship relationshipFrom, string columnName, bool isKey)>? FixRelationshipsFrom { get; set; }
 
     protected virtual bool IsRelationshipToSaveAndRestore(SingleColumnRelationship relationship) => true;
 
