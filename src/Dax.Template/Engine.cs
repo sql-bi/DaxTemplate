@@ -188,12 +188,12 @@ namespace Dax.Template
                 }
                 bool translationsEnabled = !string.IsNullOrWhiteSpace(Configuration.IsoTranslation);
                 ReferenceCalculatedTable visibleDateTemplate = CreateDateTable(
-                    templateEntry.Table, 
-                    templateEntry.Template, 
-                    model, 
-                    hideTable: templateEntry.IsHidden, 
+                    templateEntry.Table,
+                    templateEntry.Template,
+                    model,
+                    hideTable: templateEntry.IsHidden,
                     isoFormat: Configuration.IsoFormat,
-                    referenceTable: templateEntry.ReferenceTable, 
+                    referenceTable: templateEntry.ReferenceTable,
                     applyTranslations: translationsEnabled,
                     cancellationToken);
 
@@ -227,10 +227,10 @@ namespace Dax.Template
             // TODO: if existing table has a different name, we should handle the replacement
             // string? existingDateTableName,
             string templateFilename,
-            TabularModel model, 
+            TabularModel model,
             bool hideTable,
             string? isoFormat,
-            string? referenceTable = null, 
+            string? referenceTable = null,
             bool applyTranslations = false,
             CancellationToken cancellationToken = default)
         {
@@ -315,4 +315,3 @@ namespace Dax.Template
         }
     }
 }
-

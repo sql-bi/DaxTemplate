@@ -1,16 +1,16 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using Microsoft.AnalysisServices.Tabular;
+﻿using Dax.Template.Constants;
+using Dax.Template.Exceptions;
 using Dax.Template.Extensions;
+using Dax.Template.Interfaces;
+using Microsoft.AnalysisServices.Tabular;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Threading;
 using TabularColumn = Microsoft.AnalysisServices.Tabular.Column;
 using TabularModel = Microsoft.AnalysisServices.Tabular.Model;
-using Dax.Template.Exceptions;
-using System.Text.RegularExpressions;
-using Dax.Template.Interfaces;
-using Dax.Template.Constants;
-using System.Threading;
-using System.Globalization;
 
 namespace Dax.Template.Tables.Dates
 {
@@ -319,11 +319,7 @@ $@"
     VAR __LastYear = {maxYear}
     RETURN FILTER (
         CALENDARAUTO(),
-        {
-            ((minYear != null) ? $"YEAR ( [Date] ) >= __FirstYear" : (maxYear != null) ? " && " : "")
-        }{
-            ((maxYear != null) ? $"YEAR ( [Date] ) <= __LastYear" : "")
-        }
+        {((minYear != null) ? $"YEAR ( [Date] ) >= __FirstYear" : (maxYear != null) ? " && " : "")}{((maxYear != null) ? $"YEAR ( [Date] ) <= __LastYear" : "")}
 )";
             }
             return calendarExpression;

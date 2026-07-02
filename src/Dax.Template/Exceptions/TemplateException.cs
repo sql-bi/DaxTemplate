@@ -27,7 +27,7 @@ namespace Dax.Template.Exceptions
         {
         }
 
-        public TemplateConfigurationException(string message, Exception innerException) 
+        public TemplateConfigurationException(string message, Exception innerException)
             : base(message, innerException)
         {
         }

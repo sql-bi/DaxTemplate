@@ -1,13 +1,13 @@
-﻿using System.Linq;
-using System.Collections.Generic;
-using Microsoft.AnalysisServices.Tabular;
-using Dax.Template.Syntax;
-using Dax.Template.Exceptions;
+﻿using Dax.Template.Exceptions;
 using Dax.Template.Extensions;
+using Dax.Template.Syntax;
+using Microsoft.AnalysisServices.Tabular;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
 using Column = Dax.Template.Model.Column;
 using TabularColumn = Microsoft.AnalysisServices.Tabular.Column;
-using System.Threading;
 
 namespace Dax.Template.Tables
 {
@@ -49,7 +49,7 @@ namespace Dax.Template.Tables
             });
         }
 
-        public string? IsoFormat { get; set; } 
+        public string? IsoFormat { get; set; }
 
         private static readonly Regex regexGetIso = new(@"@@GETISO[ \r\n\t]*\([ \r\n\t]*\)", RegexOptions.Compiled);
 
@@ -173,7 +173,7 @@ VAR {stepName} =
 
                         var daxElement = daxElements.FirstOrDefault() ?? defaultElement;
                         var daxRowVars = (rowVars?.Any() == true) ?
-                            string.Join("\r\n", rowVars.Select(e => $"{GetComments(e,PadRowVarDefinition)}{PadRowVarDefinition}VAR {e.Name} = {ProcessDaxExpression(e.Expression, previousStepToReference, model, cancellationToken)}")) + "\r\n        RETURN " :
+                            string.Join("\r\n", rowVars.Select(e => $"{GetComments(e, PadRowVarDefinition)}{PadRowVarDefinition}VAR {e.Name} = {ProcessDaxExpression(e.Expression, previousStepToReference, model, cancellationToken)}")) + "\r\n        RETURN " :
                             "        ";
                         var columnsList = string.Join(",\r\n", columns.Select(c => $"{GetComments(c, PadColumnGenerateDefinition)}{PadColumnGenerateDefinition}\"{c.Name}\", {ProcessDaxExpression(c.Expression, previousStepToReference, model, cancellationToken)}"));
                         var daxColumns = $@"ROW ( 

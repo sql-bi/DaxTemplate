@@ -11,18 +11,18 @@ namespace Dax.Template
         #region Internal translation entities definition
         public class Entity
         {
-            public string? OriginalName { get; set; } 
+            public string? OriginalName { get; set; }
             public string? Name { get; set; }
-            public string? Description { get; set; } 
+            public string? Description { get; set; }
         }
 
         public class EntityDisplayFolder : Entity
         {
-            public string? DisplayFolders { get; set; } 
+            public string? DisplayFolders { get; set; }
         }
         public class EntityFormat : EntityDisplayFolder
         {
-            public string? FormatString { get; set; } 
+            public string? FormatString { get; set; }
         }
         public class Level : Entity { }
         public class Hierarchy : EntityDisplayFolder
@@ -36,8 +36,8 @@ namespace Dax.Template
 
         public class Language
         {
-            public string? Iso { get; set; } 
-            public Table? Table { get; set; } 
+            public string? Iso { get; set; }
+            public Table? Table { get; set; }
             public Measure[] Measures { get; set; } = Array.Empty<Measure>();
             public Column[] Columns { get; set; } = Array.Empty<Column>();
             public Hierarchy[] Hierarchies { get; set; } = Array.Empty<Hierarchy>();
@@ -53,7 +53,7 @@ namespace Dax.Template
         /// <summary>
         /// Define the Iso translation to use as default name, ignoring translations
         /// </summary>
-        public string? DefaultIso { get; set; } 
+        public string? DefaultIso { get; set; }
         /// <summary>
         /// List of ISO translations to apply
         /// </summary>
@@ -67,7 +67,7 @@ namespace Dax.Template
             LanguageDefinitions = definitions;
         }
 
-        public Language? GetTranslationIso( string iso )
+        public Language? GetTranslationIso(string iso)
         {
             // First, search for perfect match ("it-IT" must be "it-IT", "it" must be "it")
             var matchingTranslation = LanguageDefinitions.Translations.FirstOrDefault(t => t.Iso == iso);
@@ -82,7 +82,7 @@ namespace Dax.Template
                     matchingTranslation = LanguageDefinitions.Translations.FirstOrDefault(t => t.Iso?[..2] == genericIsoLanguage);
                 }
             }
-            return matchingTranslation; 
+            return matchingTranslation;
         }
 
         public IEnumerable<Language> GetTranslations()

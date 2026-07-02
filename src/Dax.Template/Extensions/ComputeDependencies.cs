@@ -1,8 +1,8 @@
-﻿using System.Linq;
-using System.Collections.Generic;
+﻿using Dax.Template.Exceptions;
 using Dax.Template.Syntax;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
-using Dax.Template.Exceptions;
 
 namespace Dax.Template.Extensions
 {

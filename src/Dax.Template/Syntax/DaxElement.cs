@@ -15,9 +15,9 @@
     {
         bool IDependencies<DaxBase>.AddLevel { get; init; } = true;
         public bool IgnoreAutoDependency { get; init; } = false;
-        public string? Expression { get; set; } 
+        public string? Expression { get; set; }
 
-        public IDependencies<DaxBase>[]? Dependencies { get; set; } 
+        public IDependencies<DaxBase>[]? Dependencies { get; set; }
         public string GetDebugInfo() { return $"{GetType().Name}: {Expression}"; }
     }
 }

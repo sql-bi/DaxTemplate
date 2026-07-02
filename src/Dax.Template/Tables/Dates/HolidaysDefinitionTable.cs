@@ -1,18 +1,19 @@
-﻿using System;
-using System.Linq;
-using Microsoft.AnalysisServices.Tabular;
-using TabularModel = Microsoft.AnalysisServices.Tabular.Model;
+﻿using Dax.Template.Constants;
 using Dax.Template.Syntax;
-using Dax.Template.Constants;
-using Column = Dax.Template.Model.Column;
+using Microsoft.AnalysisServices.Tabular;
+using System;
+using System.Linq;
 using System.Text.Json.Serialization;
 using System.Threading;
+using Column = Dax.Template.Model.Column;
+using TabularModel = Microsoft.AnalysisServices.Tabular.Model;
 
 namespace Dax.Template.Tables.Dates
 {
     public class HolidaysDefinitionTable : CalculatedTableTemplateBase
     {
-        public enum SubstituteEnum {
+        public enum SubstituteEnum
+        {
             NoSubstituteHoliday = 0,
             SubstituteHolidayWithNextWorkingDay = 1,
             /// <summary>
@@ -30,7 +31,7 @@ namespace Dax.Template.Tables.Dates
             /// <summary>
             /// ISO country code (filter holidays based on country)
             /// </summary>
-            public string? IsoCountry { get; set; } 
+            public string? IsoCountry { get; set; }
             /// <summary>
             /// Number of month - use 99 for relative dates using Easter as a reference
             /// </summary>
@@ -117,7 +118,7 @@ DATATABLE (
     ""FirstYear"", INTEGER,         -- First year for the holiday, 0 if it is not defined
     ""LastYear"", INTEGER,          -- Last year for the holiday, 0 if it is not defined
     {{
-        {string.Join($",\r\n{padding}",holidaysDefinitions.Holidays.Select(h => h.GetTableLine()))}
+        {string.Join($",\r\n{padding}", holidaysDefinitions.Holidays.Select(h => h.GetTableLine()))}
     }}
 )"
             };

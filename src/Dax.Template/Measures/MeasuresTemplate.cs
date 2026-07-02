@@ -1,16 +1,16 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using Microsoft.AnalysisServices.Tabular;
-using Dax.Template.Exceptions;
-using System.Text.RegularExpressions;
-using Dax.Template.Extensions;
-using TabularModel = Microsoft.AnalysisServices.Tabular.Model;
-using TabularMeasure = Microsoft.AnalysisServices.Tabular.Measure;
-using Dax.Template.Interfaces;
+﻿using Dax.Template.Constants;
 using Dax.Template.Enums;
-using Dax.Template.Constants;
+using Dax.Template.Exceptions;
+using Dax.Template.Extensions;
+using Dax.Template.Interfaces;
+using Microsoft.AnalysisServices.Tabular;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
+using TabularMeasure = Microsoft.AnalysisServices.Tabular.Measure;
+using TabularModel = Microsoft.AnalysisServices.Tabular.Model;
 
 // TODO: implement logic to match targetable based on annotations
 
@@ -21,7 +21,7 @@ namespace Dax.Template.Measures
     /// </summary>
     public class MeasuresTemplateDefinition
     {
-        public class MeasureTemplate 
+        public class MeasureTemplate
         {
             public string? Name { get; init; }
             public string? FormatString { get; set; }
@@ -49,7 +49,7 @@ namespace Dax.Template.Measures
         }
         public Dictionary<string, string> TargetTable { get; set; } = new();
         public Dictionary<string, string> TemplateAnnotations { get; set; } = new();
-        public MeasureTemplate[] MeasureTemplates { get; set;} = Array.Empty<MeasureTemplate>();
+        public MeasureTemplate[] MeasureTemplates { get; set; } = Array.Empty<MeasureTemplate>();
     }
 
     public class MeasuresTemplate
@@ -92,7 +92,7 @@ namespace Dax.Template.Measures
             }
 
             IEnumerable<Measure> result = Array.Empty<Measure>();
-            foreach(var tm in Config.TargetMeasures)
+            foreach (var tm in Config.TargetMeasures)
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 result = result.Union(
@@ -108,7 +108,7 @@ namespace Dax.Template.Measures
 
         private static readonly Regex regexGetMinDates = new(@"@@GETMINDATE[ \r\n\t]*\([ \r\n\t]*\)", RegexOptions.Compiled);
         private static readonly Regex regexGetMaxDates = new(@"@@GETMAXDATE[ \r\n\t]*\([ \r\n\t]*\)", RegexOptions.Compiled);
-        protected string? ReplaceMacros( string? expression, TabularModel model )
+        protected string? ReplaceMacros(string? expression, TabularModel model)
         {
             if (expression == null) return expression;
             var matchGetMinDates = regexGetMinDates.Match(expression);
@@ -226,7 +226,7 @@ namespace Dax.Template.Measures
                     Name = (referenceMeasure != null) ? GetTargetMeasureName(template.Name, referenceMeasure.Name) : template.Name,
                     FormatString = template.FormatString,
                     IsHidden = template.IsHidden,
-                    DisplayFolder = GetDisplayFolder( referenceMeasure, template.DisplayFolder, template.Name),
+                    DisplayFolder = GetDisplayFolder(referenceMeasure, template.DisplayFolder, template.Name),
                     Description = template.Description,
                     Annotations = template.Annotations.Union(Template.TemplateAnnotations),
                     Comments = template.GetComments(),
@@ -245,9 +245,9 @@ namespace Dax.Template.Measures
         private static readonly Regex regexTemplateFolder = new(@"@_TEMPLATEFOLDER_@", RegexOptions.Compiled);
         protected virtual string? GetDisplayFolder(TabularMeasure? measure, string? templateDisplayFolder, string? templateName)
         {
-            string? folderRule = 
-                (measure != null) 
-                ? DisplayFolderRule 
+            string? folderRule =
+                (measure != null)
+                ? DisplayFolderRule
                 : DisplayFolderRuleSingleInstanceMeasures ?? DisplayFolderRule;
             if (string.IsNullOrWhiteSpace(folderRule))
             {

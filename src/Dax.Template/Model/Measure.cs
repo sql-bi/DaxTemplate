@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Microsoft.AnalysisServices.Tabular;
+using System;
 using System.Collections.Generic;
-using Microsoft.AnalysisServices.Tabular;
 using TabularColumn = Microsoft.AnalysisServices.Tabular.Column;
 using TabularMeasure = Microsoft.AnalysisServices.Tabular.Measure;
 

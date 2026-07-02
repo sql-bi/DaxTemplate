@@ -1,5 +1,5 @@
-﻿using System.Text.Json.Serialization;
-using Dax.Template.Enums;
+﻿using Dax.Template.Enums;
+using System.Text.Json.Serialization;
 
 namespace Dax.Template.Interfaces
 {

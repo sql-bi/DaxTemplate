@@ -1,12 +1,12 @@
-﻿using System.Linq;
-using System.Collections.Generic;
-using Microsoft.AnalysisServices.Tabular;
-using Column = Dax.Template.Model.Column;
-using TabularModel = Microsoft.AnalysisServices.Tabular.Model;
-using TabularColumn = Microsoft.AnalysisServices.Tabular.Column;
-using System.Text.RegularExpressions;
+﻿using Dax.Template.Enums;
 using Dax.Template.Interfaces;
-using Dax.Template.Enums;
+using Microsoft.AnalysisServices.Tabular;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
+using Column = Dax.Template.Model.Column;
+using TabularColumn = Microsoft.AnalysisServices.Tabular.Column;
+using TabularModel = Microsoft.AnalysisServices.Tabular.Model;
 
 namespace Dax.Template.Extensions
 {
@@ -71,7 +71,7 @@ namespace Dax.Template.Extensions
             }
             bool checkInactive = (Config.AutoScan & AutoScanEnum.ScanInactiveRelationships) == AutoScanEnum.ScanInactiveRelationships;
             bool checkActive = (Config.AutoScan & AutoScanEnum.ScanActiveRelationships) == AutoScanEnum.ScanActiveRelationships || checkInactive;
-            if ( checkInactive || checkActive )
+            if (checkInactive || checkActive)
             {
                 var scanRelationshipsFrom =
                     from r in (
@@ -91,7 +91,7 @@ namespace Dax.Template.Extensions
                         where r is SingleColumnRelationship
                         select r as SingleColumnRelationship)
                     where r.ToColumn.DataType == DataType.DateTime
-                        && r.ToCardinality == RelationshipEndCardinality.Many 
+                        && r.ToCardinality == RelationshipEndCardinality.Many
                         && (dataCategory == null || r.ToTable.DataCategory != dataCategory) // DATACATEGORY_TIME
                         && ((checkActive && r.IsActive) || (checkInactive && !r.IsActive))
                         && !exceptTables.Any(o => o.tableName == r.ToTable.Name)
@@ -103,7 +103,7 @@ namespace Dax.Template.Extensions
 
             // Remove columns that are marked as Time
             scanColumns = scanColumns?.Where(c => !(c.Annotations.FirstOrDefault(a => a.Name == "UnderlyingDateTimeDataType")?.Value == "Time"));
-            
+
             return scanColumns;
         }
     }

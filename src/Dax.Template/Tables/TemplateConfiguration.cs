@@ -1,15 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text.Json.Serialization;
+﻿using Dax.Template.Enums;
 using Dax.Template.Interfaces;
 using Dax.Template.Tables.Dates;
-using Dax.Template.Enums;
+using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Text.Json.Serialization;
 
 namespace Dax.Template.Tables
 {
 
-    public class TemplateConfiguration: IScanConfig, IDateTemplateConfig, IMeasureTemplateConfig, IHolidaysConfig, ICustomTableConfig, ITemplates, ILocalization
+    public class TemplateConfiguration : IScanConfig, IDateTemplateConfig, IMeasureTemplateConfig, IHolidaysConfig, ICustomTableConfig, ITemplates, ILocalization
     {
         public string? TemplateUri { get; set; }
         public string? Name { get; set; }
@@ -72,7 +72,7 @@ namespace Dax.Template.Tables
             {
                 Scheme = Uri.UriSchemeFile
             };
-            
+
             return uriBuilder.Uri.AbsoluteUri;
         }
     }

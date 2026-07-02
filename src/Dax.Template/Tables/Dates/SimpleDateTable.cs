@@ -1,13 +1,13 @@
-﻿using System.Linq;
-using System.Collections.Generic;
-using Microsoft.AnalysisServices.Tabular;
+﻿using Dax.Template.Constants;
+using Dax.Template.Extensions;
 using Dax.Template.Syntax;
+using Microsoft.AnalysisServices.Tabular;
+using System.Collections.Generic;
+using System.Linq;
 using Column = Dax.Template.Model.Column;
 using Hierarchy = Dax.Template.Model.Hierarchy;
 using Level = Dax.Template.Model.Level;
 using TabularModel = Microsoft.AnalysisServices.Tabular.Model;
-using Dax.Template.Extensions;
-using Dax.Template.Constants;
 
 namespace Dax.Template.Tables.Dates
 {
@@ -24,7 +24,7 @@ namespace Dax.Template.Tables.Dates
         //// TODO: this could be localized (as other column names)
         const string DATE_COLUMN_NAME = "Date";
 
-        public SimpleDateTable(SimpleDateTemplateConfig config, TabularModel? model ) : base( config )
+        public SimpleDateTable(SimpleDateTemplateConfig config, TabularModel? model) : base(config)
         {
             Annotations.Add(Attributes.SQLBI_TEMPLATE_ATTRIBUTE, Attributes.SQLBI_TEMPLATE_DATES);
             Annotations.Add(Attributes.SQLBI_TEMPLATETABLE_ATTRIBUTE, Attributes.SQLBI_TEMPLATETABLE_DATE);
@@ -33,8 +33,9 @@ namespace Dax.Template.Tables.Dates
             string fiscalYearFormatPrefix = string.Concat(from c in Config.FiscalYearPrefix select @"\" + c);
             string fiscalQuarterFormatPrefix = string.Concat(from c in Config.FiscalQuarterPrefix select @"\" + c);
 
-            DaxStep __Calendar = new() { 
-                Name = "__Calendar", 
+            DaxStep __Calendar = new()
+            {
+                Name = "__Calendar",
                 Expression = GenerateCalendarExpression(model),
                 IgnoreAutoDependency = true,
             };
@@ -64,11 +65,12 @@ namespace Dax.Template.Tables.Dates
             };
 
             // TODO consider possible rename/localization in base table expression
-            Var __Date = new VarRow { 
-                Name = "__Date", 
+            Var __Date = new VarRow
+            {
+                Name = "__Date",
                 Expression = $"[{DATE_COLUMN_NAME}]",
-                IgnoreAutoDependency = true, 
-                Dependencies = new IDependencies<DaxBase>[] { Date } 
+                IgnoreAutoDependency = true,
+                Dependencies = new IDependencies<DaxBase>[] { Date }
             };
 
             Var[] variables = {
@@ -163,7 +165,7 @@ namespace Dax.Template.Tables.Dates
                     Expression = @"[Fiscal Quarter]",
                     DataType = DataType.String,
                     DisplayFolder = "Fiscal"
-                } 
+                }
             };
             columns.First(c => c.Name == "Year Quarter").SortByColumn = columns.First(c => c.Name == "Year Quarter Date");
             columns.First(c => c.Name == "Fiscal Year Quarter").SortByColumn = columns.First(c => c.Name == "Fiscal Year Quarter Date");

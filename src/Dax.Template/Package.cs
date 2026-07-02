@@ -34,7 +34,7 @@ namespace Dax.Template
             if (packageDocument.RootElement.TryGetProperty(PACKAGE_CONFIG, out var configurationElement))
             {
                 if (configurationElement.ValueKind != JsonValueKind.Object)
-                    throw new TemplateConfigurationException($"Invalid json value kind [{ PACKAGE_CONFIG }]");
+                    throw new TemplateConfigurationException($"Invalid json value kind [{PACKAGE_CONFIG}]");
 
                 // File is a packaged template which contains the config and all referenced templates as embeded objects
                 configurationText = configurationElement.GetRawText();
@@ -48,7 +48,7 @@ namespace Dax.Template
             var templateConfiguration = JsonSerializer.Deserialize<TemplateConfiguration>(configurationText) ?? throw new TemplateUnexpectedException("Deserialized configurationText is null");
             {
                 templateConfiguration.TemplateUri = packageFile.ToTemplateUri();
-                
+
                 if (templateConfiguration.Name.IsNullOrEmpty())
                     templateConfiguration.Name = Path.GetFileNameWithoutExtension(Path.GetFileNameWithoutExtension(packageFile.Name));
             }
@@ -63,11 +63,11 @@ namespace Dax.Template
         /// <param name="path">The relative or absolute path to the directory to search</param>
         public static IEnumerable<string> FindTemplateFiles(string path)
         {
-            var templateFiles = Directory.EnumerateFiles(path, searchPattern: $"*{ TEMPLATE_FILE_EXTENSION }");
+            var templateFiles = Directory.EnumerateFiles(path, searchPattern: $"*{TEMPLATE_FILE_EXTENSION}");
             return templateFiles;
         }
 
-        private Package(FileInfo file, JsonDocument document, TemplateConfiguration configuration) 
+        private Package(FileInfo file, JsonDocument document, TemplateConfiguration configuration)
         {
             _path = file.FullName;
             _document = document;
@@ -92,7 +92,7 @@ namespace Dax.Template
                 definitionText = File.ReadAllText(path: Path.Combine(_directoryName, name));
             }
 
-            return JsonSerializer.Deserialize<T>(definitionText) ?? throw new TemplateUnexpectedException($"Deserialized definition is null [{ definitionName }]");
+            return JsonSerializer.Deserialize<T>(definitionText) ?? throw new TemplateUnexpectedException($"Deserialized definition is null [{definitionName}]");
         }
 
         public void SaveTo(string path)

@@ -1,11 +1,11 @@
-﻿using System;
-using System.Linq;
-using Microsoft.AnalysisServices.Tabular;
-using TabularModel = Microsoft.AnalysisServices.Tabular.Model;
-using Column = Dax.Template.Model.Column;
+﻿using Dax.Template.Constants;
 using Dax.Template.Exceptions;
 using Dax.Template.Interfaces;
-using Dax.Template.Constants;
+using Microsoft.AnalysisServices.Tabular;
+using System;
+using System.Linq;
+using Column = Dax.Template.Model.Column;
+using TabularModel = Microsoft.AnalysisServices.Tabular.Model;
 
 namespace Dax.Template.Tables.Dates
 {
@@ -28,10 +28,11 @@ namespace Dax.Template.Tables.Dates
             HiddenTable = referenceTable;
             Annotations.Add(Attributes.SQLBI_TEMPLATE_ATTRIBUTE, Attributes.SQLBI_TEMPLATE_DATES);
             Annotations.Add(
-                Attributes.SQLBI_TEMPLATETABLE_ATTRIBUTE, 
-                (referenceTable == null) ? Attributes.SQLBI_TEMPLATETABLE_DATEAUTOTEMPLATE : Attributes.SQLBI_TEMPLATETABLE_DATE );
+                Attributes.SQLBI_TEMPLATETABLE_ATTRIBUTE,
+                (referenceTable == null) ? Attributes.SQLBI_TEMPLATETABLE_DATEAUTOTEMPLATE : Attributes.SQLBI_TEMPLATETABLE_DATE);
 
-            if (!string.IsNullOrWhiteSpace(template.CalendarType)) {
+            if (!string.IsNullOrWhiteSpace(template.CalendarType))
+            {
                 CalendarType = new string[] { template.CalendarType };
             }
             else

@@ -1,8 +1,8 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
+﻿using Dax.Template.Exceptions;
 using Dax.Template.Syntax;
-using Dax.Template.Exceptions;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Dax.Template.Extensions
 {
@@ -123,12 +123,12 @@ namespace Dax.Template.Extensions
                 string? varName = (item as IDaxName)?.DaxName.ToString();
                 throw new CircularDependencyException(varName, "{STACK OVERFLOW: check complex dependencies}");
             }
-            
+
             if (allDependencies?.Contains(item) == true)
             {
                 throw new CircularDependencyException((item as IDaxName)?.DaxName.ToString(), item.Expression);
             }
-            
+
             level += item.AddLevel ? 1 : 0;
             int maxLevel = level;
             if (allDependencies != null)

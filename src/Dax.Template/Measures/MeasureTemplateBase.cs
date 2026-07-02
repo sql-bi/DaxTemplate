@@ -1,23 +1,23 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using Microsoft.AnalysisServices.Tabular;
-using Dax.Template.Interfaces;
-using Dax.Template.Exceptions;
-using System.Text.RegularExpressions;
-using TabularModel = Microsoft.AnalysisServices.Tabular.Model;
-using TabularMeasure = Microsoft.AnalysisServices.Tabular.Measure;
-using System.Threading;
+﻿using Dax.Template.Exceptions;
 using Dax.Template.Extensions;
+using Dax.Template.Interfaces;
+using Microsoft.AnalysisServices.Tabular;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Threading;
+using TabularMeasure = Microsoft.AnalysisServices.Tabular.Measure;
+using TabularModel = Microsoft.AnalysisServices.Tabular.Model;
 
 namespace Dax.Template.Measures
 {
-    public class MeasureTemplateBase: Model.Measure
+    public class MeasureTemplateBase : Model.Measure
     {
         class MultipleMatchesException : TemplateException
         {
             public string[] Matches { get; init; }
-            public MultipleMatchesException( string[] matches ) : base()
+            public MultipleMatchesException(string[] matches) : base()
             {
                 Matches = matches;
             }
@@ -41,7 +41,7 @@ namespace Dax.Template.Measures
 
         public override string? Expression
         {
-            get => (ReferenceMeasure != null) 
+            get => (ReferenceMeasure != null)
                 ? GetDaxExpression(ReferenceMeasure.Model, ReferenceMeasure.Name)
                 : throw new TemplateException($"ReferenceExpression not defined in {Name} template measure");
         }
@@ -63,7 +63,7 @@ namespace Dax.Template.Measures
         private static readonly Regex regexGetDefaultVariable = new(@"@@GETDEFAULTVARIABLE[ \r\n\t]*\((?<setting>[^\)]*)\)", RegexOptions.Compiled);
         private static readonly Regex regexGetYearEndFromFirstMonthVariable = new(@"@@GETYEARENDFROMFIRSTMONTHVARIABLE[ \r\n\t]*\((?<setting>[^\)]*)\)", RegexOptions.Compiled);
 
-        private static string? GetGroupValue( Match match, string groupName)
+        private static string? GetGroupValue(Match match, string groupName)
         {
             return (match.Success && match.Groups.ContainsKey(groupName))
                         ? match.Groups[groupName].Value : null;
@@ -206,11 +206,11 @@ namespace Dax.Template.Measures
             string result = TemplateExpression;
             var placeholders = regexFindPlaceholders.Matches(result);
 
-            foreach( Match match in placeholders )
+            foreach (Match match in placeholders)
             {
-                string? entity = GetGroupValue(match,"entity");
-                string? attribute = GetGroupValue(match,"attribute");
-                string? value = GetGroupValue(match,"value");
+                string? entity = GetGroupValue(match, "entity");
+                string? attribute = GetGroupValue(match, "attribute");
+                string? value = GetGroupValue(match, "value");
                 if (attribute == null)
                 {
                     throw new InvalidMacroReferenceException(match.Value, TemplateExpression);
@@ -264,7 +264,7 @@ namespace Dax.Template.Measures
                 if (regexGetMeasure.IsMatch(result))
                 {
                     throw new InvalidMacroReferenceException(
-                        regexGetMeasure.Match(result).Value, 
+                        regexGetMeasure.Match(result).Value,
                         TemplateExpression,
                         additionalMessage: "Missing original measure, check IsSingleInstance property.");
                 }
@@ -290,7 +290,7 @@ namespace Dax.Template.Measures
                     from c in t.Columns
                     from a in c.Annotations
                     where a.Name == attribute
-                          && (value == null || a.Value.Split(",").Any(s => s.Trim() == value) )
+                          && (value == null || a.Value.Split(",").Any(s => s.Trim() == value))
                     select c).Distinct();
         }
 

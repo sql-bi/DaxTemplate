@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using Dax.Template.Syntax;
+﻿using Dax.Template.Syntax;
+using System.Collections.Generic;
 
 namespace Dax.Template.Extensions
 {

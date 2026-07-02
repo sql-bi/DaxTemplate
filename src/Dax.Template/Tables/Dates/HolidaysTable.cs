@@ -1,17 +1,17 @@
-﻿using Microsoft.AnalysisServices.Tabular;
-using TabularModel = Microsoft.AnalysisServices.Tabular.Model;
-using Dax.Template.Syntax;
-using Dax.Template.Constants;
-using Column = Dax.Template.Model.Column;
+﻿using Dax.Template.Constants;
 using Dax.Template.Interfaces;
+using Dax.Template.Syntax;
+using Microsoft.AnalysisServices.Tabular;
 using System.Threading;
+using Column = Dax.Template.Model.Column;
+using TabularModel = Microsoft.AnalysisServices.Tabular.Model;
 
 namespace Dax.Template.Tables.Dates
 {
     public class HolidaysTable : BaseDateTemplate<IHolidaysConfig> // CalculatedTableTemplateBase
     {
         private readonly DaxStep __HolidaysTable;
-        public HolidaysTable(IHolidaysConfig config): base(config)
+        public HolidaysTable(IHolidaysConfig config) : base(config)
         {
             Annotations.Add(Attributes.SQLBI_TEMPLATE_ATTRIBUTE, Attributes.SQLBI_TEMPLATE_HOLIDAYS);
             Annotations.Add(Attributes.SQLBI_TEMPLATETABLE_ATTRIBUTE, Attributes.SQLBI_TEMPLATETABLE_HOLIDAYS);
@@ -366,4 +366,3 @@ RETURN
         }
     }
 }
-

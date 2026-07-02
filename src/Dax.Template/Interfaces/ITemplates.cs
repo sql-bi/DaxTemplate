@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Dax.Template.Interfaces
 {
-    public interface ITemplates 
+    public interface ITemplates
     {
         public class TemplateEntry
         {

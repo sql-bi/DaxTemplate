@@ -1,15 +1,15 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
+﻿using Dax.Template.Constants;
+using Dax.Template.Exceptions;
 using Microsoft.AnalysisServices.Tabular;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 using Column = Dax.Template.Model.Column;
 using Hierarchy = Dax.Template.Model.Hierarchy;
+using TabularColumn = Microsoft.AnalysisServices.Tabular.Column;
 using TabularHierarchy = Microsoft.AnalysisServices.Tabular.Hierarchy;
 using TabularLevel = Microsoft.AnalysisServices.Tabular.Level;
-using TabularColumn = Microsoft.AnalysisServices.Tabular.Column;
-using System.Threading;
-using Dax.Template.Constants;
-using Dax.Template.Exceptions;
 
 namespace Dax.Template.Tables
 {
@@ -50,8 +50,8 @@ namespace Dax.Template.Tables
         {
             // if (!string.IsNullOrEmpty(language.Table.Name)) tabularTable.Name = language.Table.Name;
             if (!string.IsNullOrEmpty(language.Table?.Description)) tabularTable.Description = language.Table.Description;
-            
-            foreach(var column in tabularTable.Columns)
+
+            foreach (var column in tabularTable.Columns)
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 var columnTranslation = language.Columns.FirstOrDefault(c => c.OriginalName == column.Name);
@@ -84,7 +84,7 @@ namespace Dax.Template.Tables
                     hierarchy.Name = hierarchyTranslation.Name;
                     if (hierarchyTranslation.Description != null) hierarchy.Description = hierarchyTranslation.Description;
                     if (hierarchyTranslation.DisplayFolders != null) hierarchy.DisplayFolder = hierarchyTranslation.DisplayFolders;
-                    foreach(var level in hierarchy.Levels)
+                    foreach (var level in hierarchy.Levels)
                     {
                         cancellationToken.ThrowIfCancellationRequested();
                         var levelTranslation = hierarchyTranslation.Levels.FirstOrDefault(l => l.OriginalName == level.Name);
@@ -118,7 +118,7 @@ namespace Dax.Template.Tables
             }
 
             // Apply required translations
-            Translation.GetTranslations().Where(t => Translation.ApplyAllIso || Translation.ApplyIso.Contains(t.Iso)).ToList().ForEach(t => 
+            Translation.GetTranslations().Where(t => Translation.ApplyAllIso || Translation.ApplyIso.Contains(t.Iso)).ToList().ForEach(t =>
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 AddTranslation(tabularTable, t);
@@ -187,8 +187,8 @@ namespace Dax.Template.Tables
                          (from r in tabularTable.Model.Relationships
                           where r is SingleColumnRelationship
                           select r)
-                    where relationship.ToTable.Name == tabularTable.Name 
-                       && IsRelationshipToSaveAndRestore( relationship )
+                    where relationship.ToTable.Name == tabularTable.Name
+                       && IsRelationshipToSaveAndRestore(relationship)
                     select (relationship, relationship.ToColumn.Name, relationship.ToColumn.IsKey);
                 FixRelationshipsFrom =
                     from SingleColumnRelationship relationship in
@@ -239,7 +239,7 @@ namespace Dax.Template.Tables
                     catch (Exception ex)
                     {
                         // TODO: remove try/catch after the issue has been closes https://github.com/sql-bi/DaxTemplate/issues/10
-                        throw new TemplateUnexpectedException($" *** PLEASE REPORT THIS ISSUE ON GITHUB *** { ex.Message }", ex);
+                        throw new TemplateUnexpectedException($" *** PLEASE REPORT THIS ISSUE ON GITHUB *** {ex.Message}", ex);
                     }
                 }
                 return column;
@@ -251,7 +251,7 @@ namespace Dax.Template.Tables
             return $"[{column.Name}]";
         }
 
-        protected virtual string? GetDefaultFormatString( Column column, Microsoft.AnalysisServices.Tabular.Model model )  
+        protected virtual string? GetDefaultFormatString(Column column, Microsoft.AnalysisServices.Tabular.Model model)
         {
             return null;
         }
@@ -264,7 +264,7 @@ namespace Dax.Template.Tables
             try
             {
                 // Add the columns
-                foreach (var column in Columns.Where(c=>!c.IsTemporary))
+                foreach (var column in Columns.Where(c => !c.IsTemporary))
                 {
                     cancellationToken.ThrowIfCancellationRequested();
                     column.TabularColumn = new CalculatedTableColumn
@@ -297,7 +297,7 @@ namespace Dax.Template.Tables
                         );
                     }
 
-                    foreach (var annotation in column.Annotations )
+                    foreach (var annotation in column.Annotations)
                     {
                         column.TabularColumn.Annotations.Add(
                             new Annotation
@@ -307,7 +307,7 @@ namespace Dax.Template.Tables
                             }
                         );
                     }
-                    
+
                     dateTable.Columns.Add(column.TabularColumn);
                 }
 
@@ -323,7 +323,7 @@ namespace Dax.Template.Tables
             finally
             {
                 // Restore existing columns
-                existingColumns.ForEach(c => 
+                existingColumns.ForEach(c =>
                     {
                         TabularColumn? existingColumn;
                         while ((existingColumn = dateTable.Columns.FirstOrDefault(existingColumn => existingColumn.Name == c.Name)) != null)

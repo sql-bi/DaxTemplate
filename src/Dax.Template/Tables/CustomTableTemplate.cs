@@ -1,16 +1,16 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using Microsoft.AnalysisServices.Tabular;
-using TabularModel = Microsoft.AnalysisServices.Tabular.Model;
+﻿using Dax.Template.Exceptions;
+using Dax.Template.Extensions;
+using Dax.Template.Interfaces;
 using Dax.Template.Syntax;
+using Microsoft.AnalysisServices.Tabular;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using AttributeType = Microsoft.AnalysisServices.AttributeType;
 using Column = Dax.Template.Model.Column;
 using Hierarchy = Dax.Template.Model.Hierarchy;
 using Level = Dax.Template.Model.Level;
-using Dax.Template.Extensions;
-using Dax.Template.Exceptions;
-using AttributeType = Microsoft.AnalysisServices.AttributeType;
-using Dax.Template.Interfaces;
+using TabularModel = Microsoft.AnalysisServices.Tabular.Model;
 
 namespace Dax.Template.Tables
 {
@@ -21,7 +21,7 @@ namespace Dax.Template.Tables
     /// of the content, most of the errors are usually in the DAX definition
     /// </summary>
     public class CustomTableTemplate<T> : ReferenceCalculatedTable where T : ICustomTableConfig
-    {        
+    {
         protected class FormatPrefix
         {
             private readonly string _name;
@@ -30,14 +30,14 @@ namespace Dax.Template.Tables
             public FormatPrefix(string name)
             {
                 _name = name;
-                _prefixSearch = $"@_{name}_@"; 
+                _prefixSearch = $"@_{name}_@";
                 _prefixFormat = string.Concat(from c in Name select @"\" + c);
             }
             public string Name => _name;
-            public string PrefixSearch => _prefixSearch;        
+            public string PrefixSearch => _prefixSearch;
             public string PrefixFormat => _prefixFormat;
         }
-        protected static string? ReplacePrefixes( string? expression, List<FormatPrefix> prefixes )
+        protected static string? ReplacePrefixes(string? expression, List<FormatPrefix> prefixes)
         {
             if (expression == null) return expression;
             prefixes.ForEach(prefix =>
@@ -64,7 +64,7 @@ namespace Dax.Template.Tables
         /// <param name="template"></param>
         /// <param name="model"></param>
         public CustomTableTemplate(T config, CustomTemplateDefinition template, TabularModel? model)
-            : this( config, template, null, model)
+            : this(config, template, null, model)
         {
         }
 
@@ -92,7 +92,7 @@ namespace Dax.Template.Tables
             UpdateDefaultVariables(globalVariables.Where(v => v.IsConfigurable), config.DefaultVariables);
 
             List<VarRow> rowVariables = GetRowVariables(template, Prefixes);
-            
+
             GetColumns(template, Prefixes, steps, skipColumn);
             GetHierarchies(template);
             GetAnnotations(template);
@@ -109,7 +109,7 @@ namespace Dax.Template.Tables
 
         private static void UpdateDefaultVariables(IEnumerable<VarGlobal> globalVariables, Dictionary<string, string> defaultVariables)
         {
-            foreach( var setting in defaultVariables )
+            foreach (var setting in defaultVariables)
             {
                 var globalVariable = globalVariables.FirstOrDefault(v => v.Name == setting.Key);
                 if (globalVariable == null)
@@ -146,7 +146,7 @@ namespace Dax.Template.Tables
         }
 
         private void GetAnnotations(CustomTemplateDefinition template)
-        { 
+        {
             template.Annotations.ToList().ForEach(annotation =>
             {
                 Annotations.Add(annotation.Key, annotation.Value);
@@ -159,7 +159,7 @@ namespace Dax.Template.Tables
         /// <param name="name">Column name</param>
         /// <param name="dataType">Column data type</param>
         /// <returns></returns>
-        protected virtual Column CreateColumn( string name, DataType dataType)
+        protected virtual Column CreateColumn(string name, DataType dataType)
         {
             return new Column()
             {
@@ -167,7 +167,7 @@ namespace Dax.Template.Tables
                 DataType = dataType
             };
         }
-        protected virtual void GetColumns(CustomTemplateDefinition template, List<FormatPrefix> Prefixes, List<DaxStep> steps, Predicate<CustomTemplateDefinition.Column> skipColumn ) // bool hasHolidays)
+        protected virtual void GetColumns(CustomTemplateDefinition template, List<FormatPrefix> Prefixes, List<DaxStep> steps, Predicate<CustomTemplateDefinition.Column> skipColumn) // bool hasHolidays)
         {
             template.Columns.ToList().ForEach(columnDefinition =>
             {
@@ -197,7 +197,7 @@ namespace Dax.Template.Tables
 
                 column.Expression = expression;
                 column.Comments = columnDefinition.GetComments();
-                column.FormatString = ReplacePrefixes(columnDefinition.FormatString, Prefixes); 
+                column.FormatString = ReplacePrefixes(columnDefinition.FormatString, Prefixes);
                 column.Dependencies = columnDependencies;
                 column.IsTemporary = columnDefinition.IsTemporary;
                 column.IsHidden = columnDefinition.IsHidden;

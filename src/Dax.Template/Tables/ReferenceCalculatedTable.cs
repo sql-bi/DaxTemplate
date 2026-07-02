@@ -5,14 +5,16 @@ namespace Dax.Template.Tables
 {
     public abstract class ReferenceCalculatedTable : CalculatedTableTemplateBase
     {
-        public string? HiddenTable { get; init; } 
+        public string? HiddenTable { get; init; }
 
         public override string? GetDaxTableExpression(Microsoft.AnalysisServices.Tabular.Model? model, CancellationToken cancellationToken = default)
         {
             return QuotedHiddenTable ?? base.GetDaxTableExpression(model, cancellationToken);
         }
 
-        private string? QuotedHiddenTable { get
+        private string? QuotedHiddenTable
+        {
+            get
             {
                 // TODO: there could be a bug in TOM or SSAS because when we use a quoted identifier
                 //       in Source Column, the column is considered "invalid" if we try to deploy a change 

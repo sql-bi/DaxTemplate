@@ -1,16 +1,16 @@
-﻿using System.Collections;
+﻿using Dax.Template.Exceptions;
+using Dax.Template.Extensions;
+using Microsoft.AnalysisServices.AdomdClient;
+using Microsoft.AnalysisServices.Tabular;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using Microsoft.AnalysisServices.Tabular;
-using Microsoft.AnalysisServices.AdomdClient;
-using TabularModel = Microsoft.AnalysisServices.Tabular.Model;
-using TabularColumn = Microsoft.AnalysisServices.Tabular.Column;
-using TabularMeasure = Microsoft.AnalysisServices.Tabular.Measure;
-using TabularHierarchy = Microsoft.AnalysisServices.Tabular.Hierarchy;
 using System.Threading;
-using Dax.Template.Exceptions;
-using Dax.Template.Extensions;
+using TabularColumn = Microsoft.AnalysisServices.Tabular.Column;
+using TabularHierarchy = Microsoft.AnalysisServices.Tabular.Hierarchy;
+using TabularMeasure = Microsoft.AnalysisServices.Tabular.Measure;
+using TabularModel = Microsoft.AnalysisServices.Tabular.Model;
 
 namespace Dax.Template.Model
 {
@@ -150,7 +150,7 @@ namespace Dax.Template.Model
         internal void SimplifyRemovedObjects(CancellationToken cancellationToken = default)
         {
             var removedObjects = RemovedObjects.ToArray();
-            foreach( var tableChanges in removedObjects )
+            foreach (var tableChanges in removedObjects)
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
@@ -167,7 +167,7 @@ namespace Dax.Template.Model
                 }
             }
 
-            void ClearModifiedItems<T>(ICollection<T> removedItems, ICollection<T> modifiedItems) where T: ItemChanges
+            void ClearModifiedItems<T>(ICollection<T> removedItems, ICollection<T> modifiedItems) where T : ItemChanges
             {
                 var notRemovedItems = removedItems
                     .ToArray()
@@ -190,7 +190,7 @@ namespace Dax.Template.Model
                 var internalTableNames = previewQueryTables.Select(qt => qt.tableName);
                 var tableDefinitions =
                     from qt in previewQueryTables
-                    select $"TABLE '{PREVIEW_PREFIX}{qt.tableName}' =\r\n{AddInnerVar(qt.innerTables)}{RenameTableReferences(qt.expression, internalTableNames.Union(qt.innerTables.Select(t=>t.tableName)).ToArray())}";
+                    select $"TABLE '{PREVIEW_PREFIX}{qt.tableName}' =\r\n{AddInnerVar(qt.innerTables)}{RenameTableReferences(qt.expression, internalTableNames.Union(qt.innerTables.Select(t => t.tableName)).ToArray())}";
 
                 queryTablesDefinition =
                     $"DEFINE\r\n{string.Join("\r\n", tableDefinitions)}";
@@ -231,7 +231,7 @@ namespace Dax.Template.Model
                 }
 
                 if (varName != tableName)
-                    varName += $"{ index }"; // if value is changed add unique index to ensure uniqueness 
+                    varName += $"{index}"; // if value is changed add unique index to ensure uniqueness 
 
                 return varName;
             }
@@ -267,7 +267,7 @@ namespace Dax.Template.Model
             while (reader.Read())
             {
                 Dictionary<string, object> record = new();
-                for( int i = 0; i < reader.FieldCount; i++)
+                for (int i = 0; i < reader.FieldCount; i++)
                 {
                     record.Add(CleanupColumnName(reader.GetName(i)), reader[i]);
                 }
@@ -289,7 +289,7 @@ namespace Dax.Template.Model
         [ExcludeFromCodeCoverage]
         public void PopulatePreview(AdomdConnection connection, TabularModel model, int previewRows = 5, CancellationToken cancellationToken = default)
         {
-            foreach( var tableChanges in ModifiedObjects )
+            foreach (var tableChanges in ModifiedObjects)
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
@@ -307,7 +307,7 @@ namespace Dax.Template.Model
                 // Search dependencies on other modified tables
                 var referencedTables =
                     from t in ModifiedObjects
-                    where t != tableChanges 
+                    where t != tableChanges
                        && tableExpression.Contains($"'{t.Name}'")
                        && t.Columns.Any() // Ignore calculated tables without columns modified by the template
                     select t;
@@ -329,14 +329,14 @@ namespace Dax.Template.Model
 
                         var innerTables =
                             from t in ModifiedObjects
-                            where t != tableChanges 
+                            where t != tableChanges
                                 && t != referencedTable
                                 && referenceTableExpression.Contains($"'{t.Name}'")
                                 && t.Columns.Any() // Ignore calculated tables without columns modified by the template
                             select t;
 
                         List<(string tableName, string expression)> innerQueryTables = new();
-                        foreach (var innerTable in innerTables )
+                        foreach (var innerTable in innerTables)
                         {
                             cancellationToken.ThrowIfCancellationRequested();
 
@@ -346,11 +346,11 @@ namespace Dax.Template.Model
                             if (innerReferenceTableExpression == null) continue;
                             // Skip table if it is already in query tables
                             if (innerQueryTables.Any(t => t.tableName == innerTable.Name)) continue;
-                            innerQueryTables.Add( (tableName: innerTable.Name, expression: innerReferenceTableExpression) );
+                            innerQueryTables.Add((tableName: innerTable.Name, expression: innerReferenceTableExpression));
                         }
 
                         // Add the table to the query tables for preview
-                        previewQueryTables.Add( (tableName: referencedTable.Name, expression: referenceTableExpression, innerTables: innerQueryTables) );
+                        previewQueryTables.Add((tableName: referencedTable.Name, expression: referenceTableExpression, innerTables: innerQueryTables));
                     }
                 }
 
@@ -373,7 +373,7 @@ namespace Dax.Template.Model
                         var escapedFormatString = calcColumn.FormatString.Replace("\"", "\"\"");
                         columnExpression = $"FORMAT( {sourceColumn}, \"{escapedFormatString}\" )";
                     }
-                    
+
                     string result = $"\"{column.Name}\", {columnExpression}";
                     return result;
                 }));
