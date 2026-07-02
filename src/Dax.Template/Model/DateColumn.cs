@@ -1,6 +1,5 @@
-﻿namespace Dax.Template.Model
+﻿namespace Dax.Template.Model;
+
+public class DateColumn : Column
 {
-    public class DateColumn : Column
-    {
-    }
 }
