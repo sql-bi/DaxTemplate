@@ -6,19 +6,19 @@ using System.Threading;
 using Column = Dax.Template.Model.Column;
 using TabularModel = Microsoft.AnalysisServices.Tabular.Model;
 
-namespace Dax.Template.Tables.Dates
+namespace Dax.Template.Tables.Dates;
+
+public class HolidaysTable : BaseDateTemplate<IHolidaysConfig> // CalculatedTableTemplateBase
 {
-    public class HolidaysTable : BaseDateTemplate<IHolidaysConfig> // CalculatedTableTemplateBase
+    private readonly DaxStep __HolidaysTable;
+    public HolidaysTable(IHolidaysConfig config) : base(config)
     {
-        private readonly DaxStep __HolidaysTable;
-        public HolidaysTable(IHolidaysConfig config) : base(config)
+        Annotations.Add(Attributes.SQLBI_TEMPLATE_ATTRIBUTE, Attributes.SQLBI_TEMPLATE_HOLIDAYS);
+        Annotations.Add(Attributes.SQLBI_TEMPLATETABLE_ATTRIBUTE, Attributes.SQLBI_TEMPLATETABLE_HOLIDAYS);
+        __HolidaysTable = new()
         {
-            Annotations.Add(Attributes.SQLBI_TEMPLATE_ATTRIBUTE, Attributes.SQLBI_TEMPLATE_HOLIDAYS);
-            Annotations.Add(Attributes.SQLBI_TEMPLATETABLE_ATTRIBUTE, Attributes.SQLBI_TEMPLATETABLE_HOLIDAYS);
-            __HolidaysTable = new()
-            {
-                Name = "__HolidayParameters",
-                Expression = $@"
+            Name = "__HolidayParameters",
+            Expression = $@"
 -- 
 --    Configuration
 -- 
@@ -345,24 +345,23 @@ VAR __GeneratedValidDates =
     FILTER ( __Generated, [Holiday Date] > 2 )
 RETURN
     __GeneratedValidDates"
-            };
+        };
 
-            Column[] columns = {
-                new Column {
+        Column[] columns = [
+            new() {
                     Name = "Holiday Date",
                     DataType = DataType.DateTime
                 },
-                new Column {
+                new() {
                     Name = "Holiday Name",
                     DataType = DataType.String
                 }
-            };
-            Columns.AddRange(columns);
-        }
+        ];
+        Columns.AddRange(columns);
+    }
 
-        public override string? GetDaxTableExpression(TabularModel? model, CancellationToken cancellationToken = default)
-        {
-            return ProcessDaxExpression(__HolidaysTable.Expression, string.Empty, model, cancellationToken);
-        }
+    public override string? GetDaxTableExpression(TabularModel? model, CancellationToken cancellationToken = default)
+    {
+        return ProcessDaxExpression(__HolidaysTable.Expression, string.Empty, model, cancellationToken);
     }
 }
