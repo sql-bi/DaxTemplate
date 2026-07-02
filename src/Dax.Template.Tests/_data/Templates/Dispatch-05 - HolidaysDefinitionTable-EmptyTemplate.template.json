@@ -1,0 +1,6 @@
+{
+  "Description": "Dispatch characterization: HolidaysDefinitionTable with an empty Template",
+  "Templates": [
+    { "Class": "HolidaysDefinitionTable", "Table": "HolidaysDefinition", "Template": "" }
+  ]
+}

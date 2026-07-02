@@ -1,0 +1,6 @@
+{
+  "Description": "Dispatch characterization: a disabled CustomDateTable entry is a no-op (Table/Template are still required)",
+  "Templates": [
+    { "Class": "CustomDateTable", "Table": "Date", "Template": "DateTemplate-01.json", "IsEnabled": false }
+  ]
+}

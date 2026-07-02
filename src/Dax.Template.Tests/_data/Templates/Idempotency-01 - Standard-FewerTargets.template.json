@@ -1,0 +1,23 @@
+{
+  "Description": "Idempotency characterization: re-apply Config-01's MeasuresTemplate with fewer TargetMeasures to exercise SQLBI_Template orphan cleanup",
+  "Templates": [
+    {
+      "Class": "MeasuresTemplate",
+      "Table": null,
+      "Template": "TimeIntelligence-01.json",
+      "Properties": {
+        "DisplayFolderRule": "Time intelligence\\@_TEMPLATEFOLDER_@\\@_MEASUREFOLDER_@\\@_MEASURE_@",
+        "DisplayFolderRuleSingleInstanceMeasures": "Hidden Time Intelligence"
+      }
+    }
+  ],
+  "AutoNaming": "Prefix",
+  "TableSingleInstanceMeasures": "Sales",
+  "OnlyTablesColumns": [ "Sales", "Orders" ],
+  "ExceptTablesColumns": [],
+  "AutoScan": "Full",
+  "TargetMeasures": [
+    { "Name": "Sales Amount" },
+    { "Name": "Total Cost" }
+  ]
+}

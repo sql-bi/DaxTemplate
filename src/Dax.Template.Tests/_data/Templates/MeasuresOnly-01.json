@@ -1,0 +1,21 @@
+{
+  "_comment": "Minimal measures template used to characterize a measures-only Engine config (no date table)",
+  "TargetTable": {
+    "Name": "Sales"
+  },
+  "TemplateAnnotations": {
+    "SQLBI_Template": "SimpleWrapper"
+  },
+  "MeasureTemplates": [
+    {
+      "Name": "Rounded",
+      "DisplayFolder": "Rounded",
+      "Expression": "ROUND ( @@GETMEASURE(), 0 )"
+    },
+    {
+      "Name": "Abs",
+      "DisplayFolder": "Abs",
+      "Expression": "ABS ( @@GETMEASURE() )"
+    }
+  ]
+}

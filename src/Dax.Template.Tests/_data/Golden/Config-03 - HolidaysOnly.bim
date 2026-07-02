@@ -1,0 +1,268 @@
+{
+  "name": "OfflineFixture",
+  "compatibilityLevel": 1600,
+  "model": {
+    "tables": [
+      {
+        "name": "Sales",
+        "columns": [
+          {
+            "name": "Order Date",
+            "dataType": "dateTime",
+            "sourceColumn": "Order Date"
+          },
+          {
+            "name": "Quantity",
+            "dataType": "int64",
+            "sourceColumn": "Quantity"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Sales",
+            "source": {
+              "type": "calculated",
+              "expression": "{ (DATE(2020,1,1), 1) }"
+            }
+          }
+        ],
+        "measures": [
+          {
+            "name": "Sales Amount",
+            "expression": "SUM(Sales[Quantity])"
+          },
+          {
+            "name": "Total Cost",
+            "expression": "SUM(Sales[Quantity])"
+          },
+          {
+            "name": "Margin",
+            "expression": "[Sales Amount] - [Total Cost]"
+          },
+          {
+            "name": "Margin %",
+            "expression": "DIVIDE([Margin], [Sales Amount])"
+          }
+        ]
+      },
+      {
+        "name": "Orders",
+        "columns": [
+          {
+            "name": "Delivery Date",
+            "dataType": "dateTime",
+            "sourceColumn": "Delivery Date"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Orders",
+            "source": {
+              "type": "calculated",
+              "expression": "{ (DATE(2020,1,1)) }"
+            }
+          }
+        ]
+      },
+      {
+        "name": "HolidaysDefinition",
+        "isHidden": true,
+        "lineageTag": "",
+        "columns": [
+          {
+            "type": "calculatedTableColumn",
+            "name": "ISO Country",
+            "dataType": "string",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "sourceColumn": "[ISO Country]",
+            "lineageTag": "",
+            "summarizeBy": "none"
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "MonthNumber",
+            "dataType": "int64",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "sourceColumn": "[MonthNumber]",
+            "lineageTag": "",
+            "summarizeBy": "none"
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "DayNumber",
+            "dataType": "int64",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "sourceColumn": "[DayNumber]",
+            "lineageTag": "",
+            "summarizeBy": "none"
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "WeekDayNumber",
+            "dataType": "int64",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "sourceColumn": "[WeekDayNumber]",
+            "lineageTag": "",
+            "summarizeBy": "none"
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "OffsetWeek",
+            "dataType": "int64",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "sourceColumn": "[OffsetWeek]",
+            "lineageTag": "",
+            "summarizeBy": "none"
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "OffsetDays",
+            "dataType": "int64",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "sourceColumn": "[OffsetDays]",
+            "lineageTag": "",
+            "summarizeBy": "none"
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "HolidayName",
+            "dataType": "string",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "sourceColumn": "[HolidayName]",
+            "lineageTag": "",
+            "summarizeBy": "none"
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "SubstituteHoliday",
+            "dataType": "int64",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "sourceColumn": "[SubstituteHoliday]",
+            "lineageTag": "",
+            "summarizeBy": "none"
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "ConflictPriority",
+            "dataType": "int64",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "sourceColumn": "[ConflictPriority]",
+            "lineageTag": "",
+            "summarizeBy": "none"
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "FirstYear",
+            "dataType": "int64",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "sourceColumn": "[FirstYear]",
+            "lineageTag": "",
+            "summarizeBy": "none"
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "LastYear",
+            "dataType": "int64",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "sourceColumn": "[LastYear]",
+            "lineageTag": "",
+            "summarizeBy": "none"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "HolidaysDefinition",
+            "mode": "import",
+            "source": {
+              "type": "calculated",
+              "expression": "\r\nDATATABLE (\r\n    \"ISO Country\", STRING,        -- ISO country code(to enable filter based on country)\r\n    \"MonthNumber\", INTEGER,       -- Number of month - use 99,98,97,96 for relative dates using an offset over special references:\r\n                                  --     99 = Easter (DayNumber 1 = Easter Monday, DayNumber -2 = Easter Friday)\r\n                                  --     98 = Swedish Midsummer Day \r\n                                  --     97 = September Equinox\r\n                                  --     96 = March Equinox\r\n    \"DayNumber\", INTEGER,         -- Absolute day(ignore WeekDayNumber, otherwise use 0)\r\n    \"WeekDayNumber\", INTEGER,     -- 0 = Sunday, 1 = Monday, ... , 7 = Saturday\r\n    \"OffsetWeek\", INTEGER,        -- 1 = first, 2 = second, ... -1 = last, -2 = second - last, ...\r\n    \"OffsetDays\", INTEGER,        -- days to add after offsetWeek and WeekDayNumber have been applied\r\n    \"HolidayName\", STRING,        -- Holiday name\r\n    \"SubstituteHoliday\", INTEGER, -- 0 = no substituteHoliday, 1 = substitute holiday with next working day, 2 = substitute holiday with next working day\r\n                                  -- (use 2 before 1 only, e.g.Christmas = 2, Boxing Day = 1)\r\n                                  -- -1 = if it falls on a Saturday then it is observed on Friday, if it falls on a Sunday then it is observed on Monday\r\n    \"ConflictPriority\", INTEGER,  -- Priority in case of two or more holidays in the same date - lower number-- > higher priority\r\n                                  -- For example: marking Easter relative days with 150 and other holidays with 100 means that other holidays take\r\n                                  --              precedence over Easter - related days; use 50 for Easter related holidays to invert such a priority\r\n    \"FirstYear\", INTEGER,         -- First year for the holiday, 0 if it is not defined\r\n    \"LastYear\", INTEGER,          -- Last year for the holiday, 0 if it is not defined\r\n    {\r\n        { \"US\", 1, 1, 0, 0, 0, \"New Year's Day\", 0, 100, 0, 0 },\r\n        { \"US\", 1, 0, 1, 3, 0, \"Martin Luther King, Jr.\", 0, 100, 0, 0 },\r\n        { \"US\", 2, 0, 1, 3, 0, \"Presidents' Day\", 0, 100, 0, 0 },\r\n        { \"US\", 5, 0, 1, -1, 0, \"Memorial Day\", 0, 100, 0, 0 },\r\n        { \"US\", 6, 19, 0, 0, 0, \"Juneteenth\", -1, 100, 2021, 0 },\r\n        { \"US\", 7, 4, 0, 0, 0, \"Independence Day\", 0, 100, 0, 0 },\r\n        { \"US\", 9, 0, 1, 1, 0, \"Labor Day\", 0, 100, 0, 0 },\r\n        { \"US\", 10, 0, 1, 2, 0, \"Columbus Day\", 0, 100, 0, 0 },\r\n        { \"US\", 11, 11, 0, 0, 0, \"Veterans Day\", 0, 100, 0, 0 },\r\n        { \"US\", 11, 0, 4, 4, 0, \"Thanksgiving Day\", 0, 100, 0, 0 },\r\n        { \"US\", 11, 0, 4, 4, 1, \"Black Friday\", 0, 100, 0, 0 },\r\n        { \"US\", 12, 25, 0, 0, 0, \"Christmas Day\", -1, 100, 0, 0 },\r\n        { \"AT\", 1, 1, 0, 0, 0, \"New Year's Day\", 0, 100, 0, 0 },\r\n        { \"AT\", 1, 6, 0, 0, 0, \"Epiphany\", 0, 100, 0, 0 },\r\n        { \"AT\", 99, 1, 0, 0, 0, \"Easter Monday\", 0, 50, 0, 0 },\r\n        { \"AT\", 5, 1, 0, 0, 0, \"Labour Day\", 0, 100, 0, 0 },\r\n        { \"AT\", 99, 39, 0, 0, 0, \"Ascension Day\", 0, 50, 0, 0 },\r\n        { \"AT\", 99, 50, 0, 0, 0, \"Whit Monday\", 0, 50, 0, 0 },\r\n        { \"AT\", 99, 60, 0, 0, 0, \"Corpus Christi\", 0, 50, 0, 0 },\r\n        { \"AT\", 8, 15, 0, 0, 0, \"Assumption Day\", 0, 100, 0, 0 },\r\n        { \"AT\", 10, 26, 0, 0, 0, \"National Day\", 0, 100, 0, 0 },\r\n        { \"AT\", 11, 1, 0, 0, 0, \"All Saints' Day\", 0, 100, 0, 0 },\r\n        { \"AT\", 12, 8, 0, 0, 0, \"Immaculate Conception Day\", 0, 100, 0, 0 },\r\n        { \"AT\", 12, 25, 0, 0, 0, \"Christmas Day\", 0, 100, 0, 0 },\r\n        { \"AT\", 12, 26, 0, 0, 0, \"St. Stephen's Day\", 0, 100, 0, 0 },\r\n        { \"AU\", 1, 1, 0, 0, 0, \"New Year's Day\", 1, 100, 0, 0 },\r\n        { \"AU\", 1, 26, 0, 0, 0, \"Australia Day\", 1, 100, 0, 0 },\r\n        { \"AU\", 99, -1, 0, 0, 0, \"Good Friday\", 0, 50, 0, 0 },\r\n        { \"AU\", 99, 1, 0, 0, 0, \"Easter Monday\", 0, 50, 0, 0 },\r\n        { \"AU\", 4, 25, 0, 0, 0, \"Anzac Day\", 1, 100, 0, 0 },\r\n        { \"AU\", 12, 25, 0, 0, 0, \"Christmas Day\", 2, 100, 0, 0 },\r\n        { \"AU\", 12, 26, 0, 0, 0, \"Boxing Day\", 1, 100, 0, 0 },\r\n        { \"BE\", 1, 1, 0, 0, 0, \"New Year's Day\", 0, 100, 0, 0 },\r\n        { \"BE\", 99, 1, 0, 0, 0, \"Easter Monday\", 0, 50, 0, 0 },\r\n        { \"BE\", 99, 39, 0, 0, 0, \"Ascension Day\", 0, 50, 0, 0 },\r\n        { \"BE\", 99, 50, 0, 0, 0, \"Whit Monday\", 0, 50, 0, 0 },\r\n        { \"BE\", 5, 1, 0, 0, 0, \"Labour Day\", 0, 100, 0, 0 },\r\n        { \"BE\", 7, 21, 0, 0, 0, \"Belgian National Day\", 0, 100, 0, 0 },\r\n        { \"BE\", 8, 15, 0, 0, 0, \"Assumption Day\", 0, 100, 0, 0 },\r\n        { \"BE\", 11, 1, 0, 0, 0, \"All Saints' Day\", 0, 100, 0, 0 },\r\n        { \"BE\", 11, 11, 0, 0, 0, \"Armistice Day\", 0, 100, 0, 0 },\r\n        { \"BE\", 12, 25, 0, 0, 0, \"Christmas Day\", 0, 100, 0, 0 },\r\n        { \"CA\", 1, 1, 0, 0, 0, \"New Year's Day\", 0, 100, 0, 0 },\r\n        { \"CA\", 99, -2, 0, 0, 0, \"Good Friday\", 0, 50, 0, 0 },\r\n        { \"CA\", 7, 1, 0, 0, 0, \"Canada Day\", 0, 50, 0, 0 },\r\n        { \"CA\", 9, 0, 1, 1, 0, \"Labour Day\", 0, 100, 0, 0 },\r\n        { \"CA\", 10, 0, 1, 2, 0, \"Thanksgiving\", 0, 100, 0, 0 },\r\n        { \"CA\", 12, 25, 0, 0, 0, \"Christmas Day\", 0, 100, 0, 0 },\r\n        { \"DE\", 1, 1, 0, 0, 0, \"New Year's Day\", 0, 100, 0, 0 },\r\n        { \"DE\", 99, -2, 0, 0, 0, \"Good Friday\", 0, 50, 0, 0 },\r\n        { \"DE\", 99, 1, 0, 0, 0, \"Easter Monday\", 0, 50, 0, 0 },\r\n        { \"DE\", 5, 1, 0, 0, 0, \"Labour Day\", 0, 100, 0, 0 },\r\n        { \"DE\", 99, 39, 0, 0, 0, \"Ascension Day\", 0, 50, 0, 0 },\r\n        { \"DE\", 99, 50, 0, 0, 0, \"Whit Monday\", 0, 50, 0, 0 },\r\n        { \"DE\", 10, 3, 0, 0, 0, \"German Unity Day\", 0, 100, 0, 0 },\r\n        { \"DE\", 12, 25, 0, 0, 0, \"Christmas Day\", 0, 100, 0, 0 },\r\n        { \"DE\", 12, 26, 0, 0, 0, \"St. Stephen's Day\", 0, 100, 0, 0 },\r\n        { \"ES\", 1, 1, 0, 0, 0, \"New Year's Day\", 0, 100, 0, 0 },\r\n        { \"ES\", 1, 6, 0, 0, 0, \"Epiphany\", 0, 100, 0, 0 },\r\n        { \"ES\", 99, -3, 0, 0, 0, \"Maundy Thursday\", 0, 50, 0, 0 },\r\n        { \"ES\", 99, -2, 0, 0, 0, \"Good Friday\", 0, 50, 0, 0 },\r\n        { \"ES\", 99, 1, 0, 0, 0, \"Easter Monday\", 0, 50, 0, 0 },\r\n        { \"ES\", 5, 1, 0, 0, 0, \"Labour Day\", 0, 100, 0, 0 },\r\n        { \"ES\", 8, 15, 0, 0, 0, \"Assumption Day\", 0, 100, 0, 0 },\r\n        { \"ES\", 10, 12, 0, 0, 0, \"Fiesta Navional de España\", 0, 100, 0, 0 },\r\n        { \"ES\", 11, 1, 0, 0, 0, \"All Saints' Day\", 0, 100, 0, 0 },\r\n        { \"ES\", 12, 6, 0, 0, 0, \"Constitution Day\", 0, 100, 0, 0 },\r\n        { \"ES\", 12, 8, 0, 0, 0, \"Immaculate Conception\", 0, 100, 0, 0 },\r\n        { \"ES\", 12, 25, 0, 0, 0, \"Christmas Day\", 0, 100, 0, 0 },\r\n        { \"FR\", 1, 1, 0, 0, 0, \"New Year's Day\", 0, 100, 0, 0 },\r\n        { \"FR\", 99, 1, 0, 0, 0, \"Easter Monday\", 0, 50, 0, 0 },\r\n        { \"FR\", 5, 1, 0, 0, 0, \"Labour Day\", 0, 100, 0, 0 },\r\n        { \"FR\", 5, 8, 0, 0, 0, \"Victor in Europe Day\", 0, 100, 0, 0 },\r\n        { \"FR\", 99, 39, 0, 0, 0, \"Ascension Day\", 0, 50, 0, 0 },\r\n        { \"FR\", 99, 50, 0, 0, 0, \"Whit Monday\", 0, 50, 0, 0 },\r\n        { \"FR\", 7, 14, 0, 0, 0, \"Bastille Day\", 0, 100, 0, 0 },\r\n        { \"FR\", 8, 15, 0, 0, 0, \"Assumption Day\", 0, 100, 0, 0 },\r\n        { \"FR\", 11, 1, 0, 0, 0, \"All Saints' Day\", 0, 100, 0, 0 },\r\n        { \"FR\", 11, 11, 0, 0, 0, \"Armistice Day\", 0, 100, 0, 0 },\r\n        { \"FR\", 12, 25, 0, 0, 0, \"Christmas Day\", 0, 100, 0, 0 },\r\n        { \"GB\", 1, 1, 0, 0, 0, \"New Year's Day\", 1, 100, 0, 0 },\r\n        { \"GB\", 99, -2, 0, 0, 0, \"Good Friday\", 0, 50, 0, 0 },\r\n        { \"GB\", 99, 1, 0, 0, 0, \"Easter Monday\", 0, 50, 0, 0 },\r\n        { \"GB\", 5, 0, 1, 1, 0, \"May Day Bank Holiday\", 0, 100, 0, 0 },\r\n        { \"GB\", 5, 0, 1, -1, 0, \"Spring Bank Holiday\", 0, 100, 0, 0 },\r\n        { \"GB\", 8, 0, 1, -1, 0, \"Late Summer Bank Holiday\", 0, 100, 0, 0 },\r\n        { \"GB\", 12, 25, 0, 0, 0, \"Christmas Day\", 2, 100, 0, 0 },\r\n        { \"GB\", 12, 26, 0, 0, 0, \"Boxing Day\", 1, 100, 0, 0 },\r\n        { \"IT\", 1, 1, 0, 0, 0, \"New Year's Day\", 0, 100, 0, 0 },\r\n        { \"IT\", 1, 6, 0, 0, 0, \"Epiphany\", 0, 100, 0, 0 },\r\n        { \"IT\", 99, 1, 0, 0, 0, \"Easter Monday\", 0, 100, 0, 0 },\r\n        { \"IT\", 4, 25, 0, 0, 0, \"Liberation Day\", 0, 100, 0, 0 },\r\n        { \"IT\", 5, 1, 0, 0, 0, \"Labour Day\", 0, 100, 0, 0 },\r\n        { \"IT\", 6, 2, 0, 0, 0, \"Republic Day\", 0, 100, 0, 0 },\r\n        { \"IT\", 8, 15, 0, 0, 0, \"Assumption Day\", 0, 100, 0, 0 },\r\n        { \"IT\", 11, 1, 0, 0, 0, \"All Saints' Day\", 0, 100, 0, 0 },\r\n        { \"IT\", 12, 8, 0, 0, 0, \"Immaculate Conception\", 0, 100, 0, 0 },\r\n        { \"IT\", 12, 25, 0, 0, 0, \"Christmas Day\", 0, 100, 0, 0 },\r\n        { \"IT\", 12, 26, 0, 0, 0, \"St. Stephen's Day\", 0, 100, 0, 0 },\r\n        { \"NL\", 1, 1, 0, 0, 0, \"New Year's Day\", 0, 100, 0, 0 },\r\n        { \"NL\", 99, 1, 0, 0, 0, \"Easter Monday\", 0, 50, 0, 0 },\r\n        { \"NL\", 99, 39, 0, 0, 0, \"Ascension Day\", 0, 50, 0, 0 },\r\n        { \"NL\", 99, 50, 0, 0, 0, \"Whit Monday\", 0, 50, 0, 0 },\r\n        { \"NL\", 4, 27, 0, 0, 0, \"King's Day\", 0, 100, 0, 0 },\r\n        { \"NL\", 5, 5, 0, 0, 0, \"Liberation Day\", 0, 100, 0, 0 },\r\n        { \"NL\", 12, 25, 0, 0, 0, \"Christmas Day\", 0, 100, 0, 0 },\r\n        { \"NL\", 12, 26, 0, 0, 0, \"St. Stephen's Day\", 0, 100, 0, 0 },\r\n        { \"NO\", 1, 1, 0, 0, 0, \"New Year's Day\", 0, 100, 0, 0 },\r\n        { \"NO\", 99, -3, 0, 0, 0, \"Maundy Thursday\", 0, 100, 0, 0 },\r\n        { \"NO\", 99, -2, 0, 0, 0, \"Good Friday\", 0, 50, 0, 0 },\r\n        { \"NO\", 99, 1, 0, 0, 0, \"Easter Monday\", 0, 50, 0, 0 },\r\n        { \"NO\", 99, 39, 0, 0, 0, \"Ascension Day\", 0, 50, 0, 0 },\r\n        { \"NO\", 99, 50, 0, 0, 0, \"Whit Monday\", 0, 50, 0, 0 },\r\n        { \"NO\", 5, 1, 0, 0, 0, \"Labour Day\", 0, 100, 0, 0 },\r\n        { \"NO\", 5, 17, 0, 0, 0, \"Constitution Day\", 0, 100, 0, 0 },\r\n        { \"NO\", 12, 24, 0, 0, 0, \"Christmas Eve\", 0, 50, 0, 0 },\r\n        { \"NO\", 12, 25, 0, 0, 0, \"Christmas Day\", 0, 100, 0, 0 },\r\n        { \"NO\", 12, 26, 0, 0, 0, \"Boxing Day\", 0, 100, 0, 0 },\r\n        { \"NO\", 12, 31, 0, 0, 0, \"New Year's Eve\", 0, 100, 0, 0 },\r\n        { \"PT\", 1, 1, 0, 0, 0, \"New Year's Day\", 0, 100, 0, 0 },\r\n        { \"PT\", 99, -2, 0, 0, 0, \"Good Friday\", 0, 50, 0, 0 },\r\n        { \"PT\", 99, 60, 0, 0, 0, \"Corpus Christi\", 0, 50, 0, 0 },\r\n        { \"PT\", 4, 25, 0, 0, 0, \"Freedom Day\", 0, 100, 0, 0 },\r\n        { \"PT\", 5, 1, 0, 0, 0, \"Labour Day\", 0, 100, 0, 0 },\r\n        { \"PT\", 6, 10, 0, 0, 0, \"Portugal Day\", 0, 100, 0, 0 },\r\n        { \"PT\", 8, 15, 0, 0, 0, \"Assumption Day\", 0, 100, 0, 0 },\r\n        { \"PT\", 10, 5, 0, 0, 0, \"Republic Day\", 0, 100, 0, 0 },\r\n        { \"PT\", 11, 1, 0, 0, 0, \"All Saints' Day\", 0, 100, 0, 0 },\r\n        { \"PT\", 12, 1, 0, 0, 0, \"Restoration of Independence\", 0, 100, 0, 0 },\r\n        { \"PT\", 12, 8, 0, 0, 0, \"Immaculate Conception\", 0, 50, 0, 0 },\r\n        { \"PT\", 12, 25, 0, 0, 0, \"Christmas Day\", 0, 100, 0, 0 },\r\n        { \"SE\", 1, 1, 0, 0, 0, \"New Year's Day\", 0, 100, 0, 0 },\r\n        { \"SE\", 1, 6, 0, 0, 0, \"Epiphany\", 0, 100, 0, 0 },\r\n        { \"SE\", 99, -2, 0, 0, 0, \"Good Friday\", 0, 50, 0, 0 },\r\n        { \"SE\", 99, 1, 0, 0, 0, \"Easter Monday\", 0, 50, 0, 0 },\r\n        { \"SE\", 99, 39, 0, 0, 0, \"Ascension Day\", 0, 50, 0, 0 },\r\n        { \"SE\", 5, 1, 0, 0, 0, \"Labour Day\", 0, 100, 0, 0 },\r\n        { \"SE\", 6, 6, 0, 0, 0, \"National Day\", 0, 100, 0, 0 },\r\n        { \"SE\", 12, 24, 0, 0, 0, \"Christmas Eve\", 0, 50, 0, 0 },\r\n        { \"SE\", 12, 25, 0, 0, 0, \"Christmas Day\", 0, 100, 0, 0 },\r\n        { \"SE\", 12, 26, 0, 0, 0, \"Boxing Day\", 0, 100, 0, 0 },\r\n        { \"SE\", 12, 31, 0, 0, 0, \"New Year's Eve\", 0, 100, 0, 0 },\r\n        { \"SE\", 98, -1, 0, 0, 0, \"Midsubber Eve\", 0, 50, 0, 0 },\r\n        { \"DK\", 1, 1, 0, 0, 0, \"New Year's Day\", 0, 100, 0, 0 },\r\n        { \"DK\", 99, -3, 0, 0, 0, \"Maundy Thursday\", 0, 50, 0, 0 },\r\n        { \"DK\", 99, -2, 0, 0, 0, \"Good Friday\", 0, 50, 0, 0 },\r\n        { \"DK\", 99, 1, 0, 0, 0, \"Easter Monday\", 0, 50, 0, 0 },\r\n        { \"DK\", 99, 26, 0, 0, 0, \"Prayer Day\", 0, 50, 0, 0 },\r\n        { \"DK\", 99, 39, 0, 0, 0, \"Ascension Day\", 0, 50, 0, 0 },\r\n        { \"DK\", 99, 50, 0, 0, 0, \"Whit Monday\", 0, 50, 0, 0 },\r\n        { \"DK\", 5, 1, 0, 0, 0, \"Labour Day\", 0, 100, 0, 0 },\r\n        { \"DK\", 6, 5, 0, 0, 0, \"Constitution Day\", 0, 50, 0, 0 },\r\n        { \"DK\", 12, 24, 0, 0, 0, \"Christmas Eve\", 0, 50, 0, 0 },\r\n        { \"DK\", 12, 25, 0, 0, 0, \"Christmas Day\", 0, 100, 0, 0 },\r\n        { \"DK\", 12, 26, 0, 0, 0, \"Second Day of Christmas\", 0, 100, 0, 0 },\r\n        { \"DK\", 12, 31, 0, 0, 0, \"New Year's Eve\", 0, 100, 0, 0 },\r\n        { \"BR\", 1, 1, 0, 0, 0, \"New Year's Day\", 0, 100, 0, 0 },\r\n        { \"BR\", 4, 21, 0, 0, 0, \"Tiradentes' Day\", 0, 50, 0, 0 },\r\n        { \"BR\", 99, -2, 0, 0, 0, \"Good Friday\", 0, 50, 0, 0 },\r\n        { \"BR\", 5, 1, 0, 0, 0, \"Labour Day\", 0, 100, 0, 0 },\r\n        { \"BR\", 9, 7, 0, 0, 0, \"Independence Day\", 0, 100, 0, 0 },\r\n        { \"BR\", 10, 12, 0, 0, 0, \"Lady of Aparecida\", 0, 100, 0, 0 },\r\n        { \"BR\", 11, 2, 0, 0, 0, \"All Soul's Day'\", 0, 100, 0, 0 },\r\n        { \"BR\", 11, 15, 0, 0, 0, \"Republic Day'\", 0, 100, 0, 0 },\r\n        { \"BR\", 12, 25, 0, 0, 0, \"Christmas Day\", 0, 100, 0, 0 },\r\n        { \"JP\", 1, 1, 0, 0, 0, \"New Year's Day\", 2, 100, 0, 0 },\r\n        { \"JP\", 1, 15, 0, 0, 0, \"Coming of Age Day\", 2, 100, 0, 1999 },\r\n        { \"JP\", 1, 0, 1, 2, 0, \"Coming of Age Day\", 0, 100, 2000, 0 },\r\n        { \"JP\", 2, 11, 0, 0, 0, \"National Foundation Day\", 2, 100, 0, 0 },\r\n        { \"JP\", 2, 23, 0, 0, 0, \"The Emperor's Birthday\", 2, 100, 2020, 0 },\r\n        { \"JP\", 12, 23, 0, 0, 0, \"The Emperor's Birthday\", 2, 100, 1989, 2018 },\r\n        { \"JP\", 96, 0, 0, 0, 0, \"Vernal Equinox Day\", 2, 100, 0, 0 },\r\n        { \"JP\", 4, 29, 0, 0, 0, \"The Emperor's Birthday\", 2, 100, 0, 1988 },\r\n        { \"JP\", 4, 29, 0, 0, 0, \"Greenery Day\", 2, 100, 1989, 2006 },\r\n        { \"JP\", 4, 29, 0, 0, 0, \"Shōwa Day\", 2, 100, 2007, 0 },\r\n        { \"JP\", 5, 3, 0, 0, 0, \"Constitution Memorial Day\", 2, 100, 0, 0 },\r\n        { \"JP\", 5, 4, 0, 0, 0, \"Greenery Day\", 2, 100, 2007, 0 },\r\n        { \"JP\", 5, 5, 0, 0, 0, \"Children's Day\", 2, 100, 0, 0 },\r\n        { \"JP\", 7, 20, 0, 0, 0, \"Marine Day\", 2, 100, 0, 2002 },\r\n        { \"JP\", 7, 0, 1, 3, 0, \"Marine Day\", 0, 100, 2003, 0 },\r\n        { \"JP\", 8, 11, 0, 0, 0, \"Mountain Day\", 2, 100, 2016, 0 },\r\n        { \"JP\", 9, 15, 0, 0, 0, \"Respect for the Aged Day\", 2, 100, 0, 2002 },\r\n        { \"JP\", 9, 0, 1, 3, 0, \"Respect for the Aged Day\", 0, 100, 2003, 0 },\r\n        { \"JP\", 97, 0, 0, 0, 0, \"Autumnal Equinox Day\", 2, 100, 0, 0 },\r\n        { \"JP\", 10, 10, 0, 0, 0, \"Sports Day\", 2, 100, 0, 1999 },\r\n        { \"JP\", 10, 0, 1, 2, 0, \"Sports Day\", 0, 100, 2000, 0 },\r\n        { \"JP\", 11, 3, 0, 0, 0, \"Culture Day\", 2, 100, 0, 0 },\r\n        { \"JP\", 11, 23, 0, 0, 0, \"Labour Thanksgiving Day\", 2, 100, 0, 0 },\r\n        { \"RU\", 1, 1, 0, 0, 0, \"Новогодние каникулы\", 0, 100, 0, 0 },\r\n        { \"RU\", 1, 2, 0, 0, 0, \"Новогодние каникулы\", 0, 100, 0, 0 },\r\n        { \"RU\", 1, 3, 0, 0, 0, \"Новогодние каникулы\", 0, 100, 0, 0 },\r\n        { \"RU\", 1, 4, 0, 0, 0, \"Новогодние каникулы\", 0, 100, 0, 0 },\r\n        { \"RU\", 1, 5, 0, 0, 0, \"Новогодние каникулы\", 0, 100, 0, 0 },\r\n        { \"RU\", 1, 6, 0, 0, 0, \"Новогодние каникулы\", 0, 100, 0, 0 },\r\n        { \"RU\", 1, 7, 0, 0, 0, \"Рождество Христово\", 0, 100, 0, 0 },\r\n        { \"RU\", 1, 8, 0, 0, 0, \"Новогодние каникулы\", 0, 100, 0, 0 },\r\n        { \"RU\", 2, 23, 0, 0, 0, \"День защитника Отечества\", 0, 100, 0, 0 },\r\n        { \"RU\", 3, 8, 0, 0, 0, \"Международный женский день\", 0, 100, 0, 0 },\r\n        { \"RU\", 5, 1, 0, 0, 0, \"Праздник Весны и Труда\", 0, 100, 0, 0 },\r\n        { \"RU\", 5, 9, 0, 0, 0, \"День Победы\", 0, 100, 0, 0 },\r\n        { \"RU\", 6, 12, 0, 0, 0, \"День России\", 0, 100, 0, 0 },\r\n        { \"RU\", 11, 4, 0, 0, 0, \"День народного единства\", 0, 100, 0, 0 },\r\n        { \"CN\", 1, 1, 0, 0, 0, \"元旦\", 0, 100, 0, 0 },\r\n        { \"CN\", 5, 1, 0, 0, 0, \"劳动节\", 0, 100, 0, 0 },\r\n        { \"CN\", 10, 1, 0, 0, 0, \"国庆节\", 0, 100, 0, 0 },\r\n        { \"CN\", 10, 2, 0, 0, 0, \"国庆节\", 0, 100, 0, 0 },\r\n        { \"CN\", 10, 3, 0, 0, 0, \"国庆节\", 0, 100, 0, 0 },\r\n        { \"IS\", 1, 1, 0, 0, 0, \"Nýársdagur\", 0, 100, 0, 0 },\r\n        { \"IS\", 99, -3, 0, 0, 0, \"Skírdagur\", 0, 50, 0, 0 },\r\n        { \"IS\", 99, -2, 0, 0, 0, \"Föstudagurinn langi\", 0, 50, 0, 0 },\r\n        { \"IS\", 99, 1, 0, 0, 0, \"Annar í páskum\", 0, 50, 0, 0 },\r\n        { \"IS\", 99, 39, 0, 0, 0, \"Uppstigningardagur\", 0, 50, 0, 0 },\r\n        { \"IS\", 5, 1, 0, 0, 0, \"Frídagur verkafólks\", 0, 100, 0, 0 },\r\n        { \"IS\", 8, 0, 1, 1, 0, \"Frídagur verslunarmanna\", 0, 100, 0, 0 },\r\n        { \"IS\", 6, 17, 0, 0, 0, \"Þjóðhátíðardagur Íslendinga\", 0, 100, 0, 0 },\r\n        { \"IS\", 12, 25, 0, 0, 0, \"Jóladagur\", 0, 100, 0, 0 },\r\n        { \"IS\", 12, 26, 0, 0, 0, \"Annar í jólum\", 0, 100, 0, 0 },\r\n        { \"IS\", 12, 24, 0, 0, 0, \"Aðfangadagur\", 0, 50, 0, 0 },\r\n        { \"IS\", 12, 31, 0, 0, 0, \"Gamlársdagur\", 0, 50, 0, 0 },\r\n        { \"IS\", 98, 0, 0, 0, 0, \"Sumardagurinn fyrsti\", 0, 50, 0, 0 }\r\n    }\r\n)"
+            }
+          }
+        ],
+        "annotations": [
+          {
+            "name": "SQLBI_Template",
+            "value": "Holidays"
+          },
+          {
+            "name": "SQLBI_TemplateTable",
+            "value": "HolidaysDefinition"
+          }
+        ]
+      },
+      {
+        "name": "Holidays",
+        "isHidden": true,
+        "lineageTag": "",
+        "dataCategory": "Time",
+        "columns": [
+          {
+            "type": "calculatedTableColumn",
+            "name": "Holiday Date",
+            "dataType": "dateTime",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "sourceColumn": "[Holiday Date]",
+            "formatString": "mm/dd/yyyy",
+            "lineageTag": "",
+            "summarizeBy": "none"
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "Holiday Name",
+            "dataType": "string",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "sourceColumn": "[Holiday Name]",
+            "lineageTag": "",
+            "summarizeBy": "none"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Holidays",
+            "mode": "import",
+            "source": {
+              "type": "calculated",
+              "expression": "\r\n-- \r\n--    Configuration\r\n-- \r\nVAR __FirstYear = YEAR ( MINX ( { MIN ( 'Sales'[Order Date] ), MIN ( 'Orders'[Delivery Date] ) }, ''[Value] ) )\r\nVAR __LastYear =  YEAR ( MAXX ( { MAX ( 'Sales'[Order Date] ), MAX ( 'Orders'[Delivery Date] ) }, ''[Value] ) )\r\nVAR __IsoCountryHolidays = \"US\"\r\nVAR __WorkingDays = { 2, 3, 4, 5, 6 }\r\nVAR __InLieuOfPrefix = \"(in lieu of \"\r\nVAR __InLieuOfSuffix = \")\"\r\n----------------------------------------\r\nVAR __FilterIsoConfig =\r\n    FILTER(\r\n        'HolidaysDefinition',\r\n        IF(\r\n            CONTAINS('HolidaysDefinition', 'HolidaysDefinition'[ISO Country], __IsoCountryHolidays)\r\n                || __IsoCountryHolidays = \"\",\r\n            'HolidaysDefinition'[ISO Country] = __IsoCountryHolidays,\r\n            ERROR(\"IsoCountryHolidays set to an unsupported country code\")\r\n        )\r\n    )\r\nVAR __ConfigGeneration =\r\n    GENERATE(\r\n        GENERATESERIES(__FirstYear - 1, __LastYear + 1, 1),\r\n        __FilterIsoConfig\r\n    )\r\nVAR __GeneratedRawWithDuplicatesUnfiltered =\r\n    GENERATE(\r\n        __ConfigGeneration,\r\n        VAR __HolidayYear = ''[Value]\r\n        VAR __EasterDate =\r\n            -- Code adapted from original VB version from https://www.assa.org.au/edm \r\n            VAR _EasterYear = __HolidayYear\r\n            VAR _FirstDig =\r\n                INT ( _EasterYear / 100 )\r\n            VAR _Remain19 =\r\n                MOD ( _EasterYear, 19 ) \r\n            -- Calculate PFM date\r\n            VAR _temp1 =\r\n                MOD (\r\n                    INT ( ( _FirstDig - 15 ) / 2 )\r\n                        + 202\r\n                        - 11 * _Remain19\r\n                        + SWITCH (\r\n                            TRUE,\r\n                            _FirstDig IN { 21, 24, 25, 27, 28, 29, 30, 31, 32, 34, 35, 38 },\r\n                            0\r\n                        ),\r\n                    30\r\n                )\r\n            VAR _tA =\r\n                _temp1 + 21\r\n                    + IF ( _temp1 = 29 || ( _temp1 = 28 && _Remain19 > 10 ), -1 ) // \r\n            -- Find the next Sunday\r\n            VAR _tB =\r\n                MOD ( _tA - 19, 7 )\r\n            VAR _tCpre =\r\n                MOD ( 40 - _FirstDig, 4 )\r\n            VAR _tC =\r\n                _tCpre\r\n                    + IF ( _tCpre = 3, 1 )\r\n                    + IF ( _tCpre > 1, 1 )\r\n            VAR _temp2 =\r\n                MOD ( _EasterYear, 100 )\r\n            VAR _tD =\r\n                MOD ( _temp2 + INT ( _temp2 / 4 ), 7 )\r\n            VAR _tE =\r\n                MOD ( 20 - _tB - _tC - _tD, 7 )\r\n                    + 1\r\n            VAR _d = _tA + _tE \r\n            -- Return the date\r\n            VAR _EasterDay =\r\n                IF ( _d > 31, _d - 31, _d )\r\n            VAR _EasterMonth =\r\n                IF ( _d > 31, 4, 3 )\r\n            RETURN\r\n                DATE ( _EasterYear, _EasterMonth, _EasterDay ) \r\n            -- End of code adapted from original VB version from https://www.assa.org.au/edm\r\n        VAR __SwedishMidSummer = \r\n            -- Compute the Midsummer day in Swedish - it is the Saturday between 20 and 26 June\r\n            -- This calculation is valid only for years after 1953 \r\n            -- https://sv.wikipedia.org/wiki/Midsommar_i_Sverige\r\n            VAR _June20 = \r\n                DATE ( __HolidayYear, 6, 20 )\r\n            RETURN\r\n                DATE ( __HolidayYear, 6, 20 + (7 - WEEKDAY ( _June20, 1 ) ) )\r\n            -- End of SwedishMidSummer calculation\r\n        VAR __MarchEquinoxDay =\r\n            INT ( 20.8431 + 0.242194 * ( __HolidayYear - 1980 ) )\r\n                - INT ( ( ( __HolidayYear - 1980 ) / 4 ) )\r\n        VAR __MarchEquinox = DATE ( __HolidayYear, 3, __MarchEquinoxDay )\r\n        VAR __SeptemberEquinoxDay =\r\n            INT ( 23.2488 + 0.242194 * ( __HolidayYear - 1980 ) )\r\n                - INT ( ( __HolidayYear - 1980 ) / 4 )\r\n        VAR __SeptemberEquinox = DATE ( __HolidayYear, 9, __SeptemberEquinoxDay )\r\n        VAR __HolidayDate = \r\n//  Workaround for a SWITCH regression that fails on service from 2022-12-10 - revert to SWITCH and remove IF once the bug is fixed\r\n//            SWITCH (\r\n//                TRUE,\r\n                IF ( 'HolidaysDefinition'[DayNumber] <> 0\r\n                    && 'HolidaysDefinition'[WeekDayNumber] <> 0, ERROR ( \"Wrong configuration in HolidaysDefinition\" ),\r\n                IF ( 'HolidaysDefinition'[DayNumber] <> 0\r\n                    && 'HolidaysDefinition'[MonthNumber] <= 12, DATE ( __HolidayYear, 'HolidaysDefinition'[MonthNumber], 'HolidaysDefinition'[DayNumber] ),\r\n                IF ( 'HolidaysDefinition'[MonthNumber] = 99, -- Easter offset\r\n                    __EasterDate + 'HolidaysDefinition'[DayNumber],\r\n                IF ( 'HolidaysDefinition'[MonthNumber] = 98, -- Swedish Midsummer Day\r\n                    __SwedishMidSummer + 'HolidaysDefinition'[DayNumber],\r\n                IF ( 'HolidaysDefinition'[MonthNumber] = 97, -- September Equinox\r\n                    __SeptemberEquinox + 'HolidaysDefinition'[DayNumber],\r\n                IF ( 'HolidaysDefinition'[MonthNumber] = 96, -- March Equinox\r\n                    __MarchEquinox + 'HolidaysDefinition'[DayNumber],\r\n                IF ( 'HolidaysDefinition'[WeekDayNumber] IN { 0, 1, 2, 3, 4, 5, 6 }\r\n                    && 'HolidaysDefinition'[DayNumber] = 0\r\n                    && 'HolidaysDefinition'[OffsetWeek] <> 0\r\n                    && 'HolidaysDefinition'[MonthNumber] IN { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 },\r\n                    VAR _ReferenceDate =\r\n                        DATE ( __HolidayYear, 1\r\n                            + MOD ( 'HolidaysDefinition'[MonthNumber] - 1 + IF ( 'HolidaysDefinition'[OffsetWeek] < 0, 1 ), 12 ), 1 )\r\n                            - IF ( 'HolidaysDefinition'[OffsetWeek] < 0, 1 )\r\n                    VAR _ReferenceWeekDayNumber =\r\n                        WEEKDAY ( _ReferenceDate, 1 ) - 1\r\n                    VAR _Offset =\r\n                        'HolidaysDefinition'[WeekDayNumber] - _ReferenceWeekDayNumber\r\n                            + 7 * 'HolidaysDefinition'[OffsetWeek]\r\n                            + IF (\r\n                                'HolidaysDefinition'[OffsetWeek] > 0,\r\n                                IF ( 'HolidaysDefinition'[WeekDayNumber] >= _ReferenceWeekDayNumber, -7 ),\r\n                                IF ( _ReferenceWeekDayNumber >= 'HolidaysDefinition'[WeekDayNumber], 7)\r\n                            )\r\n                RETURN\r\n                    _ReferenceDate + _Offset + 'HolidaysDefinition'[OffsetDays],\r\n                ERROR ( \"Wrong configuration in HolidaysDefinition\" )\r\n            ) ) ) ) ) ) )\r\n//            )\r\n        VAR __HolidayWeekDay = WEEKDAY ( __HolidayDate, 1 )\r\n        VAR __SubstituteHolidayOffset = \r\n//            SWITCH (\r\n//                TRUE,\r\n                IF ( 'HolidaysDefinition'[SubstituteHoliday] = -1,\r\n                    SWITCH ( \r\n                        __HolidayWeekDay, \r\n                        1, 1,       -- If it falls on a Sunday then it is observed on Monday\r\n                        7, -1,      -- If it falls on a Saturday then it is observed on Friday\r\n                        0\r\n                    ),\r\n                IF ( 'HolidaysDefinition'[SubstituteHoliday] > 0\r\n                    && NOT CONTAINS ( __WorkingDays, ''[Value], __HolidayWeekDay ),\r\n                    VAR _NextWorkingWeekDay =\r\n                        MINX (\r\n                            FILTER ( __WorkingDays, ''[Value] > __HolidayWeekDay ),\r\n                            ''[Value]\r\n                        )\r\n                    VAR _SubstituteWeekDay =\r\n                        IF (\r\n                            ISBLANK ( _NextWorkingWeekDay ),\r\n                            MINX ( __WorkingDays, ''[Value] ) + 7,\r\n                            _NextWorkingWeekDay\r\n                        )\r\n                    RETURN\r\n                        _SubstituteWeekDay - __HolidayWeekDay\r\n                            + ( 'HolidaysDefinition'[SubstituteHoliday] - 1 )\r\n            ) )\r\n//            )\r\n        RETURN ROW ( \r\n            \"@HolidayDate\", DATE ( YEAR ( __HolidayDate ), MONTH ( __HolidayDate ), DAY ( __HolidayDate ) ),\r\n            \"@SubstituteHolidayOffset\", __SubstituteHolidayOffset\r\n        )\r\n    )\r\nVAR __GeneratedRawWithDuplicates =\r\n\tFILTER (\r\n        __GeneratedRawWithDuplicatesUnfiltered,\r\n        ( 'HolidaysDefinition'[FirstYear] = 0 || 'HolidaysDefinition'[FirstYear] <= ''[Value] )\r\n            && ( 'HolidaysDefinition'[LastYear] = 0 || 'HolidaysDefinition'[LastYear] >= ''[Value] )\r\n    )\r\nVAR __RawDatesUnique = \r\n    DISTINCT ( \r\n        SELECTCOLUMNS ( \r\n            __GeneratedRawWithDuplicates,\r\n            \"@HolidayDateUnique\", [@HolidayDate]\r\n        )\r\n    )\r\nVAR __GeneratedRaw = \r\n    GENERATE (\r\n        __RawDatesUnique,\r\n        VAR _FilterDate = [@HolidayDateUnique]\r\n        RETURN \r\n            TOPN (\r\n                1,\r\n                FILTER ( \r\n                    __GeneratedRawWithDuplicates,\r\n                    [@HolidayDate] = _FilterDate\r\n                ),\r\n                'HolidaysDefinition'[ConflictPriority],\r\n                ASC,\r\n                'HolidaysDefinition'[HolidayName], \r\n                ASC\r\n            )\r\n    )  \r\nVAR __GeneratedSubstitutesOffset =\r\n    SELECTCOLUMNS(\r\n        FILTER ( __GeneratedRawWithDuplicates, 'HolidaysDefinition'[SubstituteHoliday] <> 0 ),\r\n        \"Value\", ''[Value],\r\n        \"ISO Country\", 'HolidaysDefinition'[ISO Country],\r\n        \"MonthNumber\", 'HolidaysDefinition'[MonthNumber],\r\n        \"DayNumber\", 'HolidaysDefinition'[DayNumber],\r\n        \"WeekDayNumber\", 'HolidaysDefinition'[WeekDayNumber],\r\n        \"OffsetWeek\", 'HolidaysDefinition'[OffsetWeek],\r\n        \"HolidayName\", 'HolidaysDefinition'[HolidayName],\r\n        \"SubstituteHoliday\", 'HolidaysDefinition'[SubstituteHoliday],\r\n        \"ConflictPriority\", 'HolidaysDefinition'[ConflictPriority],\r\n        \"@HolidayDate\", [@HolidayDate],\r\n        \"@SubstituteHolidayOffset\",\r\n            VAR _CurrentHolidayDate = [@HolidayDate]\r\n            VAR _CurrentHolidayName = 'HolidaysDefinition'[HolidayName]\r\n            VAR _OriginalSubstituteDate = [@HolidayDate] + [@SubstituteHolidayOffset]\r\n            VAR _OtherHolidays = \r\n                FILTER ( \r\n                    __GeneratedRawWithDuplicates, \r\n                    [@HolidayDate] <> _CurrentHolidayDate\r\n                    || 'HolidaysDefinition'[HolidayName] <> _CurrentHolidayName\r\n                )\r\n            VAR _ConflictDay0 = \r\n                CONTAINS ( \r\n                    _OtherHolidays,\r\n                    [@HolidayDate], _OriginalSubstituteDate\r\n                )\r\n            VAR _ConflictDay1 = \r\n                _ConflictDay0 \r\n                && CONTAINS ( \r\n                    _OtherHolidays,\r\n                    [@HolidayDate], _OriginalSubstituteDate + 1\r\n                )\r\n            VAR _ConflictDay2 = \r\n                _ConflictDay1 \r\n                && CONTAINS ( \r\n                    _OtherHolidays,\r\n                    [@HolidayDate], _OriginalSubstituteDate + 2\r\n                )\r\n            VAR _SubstituteOffsetStep1 = [@SubstituteHolidayOffset] + _ConflictDay0 + _ConflictDay1 + _ConflictDay2\r\n            VAR _HolidayDateStep1 = _CurrentHolidayDate + _SubstituteOffsetStep1\r\n            VAR _HolidayWeekDayStep1 =\r\n                WEEKDAY ( _HolidayDateStep1, 1 )\r\n            VAR _SubstituteHolidayOffsetNonWorkingDays =\r\n                IF (\r\n                    NOT CONTAINS ( __WorkingDays, ''[Value], _HolidayWeekDayStep1 ),\r\n                    VAR _NextWorkingWeekDayStep2 =\r\n                        MINX (\r\n                            FILTER ( __WorkingDays, ''[Value] > _HolidayWeekDayStep1 ),\r\n                            ''[Value]\r\n                        )\r\n                    VAR _SubstituteWeekDay =\r\n                        IF (\r\n                            ISBLANK ( _NextWorkingWeekDayStep2 ),\r\n                            MINX ( __WorkingDays, ''[Value] ) + 7,\r\n                            _NextWorkingWeekDayStep2\r\n                        )\r\n                    RETURN _SubstituteWeekDay - _HolidayWeekDayStep1\r\n                )\r\n            VAR _SubstituteOffsetStep2 = _SubstituteOffsetStep1 + _SubstituteHolidayOffsetNonWorkingDays\r\n            VAR _SubstituteDateStep2 = _OriginalSubstituteDate + _SubstituteOffsetStep2\r\n            VAR _ConflictDayStep2_0 = \r\n                CONTAINS ( \r\n                    _OtherHolidays,\r\n                    [@HolidayDate], _SubstituteDateStep2\r\n                )\r\n            VAR _ConflictDayStep2_1 = \r\n                _ConflictDayStep2_0\r\n                && CONTAINS ( \r\n                    _OtherHolidays,\r\n                    [@HolidayDate], _SubstituteDateStep2 + 1\r\n                )\r\n            VAR _ConflictDayStep2_2 = \r\n                _ConflictDayStep2_1 \r\n                && CONTAINS ( \r\n                    _OtherHolidays,\r\n                    [@HolidayDate], _SubstituteDateStep2 + 2\r\n                )\r\n            VAR _FinalSubstituteHolidayOffset = \r\n                _SubstituteOffsetStep2 + _ConflictDayStep2_0 + _ConflictDayStep2_1 + _ConflictDayStep2_2\r\n            RETURN\r\n                _FinalSubstituteHolidayOffset\r\n        )\r\nVAR __GeneratedSubstitutesExpanded =\r\n    ADDCOLUMNS (\r\n        __GeneratedSubstitutesOffset,\r\n        \"@ReplacementHolidayDate\", [@HolidayDate] + [@SubstituteHolidayOffset]\r\n    )\r\nVAR __GeneratedSubstitutesUnique =\r\n    DISTINCT ( \r\n        SELECTCOLUMNS ( \r\n            __GeneratedSubstitutesExpanded,\r\n            \"@UniqueReplacementHolidayDate\", [@ReplacementHolidayDate]\r\n        )\r\n    )\r\nVAR __GeneratedSubstitutes =\r\n    GENERATE (\r\n        __GeneratedSubstitutesUnique,\r\n        TOPN (\r\n            1,\r\n            FILTER ( \r\n                __GeneratedSubstitutesExpanded,\r\n                [@UniqueReplacementHolidayDate] = [@ReplacementHolidayDate]\r\n            ),\r\n            [ConflictPriority],\r\n            ASC,\r\n            [HolidayName], \r\n            ASC\r\n        )\r\n    )  \r\nVAR __Generated =\r\n    UNION (\r\n        SELECTCOLUMNS (\r\n            __GeneratedRaw,\r\n            \"Holiday Date\", [@HolidayDate],\r\n            \"Holiday Name\", 'HolidaysDefinition'[HolidayName]\r\n        ),\r\n        SELECTCOLUMNS (\r\n            FILTER ( __GeneratedSubstitutes, [@SubstituteHolidayOffset] <> 0 ), \r\n            \"Holiday Date\", [@HolidayDate] + [@SubstituteHolidayOffset],\r\n            \"Holiday Name\", __InLieuOfPrefix & [HolidayName]\r\n                & __InLieuOfSuffix\r\n        )\r\n    )\r\nVAR __GeneratedValidDates =\r\n    FILTER ( __Generated, [Holiday Date] > 2 )\r\nRETURN\r\n    __GeneratedValidDates"
+            }
+          }
+        ],
+        "annotations": [
+          {
+            "name": "SQLBI_Template",
+            "value": "Holidays"
+          },
+          {
+            "name": "SQLBI_TemplateTable",
+            "value": "Holidays"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "Description": "Dispatch characterization: a disabled HolidaysTable entry removes an existing table and disables HolidaysReference",
+  "Templates": [
+    { "Class": "HolidaysTable", "Table": "Holidays", "IsEnabled": false }
+  ],
+  "HolidaysReference": {
+    "TableName": "Holidays",
+    "DateColumnName": "Holiday Date",
+    "HolidayColumnName": "Holiday Name"
+  }
+}
