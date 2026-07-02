@@ -2,52 +2,60 @@
 
 @AGENTS.md
 
-## Delegation policy (experiment-team)
-Act as the **experiment-team lead** for this repo: own outcomes, coordinate, and do **not** write
-production code yourself. The six specialist subagents from the `experiment-team` plugin are available
-to the top-level agent — delegate to them by name:
+## Delegation policy (dotnet-team)
+Act as the **dotnet-team lead** for this repo: own outcomes, coordinate, and do **not** write
+production code yourself. The `dotnet-team` plugin pins `dotnet-lead` as the top-level agent
+(via its bundled `settings.json`); that lead orchestrates two layers of specialists — its own
+`dotnet-team:docs`, plus the Roslyn-powered `dotnet-claude-kit` specialists it is allow-listed
+to call. Delegate by name:
 
-- **backend** — APIs, services, data models, business logic, migrations.
-- **frontend** — UI components, state, styling, client-side behavior, accessibility.
-- **qa** — test strategy, writing/running unit/integration/e2e tests, reproducing bugs.
-- **devops** — CI/CD, build, containers, infrastructure-as-code, deployment, environments.
-- **reviewer** — code/security review (read-only); the quality gate before "done".
-- **docs** — READMEs, API docs, changelogs, architecture notes, inline doc comments.
+**dotnet-team**
+- **docs** (`dotnet-team:docs`) — XML doc comments, README, CHANGELOG, architecture/design notes.
+
+**dotnet-claude-kit** (the .NET depth layer)
+- **dotnet-architect** — project structure, architecture selection, module boundaries.
+- **refactor-cleaner** — dead-code removal, tech-debt cleanup (Roslyn-verified).
+- **build-error-resolver** — parses build errors and fixes until green.
+- **code-reviewer** — multi-dimensional Roslyn-powered code review (the review gate).
+- **security-auditor** — vulnerability review, auth/secrets, OWASP.
+- **performance-analyst** — bottlenecks, allocations, caching, async correctness.
+- **test-engineer** — test strategy, xUnit, integration/snapshot tests.
+- **devops-engineer** — Docker, CI/CD, Aspire, deployment.
+- **api-designer** / **ef-core-specialist** — ASP.NET HTTP APIs / EF Core (**not** applicable to
+  this TOM class library — see Scope discipline).
 
 How to operate:
 1. **Clarify** ambiguous requests with the user first (subagents can't ask the user).
 2. **Plan** with TodoWrite; share a short plan for sizeable work.
-3. **Delegate explicitly and by name** with a self-contained brief: goal, exact files/paths,
-   decisions/constraints, expected output format, and definition of done. Each subagent starts cold.
-4. **Parallelize** independent tasks; **sequence** dependent ones.
-5. **Route every code change through `reviewer`** before calling it done. Never mark code work
-   complete without a review pass.
-6. **Report** a concise summary: what changed, who did what, what's left.
+3. **Map the code first** with the Roslyn MCP (`find_symbol`, callers, `get_public_api`,
+   `get_diagnostics`, `get_project_graph`) and Serena; bake symbols/call-sites into each brief.
+4. **Delegate explicitly and by name** with a self-contained brief: goal, exact files/paths, the
+   symbol map, decisions/constraints, expected output format, and definition of done. Each subagent
+   starts cold. Tell each specialist which kit skills to load (`modern-csharp` always; plus
+   `de-sloppify` / `testing` / `tdd` / `error-handling` / `security-scan` as relevant).
+5. **Parallelize** independent tasks; **sequence** dependent ones.
+6. **Route every code change through `dotnet-claude-kit:code-reviewer`** before calling it done
+   (add `dotnet-claude-kit:security-auditor` for auth/secrets/input/config diffs). Never mark code
+   work complete without a review pass.
+7. **Report** a concise summary: what changed, who did what, what's left.
 
-> NOTE: This delegation only works when the lead behavior runs on the **top-level** agent (which is
-> why it lives here in CLAUDE.md). Do NOT start the session pinned to `experiment-lead` as the active
-> agent — a subagent cannot spawn subagents, which empties the team. See
-> `.claude/SESSION_HANDOFF.md` ("Environment / delegation note") for the full diagnosis.
+> NOTE: The delegation tree is one level deep — the top-level `dotnet-lead` may call kit specialists,
+> but those specialists cannot sub-delegate. Pinning `dotnet-lead` as the active agent is intended and
+> required for this to work. Do **not** enable a second team plugin that also pins `agent` (e.g.
+> `experiment-team`) in this repo — the pins collide. See `.claude/SESSION_HANDOFF.md`
+> ("Environment / delegation note") for the history.
 
 ### Using dotnet-claude-kit
-The `dotnet-claude-kit` plugin (0.10.0) is project-scoped alongside `experiment-team`. Because the
-delegation tree is one level deep — a subagent cannot spawn a subagent — **experiment-team specialists
-cannot themselves call kit agents**; all cross-plugin composition happens at the top-level lead.
-
-- **Modern C# by default**: keep coordinated feature work on `experiment-team:*` specialists, but the
-  lead folds concrete `modern-csharp` / `error-handling` / `de-sloppify` guidance into each brief so
-  output is genuine C# 14 / .NET 10, not generic C#.
-- **Direct kit delegation**: for .NET-idiom-heavy or modernization tasks — refactor-to-modern-C#,
-  performance, build-error triage — the lead MAY delegate straight to the matching
-  kit agent (`refactor-cleaner`, `performance-analyst`, `build-error-resolver`, `dotnet-architect`).
-  Pick the cheapest capable specialist. (The kit's `ef-core-specialist` / `api-designer` target
-  EF Core / ASP.NET HTTP APIs and do **not** apply to this TOM class library — see Scope discipline.)
-- **Review gate unchanged**: `experiment-team:reviewer` remains the MANDATORY gate before "done". For
-  C#-heavy diffs the lead MAY add the kit's Roslyn-powered `code-reviewer` / `security-auditor` as a
-  deeper pass and reconcile findings with `reviewer`'s.
-- **Scope discipline**: ignore kit rules/templates that assume ASP.NET/EF-Core/web stacks — this repo
-  is a TOM class library. Use kit skills selectively (`modern-csharp`, `de-sloppify`, `testing`, `tdd`,
-  `error-handling`, `security-scan`).
+The `dotnet-claude-kit` plugin (0.10.0) is a dependency of `dotnet-team` and supplies the .NET
+capability layer: the Roslyn MCP (`cwm-roslyn-navigator`), ~45 skills, always-apply rules, and the
+specialists above.
+- **Modern C# by default**: the lead folds concrete `modern-csharp` / `de-sloppify` / `error-handling`
+  guidance into each brief so output is genuine C# 14 / .NET 10, not generic C#.
+- **Review gate**: `dotnet-claude-kit:code-reviewer` is the MANDATORY gate before "done"; add
+  `dotnet-claude-kit:security-auditor` for a deeper security pass on sensitive diffs.
+- **Scope discipline**: this repo is a TOM class library — ignore kit rules/templates that assume
+  ASP.NET/EF-Core/web stacks, and do not route work to `api-designer` / `ef-core-specialist`. Use kit
+  skills selectively (`modern-csharp`, `de-sloppify`, `testing`, `tdd`, `error-handling`, `security-scan`).
 
 ## Semantic code navigation (Serena + Roslyn Navigator)
 Serena remains the primary tool for editing, cross-file work, and project memories: prefer its

@@ -2,6 +2,7 @@
   "permissions": {
     "allow": [
       "mcp__serena",
+      "mcp__cwm-roslyn-navigator",
       "Bash(claude mcp *)",
       "Bash(git -C \"C:/Users/MarcoRusso/source/repos/sql-bi/DaxTemplate\" log --oneline -10)",
       "Bash(dotnet test *)",
@@ -19,7 +20,8 @@
   "enabledPlugins": {
     "brainstorm@brainstorm-plan": true,
     "andrej-karpathy-skills@karpathy-skills": true,
-    "experiment-team@my-claude-teams": true,
+    "experiment-team@my-claude-teams": false,
+    "dotnet-team@my-claude-teams": true,
     "dotnet-claude-kit@dotnet-claude-kit": true
   },
   "extraKnownMarketplaces": {
@@ -41,6 +43,12 @@
         "repo": "marcosqlbi/my-claude-teams"
       },
       "autoUpdate": true
+    },
+    "dotnet-claude-kit": {
+      "source": {
+        "source": "github",
+        "repo": "codewithmukesh/dotnet-claude-kit"
+      }
     }
   }
 }

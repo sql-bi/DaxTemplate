@@ -368,6 +368,15 @@ launch with a trivial probe (a one-line `reviewer` invocation) BEFORE relying on
 andrej-karpathy-skills is only a dependency of experiment-team and exposes one on-demand skill
 (`karpathy-guidelines`); it is never auto-injected, so it was not applied during Phase 0.
 
+RESOLVED 2026-07-02: this repo switched from `experiment-team` to the new `dotnet-team` plugin
+(marcosqlbi/my-claude-teams). `dotnet-team` pins `dotnet-lead` as the top-level agent via its bundled
+`settings.json`, and `dotnet-lead`'s tool allowlist explicitly grants the `dotnet-claude-kit:*`
+specialists + `mcp__cwm-roslyn-navigator` + `mcp__serena` + `dotnet-team:docs` — so the lead now reaches
+the kit specialists and Roslyn MCP directly (one-level tree). The earlier "empty team" symptom was purely
+a too-narrow allowlist on the pinned lead, not the pin itself. `experiment-team` is now disabled here
+(`.claude/settings.json`) to avoid a colliding `agent` pin; keep only one team plugin enabled per repo.
+The review gate is now `dotnet-claude-kit:code-reviewer` (+ `security-auditor` for sensitive diffs).
+
 ## Working-tree state
 Phase 0 is COMMITTED as `972c8cc` on `add-calendar` (and `claude/magical-wilbur-213ce1` points at the same
 commit). Not pushed. Commit contents: csproj bump, Engine.cs guard, ApplyTemplatesGoldenTests.cs,

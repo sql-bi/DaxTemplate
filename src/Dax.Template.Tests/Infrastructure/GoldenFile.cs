@@ -36,13 +36,15 @@ namespace Dax.Template.Tests.Infrastructure
         }
 
         /// <summary>
-        /// Asserts <paramref name="actual"/> equals the committed snapshot at <c>_data/Golden/{name}.bim</c>.
-        /// When the snapshot is missing or UPDATE_GOLDEN=1, the snapshot is written and the assertion is skipped.
+        /// Asserts <paramref name="actual"/> equals the committed snapshot at
+        /// <c>_data/Golden/{name}.{extension}</c> (extension defaults to <c>bim</c> for backward compatibility
+        /// with the existing BIM snapshot callers). When the snapshot is missing or UPDATE_GOLDEN=1, the
+        /// snapshot is written and the assertion is skipped.
         /// </summary>
-        public static void AssertMatchesSnapshot(string actual, string name, [CallerFilePath] string callerFilePath = "")
+        public static void AssertMatchesSnapshot(string actual, string name, string extension = "bim", [CallerFilePath] string callerFilePath = "")
         {
             actual = actual.Replace("\r\n", "\n");
-            var goldenPath = GetSnapshotPath(name, callerFilePath);
+            var goldenPath = GetSnapshotPath(name, extension, callerFilePath);
             var update = Environment.GetEnvironmentVariable("UPDATE_GOLDEN") == "1";
 
             if (update || !File.Exists(goldenPath))
@@ -56,7 +58,7 @@ namespace Dax.Template.Tests.Infrastructure
             Assert.Equal(expected, actual);
         }
 
-        private static string GetSnapshotPath(string name, string callerFilePath)
+        private static string GetSnapshotPath(string name, string extension, string callerFilePath)
         {
             // callerFilePath points at the calling test's source file, which lives somewhere under the test
             // project. Walk up to the directory that holds the .csproj so snapshots are committed next to the
@@ -71,7 +73,7 @@ namespace Dax.Template.Tests.Infrastructure
                 throw new InvalidOperationException(
                     $"Could not locate the test project directory (.csproj) from caller path '{callerFilePath}'.");
             }
-            return Path.Combine(dir, "_data", "Golden", name + ".bim");
+            return Path.Combine(dir, "_data", "Golden", name + "." + extension);
         }
     }
 }

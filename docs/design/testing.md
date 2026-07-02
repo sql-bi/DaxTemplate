@@ -26,3 +26,8 @@ This lets test code assert on internal state — notably the `Tabular*` back-ref
 - All offline tests: `dotnet test ./src/Dax.Template.Tests/Dax.Template.Tests.csproj --configuration Release`
 - Single test: `dotnet test ./src/Dax.Template.Tests/Dax.Template.Tests.csproj --filter "FullyQualifiedName~<TestName>"`
 - Explicitly excluding live-server tests: add `--filter "FullyQualifiedName!~LiveServer"` (not required, since they self-skip without the env vars, but useful to avoid the "skipped" noise).
+
+## Code coverage & mutation testing
+
+See [coverage.md](coverage.md) for the `coverlet.collector`-based coverage baseline/CI gate and the
+Stryker.NET mutation-testing scaffold (both scoped to the `Dax.Template` core library only).

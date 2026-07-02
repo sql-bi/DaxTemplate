@@ -25,9 +25,44 @@ jobs:
           global-json-file: global.json
       - name: restore
         run: dotnet restore ./src
+      - name: restore dotnet tools
+        run: dotnet tool restore
       - name: build
         run: dotnet build ./src/Dax.Template.sln --configuration Release --no-restore
       - name: test
-        run: dotnet test ./src/Dax.Template.Tests/Dax.Template.Tests.csproj --configuration Release --no-build --verbosity normal
+        run: dotnet test ./src/Dax.Template.Tests/Dax.Template.Tests.csproj --configuration Release --no-build --verbosity normal --collect:"XPlat Code Coverage" --settings ./src/Dax.Template.Tests/coverlet.runsettings --results-directory ./artifacts/coverage
+      - name: coverage report
+        shell: pwsh
+        run: |
+          dotnet tool run reportgenerator "-reports:./artifacts/coverage/*/coverage.cobertura.xml" "-targetdir:./artifacts/coverage/report" "-reporttypes:Cobertura;TextSummary;MarkdownSummaryGithub"
+          Get-Content ./artifacts/coverage/report/Summary.txt
+          if (Test-Path ./artifacts/coverage/report/SummaryGithub.md) {
+            Get-Content ./artifacts/coverage/report/SummaryGithub.md | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+          }
+      - name: coverage threshold gate (Dax.Template core library)
+        shell: pwsh
+        # Phase M / Stage 0 / P0-b (see .claude/SESSION_HANDOFF.md, locked decision #5): the CI-enforced
+        # target is 80% line coverage on Dax.Template only. The measured baseline recorded in
+        # docs/design/coverage.md (2026-07-01) is ~68.4%, below that target, so this gate is wired as a
+        # non-regression floor (COVERAGE_LINE_THRESHOLD, comfortably under the baseline) rather than the
+        # aspirational 80% -- it fails only on a material coverage regression, not on missing the 80%
+        # target yet. Raise COVERAGE_LINE_THRESHOLD (and eventually make it 80) as Stage 0 P1/P2
+        # characterization tests land; see docs/design/coverage.md for the plan.
+        env:
+          COVERAGE_LINE_THRESHOLD: "65"
+        run: |
+          [xml]$cobertura = Get-Content ./artifacts/coverage/report/Cobertura.xml
+          $linePct = [math]::Round([double]$cobertura.coverage.'line-rate' * 100, 1)
+          $thresholdPct = [double]$env:COVERAGE_LINE_THRESHOLD
+          Write-Host "Dax.Template line coverage: $linePct% (interim floor: $thresholdPct%; target: 80%)"
+          if ($linePct -lt $thresholdPct) {
+            Write-Error "Dax.Template line coverage $linePct% dropped below the interim floor of $thresholdPct%."
+            exit 1
+          }
+      - name: upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report-${{ matrix.os-version }}
+          path: artifacts/coverage/report
       - name: pack
         run: dotnet pack ./src/Dax.Template/Dax.Template.csproj --configuration Release --no-build --no-restore --verbosity normal

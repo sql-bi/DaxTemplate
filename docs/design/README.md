@@ -9,6 +9,7 @@ These are **not** loaded automatically into an agent's context — read on deman
 - [measures.md](measures.md) — `MeasuresTemplate` / `MeasureTemplateBase`, target-measure expansion, `SQLBI_Template` idempotency.
 - [domain-model-and-conventions.md](domain-model-and-conventions.md) — `Model/*`, `EntityBase`, the additive-JSON rule, the `Syntax/` DAX expression subsystem and dependency-sort machinery.
 - [testing.md](testing.md) — offline golden-file harness, live-server opt-in tests, `InternalsVisibleTo`.
+- [coverage.md](coverage.md) — coverlet coverage configuration and baseline, CI threshold gate, Stryker.NET mutation-testing scaffold.
 
 ## Keeping these docs current
 
