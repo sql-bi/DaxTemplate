@@ -1,7 +1,7 @@
 # Session Handoff — DAX Template: new DAX entities
 
 > Resume instructions: open this repo in Claude Code and say
-> **"Read .claude/SESSION_HANDOFF.md and start Phase M Stage 1 (style/analyzer infrastructure)."**
+> **"Read .claude/SESSION_HANDOFF.md and start Phase M Stage 2 (mechanical modernization sweeps)."**
 > Last updated: 2026-07-02
 
 ## Goal
@@ -155,7 +155,7 @@ for explicit sign-off.
   warning remains in `Dax.Template.TestUI` — unrelated to this upgrade (predates it).
 - **Supersedes** the "Keep `net6.0;net8.0`" decision recorded above under "Decisions locked in".
 
-### Phase M — Modernization & Refactor (IN PROGRESS — Stage 0 COMPLETE, Stage 1 active, precedes Phase 1)
+### Phase M — Modernization & Refactor (IN PROGRESS — Stage 0 + Stage 1 COMPLETE, Stage 2 active, precedes Phase 1)
 Codebase inventory (verified 2026-07-01): 61 library `.cs` files, ~93 public types.
 Subsystems: Model(7) / Tables(11) / Measures(2) / Syntax(11) / Extensions(6) / Interfaces(7) /
 Enums(2) / Exceptions(7) / Constants(2) / root(6).
@@ -244,14 +244,60 @@ Cosmetic only — do not affect baseline determinism:
 - Latent `ulong`-enum `OverflowException` risk in `FormatField`.
 - `CancellationToken = default` renders as `= null`.
 
-- **Stage 1 — Style/analyzer infrastructure** — devops.
-  Add `Directory.Build.props` (centralize TargetFramework/LangVersion 14/Nullable/analyzers); enable
-  .NET analyzers (+ optional Roslynator); escalate key `.editorconfig` rules suggestion->warning;
-  file-scoped namespaces are house style (LOCKED); add CI `dotnet format --verify-no-changes` gate;
-  wire warnings-as-errors into the CI build (LOCKED, 2026-07-01: CI-only, not necessarily local dev
-  builds); fix the pre-existing CS8602 in `TestUI/ApplyDaxTemplate.cs:315`.
-  Exit: clean `dotnet format` baseline + CI enforcement; conventions recorded in AGENTS.md/docs.
-- **Stage 2 — Mechanical modernization sweeps (low-risk), subsystem by subsystem** — backend (+
+- **Stage 1 — Style/analyzer infrastructure — COMPLETE (2026-07-02)** — devops.
+  - [x] Add `Directory.Build.props` (centralize TargetFramework/LangVersion 14/Nullable/analyzers).
+  - [x] Enable .NET analyzers (+ optional Roslynator); escalate key `.editorconfig` rules
+    suggestion->warning.
+  - [x] File-scoped namespaces recorded as house style (LOCKED) — actual conversion deferred to
+    Stage 2.
+  - [x] Add CI `dotnet format --verify-no-changes` gate.
+  - [x] Wire warnings-as-errors into the CI build (LOCKED, 2026-07-01: CI-only, not necessarily local
+    dev builds).
+  - [x] Fix the pre-existing CS8602 in `TestUI/ApplyDaxTemplate.cs:315`.
+  - [x] Exit MET: clean `dotnet format` baseline + CI enforcement; conventions recorded in AGENTS.md.
+    See "Stage 1 — outcomes (2026-07-02)" below for the full result.
+
+#### Stage 1 — outcomes (2026-07-02)
+- **`src/Directory.Build.props` (new):** centralizes `LangVersion=14.0`, `Nullable=enable`,
+  `EnableNETAnalyzers=true`, `AnalysisLevel=latest-recommended`, `EnforceCodeStyleInBuild=true`.
+  `TargetFramework` deliberately left per-project (so `TestUI` stays `net10.0-windows`). No
+  `TreatWarningsAsErrors` in the props file — WAE is wired CI-only (see below).
+- **Pre-existing `CS8602` fixed** — `TestUI/ApplyDaxTemplate.cs:315`, a real latent NRE guard (not
+  cosmetic).
+- **`dotnet format` baseline established** across **72 files** (whitespace/EOL/final-newline/using-
+  ordering only — NO file-scoped-namespace conversion, NO logic changes). Golden BIM +
+  `PublicApi.txt` confirmed byte-identical. CI now runs `dotnet format --verify-no-changes` on both
+  GitHub Actions and Azure Pipelines.
+- **CI-only warnings-as-errors** wired into both pipelines (`-p:TreatWarningsAsErrors=true`), with a
+  `WarningsNotAsErrors` allowlist in `Directory.Build.props` covering the 17 currently-present
+  analyzer codes = Stage-2-deferred debt. Gate verified to have teeth: compiler `CSxxxx` warnings and
+  any new, non-allowlisted analyzer code break CI; the 95 remaining allowlisted warnings do not.
+  Local dev builds stay lenient.
+- **`CA1707` disabled for the test project only** (idiomatic xUnit `Method_Scenario_Expected` names);
+  the 18 production `CA1707` hits remain deferred to Stage 2. `csharp_style_namespace_declarations =
+  file_scoped:suggestion` set as documented house style (actual conversion is a Stage 2 sweep).
+- **`AGENTS.md`** gained a "Code style & analyzers" subsection.
+- Suite still **129 passed + 1 skipped**. Committed as 5 commits on `add-calendar` (`27a740a`..
+  `45e2abb`); Stage 0's commits already pushed, these not yet (unless noted otherwise by the lead).
+
+#### Stage 2 entry — analyzer-debt ratchet
+Stage 2 mechanical sweeps should, per subsystem, FIX the underlying issue for each allowlisted code
+and then REMOVE that code from the `WarningsNotAsErrors` allowlist in `Directory.Build.props` — the
+list shrinks toward empty as sweeps land. Code -> work mapping to plan the sweeps:
+- **Mechanical/low-risk (fix early):** `CA1805` (redundant default init, ~29), `CA1860` (`Count == 0`
+  vs `.Any()`, ~5), `CA1874` (`Regex.IsMatch`, ~6), `CA1510` (`ArgumentNullException.ThrowIfNull`,
+  ~2), `CA1868` (~1), `CA1816`/`CA1852`/`CA1859`/`CA1869`/`CA2263` (misc small counts; several in
+  `TestUI`).
+- **Needs judgment / API decision (defer within Stage 2, review each):** `CA1707` on 18 PUBLIC
+  constants (API rename -> must deliberately update the `PublicApi.txt` baseline), `CA1051` (visible
+  instance fields — base-class field design; route to `dotnet-architect`), `CA1305`/`CA1309`
+  (culture-sensitive string ops — a real DAX/TOM correctness question, not just style),
+  `CA1711`/`CA1716` (type/param naming — public surface), `CA1725` (override param-name consistency).
+- Also fold in the Stage 0 defect backlog (dropped `Description`, Holidays phantom table,
+  `GetHierarchies` bare exception, cycle-detection weakness, etc. — see "Defect backlog surfaced by
+  Stage 0 characterization" above) as Stage 2/3 fix-tests.
+
+- **Stage 2 — Mechanical modernization sweeps (low-risk), subsystem by subsystem — ACTIVE** — backend (+
   frontend for the TestUI WinForms project).
   Order leaf->core: Constants/Enums -> Exceptions -> Extensions -> Model -> Syntax -> Measures ->
   Tables (date branch last) -> Engine/Package -> TestUI.
@@ -357,9 +403,9 @@ TOM class library — not a change to the Phase 1/2/3 checklists below, just the
 
 ## Phase M — locked decisions (2026-07-01)
 All five decisions below are LOCKED by the user. Phase M is now IN EXECUTION (kicked off 2026-07-01):
-Stage 0 (test hardening) is COMPLETE (2026-07-02); Stage 1 (style/analyzer infrastructure) is the
-ACTIVE work; Stages 2-4 remain queued behind it. The locks are the agreed constraints for that
-execution.
+Stage 0 (test hardening) and Stage 1 (style/analyzer infrastructure) are COMPLETE (both 2026-07-02);
+Stage 2 (mechanical modernization sweeps) is the ACTIVE work; Stages 3-4 remain queued behind it. The
+locks are the agreed constraints for that execution.
 
 1. **Warnings-as-errors: YES, CI-only.** Treat warnings as errors in the CI build, not necessarily in
    local dev builds. Stage 1 wires this into the CI pipeline(s).
@@ -441,21 +487,29 @@ Worktrees on the tree: main=add-calendar (@972c8cc), funny-blackwell-7789aa (@32
 (@972c8cc). The funny-blackwell worktree is now behind; prune it if unused.
 
 ## Next session — start here
-1. `add-calendar` is pushed to origin (@6bbad5d, 2026-07-01); Stage 0 work landed as 5 further commits
-   (`50eb033`..`8a49b46`) NOT yet pushed.
+1. `add-calendar` is pushed to origin (@6bbad5d, 2026-07-01); Stage 0 landed as 5 further commits
+   (`50eb033`..`8a49b46`) and Stage 1 as another 5 commits (`27a740a`..`45e2abb`) — none of these 10
+   pushed yet.
 2. Phase M Stage 0 (test hardening) is COMPLETE (2026-07-02) — see "Stage 0 — outcomes (2026-07-02)"
    under "Phase M" above for the full result (129 passed + 1 skipped, public-API baseline, coverage
    baseline + CI floor, Stryker.NET wired).
-3. Phase M is now on **Stage 1 (style/analyzer infrastructure)** — devops. Add `Directory.Build.props`
-   (centralize TargetFramework/LangVersion 14/Nullable/analyzers); enable .NET analyzers (+ optional
-   Roslynator); escalate key `.editorconfig` rules suggestion->warning; file-scoped namespaces are house
-   style (LOCKED); add CI `dotnet format --verify-no-changes` gate; wire warnings-as-errors into the CI
-   build (LOCKED, CI-only); fix the pre-existing CS8602 in `TestUI/ApplyDaxTemplate.cs:315`. Use the kit
-   tooling per the "Phase M — dotnet-claude-kit alignment" subsection (Stage 1 entry).
-4. The "Phase M — locked decisions" (warnings-as-errors, file-scoped namespaces + primary constructors,
-   `required` migration, public-API scope, coverage threshold) remain LOCKED and govern Stage 1-2 work.
-5. Once Phase M reaches its Stage 4 closeout, resolve Open Question #1 (Calendar column-binding:
+3. Phase M Stage 1 (style/analyzer infrastructure) is also COMPLETE (2026-07-02) — see "Stage 1 —
+   outcomes (2026-07-02)" under "Phase M" above (`Directory.Build.props`, 72-file `dotnet format`
+   baseline, CI-only warnings-as-errors with a 17-code `WarningsNotAsErrors` allowlist, the CS8602 fix,
+   `AGENTS.md` style docs; suite still 129 passed + 1 skipped).
+4. Phase M is now on **Stage 2 (mechanical modernization sweeps)** — backend (+ frontend for TestUI).
+   Work leaf->core: Constants/Enums -> Exceptions -> Extensions -> Model -> Syntax -> Measures ->
+   Tables (date branch last) -> Engine/Package -> TestUI, applying file-scoped namespaces + primary
+   constructors (LOCKED house style), the `required` migration (major version bump), collection
+   expressions, and the rest of the Stage 2 feature list, gated per-subsystem (golden byte-identical +
+   full offline suite + API baseline + reviewer). Per subsystem, also FIX and REMOVE the corresponding
+   code(s) from the `WarningsNotAsErrors` allowlist per the "Stage 2 entry — analyzer-debt ratchet"
+   note above, so the allowlist shrinks toward empty as sweeps land. Use the kit tooling per the
+   "Phase M — dotnet-claude-kit alignment" subsection (Stage 2 entry).
+5. The "Phase M — locked decisions" (warnings-as-errors, file-scoped namespaces + primary constructors,
+   `required` migration, public-API scope, coverage threshold) remain LOCKED and govern Stage 2 work.
+6. Once Phase M reaches its Stage 4 closeout, resolve Open Question #1 (Calendar column-binding:
    TMDL/JSON injection vs reflection) BEFORE Phase 1 backend.
-6. Begin Phase 1 (Calendars): CalendarTemplateDefinition POCO + ApplyCalendarTemplate handler in Engine dispatch
+7. Begin Phase 1 (Calendars): CalendarTemplateDefinition POCO + ApplyCalendarTemplate handler in Engine dispatch
    + additive TemplateEntry/config + idempotency via SQLBI_Template annotation. Add a Calendar golden test next
    to ApplyTemplatesGoldenTests (extend OfflineModelFixture as needed) + opt-in live-server check.
