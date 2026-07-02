@@ -1,0 +1,4 @@
+{
+  "Description": "Malformed JSON used to characterize Package.LoadFromFile's failure mode",
+  invalid
+}

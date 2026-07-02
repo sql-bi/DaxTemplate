@@ -1,0 +1,6 @@
+{
+  "Description": "Reviewer follow-up A: MeasuresTemplate using @@GETMINDATE()/@@GETMAXDATE() with AutoScan omitted from the config entirely",
+  "Templates": [
+    { "Class": "MeasuresTemplate", "Table": null, "Template": "AutoScanOmitted-01.json" }
+  ]
+}

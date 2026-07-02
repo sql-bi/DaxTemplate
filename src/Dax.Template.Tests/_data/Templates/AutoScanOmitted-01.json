@@ -1,0 +1,12 @@
+{
+  "_comment": "Reviewer follow-up A: single-instance measure referencing the date macros with no AutoScan configured anywhere in the owning template config",
+  "TargetTable": { "Name": "Sales" },
+  "TemplateAnnotations": { "SQLBI_Template": "AutoScanOmitted" },
+  "MeasureTemplates": [
+    {
+      "Name": "DateRange",
+      "IsSingleInstance": true,
+      "Expression": "@@GETMINDATE() & \" - \" & @@GETMAXDATE()"
+    }
+  ]
+}
