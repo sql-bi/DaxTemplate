@@ -165,32 +165,9 @@ public class MeasureTemplateBase : Model.Measure
         measure.DisplayFolder = DisplayFolder;
         measure.Description = Description;
         measure.Expression = GetDaxExpression(model, ReferenceMeasure?.Name);
-        ApplyAnnotations(measure, cancellationToken);
+        measure.Annotations.UpsertAnnotations(Annotations, cancellationToken);
 
         return measure;
-
-        void ApplyAnnotations(TabularMeasure measure, CancellationToken cancellationToken = default)
-        {
-            if (Annotations == null) return;
-            foreach (var annotation in Annotations)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-
-                var annotationName = annotation.Key;
-                var annotationValue = annotation.Value.ToString();
-
-                Annotation? tabularAnnotation = measure.Annotations.FirstOrDefault(a => a.Name == annotationName);
-                if (tabularAnnotation == null)
-                {
-                    tabularAnnotation = new Annotation { Name = annotationName, Value = annotationValue };
-                    measure.Annotations.Add(tabularAnnotation);
-                }
-                else
-                {
-                    tabularAnnotation.Value = annotationValue;
-                }
-            }
-        }
     }
     public string GetDaxExpression(TabularModel model) => GetDaxExpression(model, originalMeasureName: null);
     public virtual string GetDaxExpression(TabularModel model, string? originalMeasureName)

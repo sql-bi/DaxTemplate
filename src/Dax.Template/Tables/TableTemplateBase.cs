@@ -1,5 +1,6 @@
 ﻿using Dax.Template.Constants;
 using Dax.Template.Exceptions;
+using Dax.Template.Extensions;
 using Microsoft.AnalysisServices.Tabular;
 using System;
 using System.Collections.Generic;
@@ -325,29 +326,10 @@ public abstract class TableTemplateBase
         }
     }
 
-    // TODO: this code is very similar to ApplyAnnotations in MeasuresTemplateBase.cs - evaluate whether we should consolidate the code in a single function
     protected virtual void AddAnnotations(Table dateTable, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        if (Annotations is null) return;
-        foreach (var annotation in Annotations)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            var annotationName = annotation.Key;
-            var annotationValue = annotation.Value.ToString();
-
-            Annotation? tabularAnnotation = dateTable.Annotations.FirstOrDefault(a => a.Name == annotationName);
-            if (tabularAnnotation is null)
-            {
-                tabularAnnotation = new Annotation { Name = annotationName, Value = annotationValue };
-                dateTable.Annotations.Add(tabularAnnotation);
-            }
-            else
-            {
-                tabularAnnotation.Value = annotationValue;
-            }
-        }
+        dateTable.Annotations.UpsertAnnotations(Annotations, cancellationToken);
     }
 
     protected virtual void AddHierarchies(Table dateTable, CancellationToken cancellationToken = default)

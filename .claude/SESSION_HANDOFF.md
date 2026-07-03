@@ -350,6 +350,22 @@ allowlist holds only CA1305/CA1309 (Stage 3 culture).**
   with documented TOM-version fragility; readability pass on the Syntax subsystem; consistency pass on
   exceptions/messages.
   Each item proposed/reviewed/gated individually; behavior-preserving.
+
+#### Stage 3 progress
+- **Item 1 — annotation-upsert dedup — DONE (2026-07-03, not yet committed)** — `refactor-cleaner`.
+  Extracted the duplicated upsert loop (the 2+yr-old TODO at `Tables/TableTemplateBase.cs:328`) into a
+  new `internal static` extension `Extensions/AnnotationCollectionExtensions.cs` →
+  `UpsertAnnotations<TOwner>(this NamedMetadataObjectCollection<Annotation, TOwner>, IEnumerable<KeyValuePair<string,string>>?, CancellationToken)`
+  (generic over TOM's real base — there is no concrete `AnnotationCollection` type). `TableTemplateBase.AddAnnotations`
+  keeps its `protected virtual` signature and delegates (retaining its upfront `ThrowIfCancellationRequested()`);
+  `MeasureTemplateBase`'s local `ApplyAnnotations` deleted, call site delegates. Behavior-preserving:
+  build green, offline suite **129 passed + 1 skipped**, golden BIM + `PublicApi.txt` byte-identical (no
+  `UPDATE_GOLDEN`). `code-reviewer` verdict **GO**; the one should-fix (XML doc summary on the helper) was
+  applied. Group B defect fixes + the CA1305/CA1309 culture decision remain DEFERRED until after the Group A
+  refactors (per user, 2026-07-03).
+- Remaining Group A: reflection encapsulation (ReflectionHelper/GetModelChanges), Syntax readability pass,
+  exceptions/messages consistency (incl. the "Circulare" typo + `daxExpressionmessage` param in
+  `CircularDependencyException.cs`).
 - **Stage 4 — Docs sync & closeout** — docs + reviewer.
   Update AGENTS.md/docs/design for any changed conventions; final reviewer gate.
 
