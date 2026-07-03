@@ -22,6 +22,14 @@ then `reportgenerator` produces a Cobertura summary, then a threshold gate step 
 
 ## Measured baseline (2026-07-02, post Measures/Package top-up)
 
+> **Update (Stage 3, 2026-07-03):** the offline suite is now **131 total — 130 passed + 1 skipped** after
+> the Phase M Stage 3 Group B fix-tests (characterization tests converted to fix-tests + one new
+> `Dispatch-08` reference-table-cleanup test). The percentages in this document are the **2026-07-02
+> baseline snapshot** and were not re-measured for Stage 3. Each Stage 3 production-code change shipped
+> with a converted or added test exercising it, so line coverage should not have regressed and remains
+> above the CI-enforced 80% floor. Re-baseline with a fresh coverlet run if exact current percentages are
+> needed.
+
 Measured by reproducing the CI sequence locally against the full offline suite (130 tests: 129 passed, 1
 skipped — the skipped test is a `[LiveServerFact]` that self-skips without live-server env vars). This
 suite grew from 88 to 129 passing tests via a targeted characterization-test top-up focused on the two

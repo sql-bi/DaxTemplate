@@ -269,10 +269,10 @@ dotnet_diagnostic.IDE0046.severity = none
 # IDE0045: Convert to conditional expression
 dotnet_diagnostic.IDE0045.severity = none
 
-# Phase M / Stage 1 step 1C: CA1707 ("identifiers should not contain underscores") is disabled
-# for the test project only. The 105 hits there are the idiomatic xUnit `Method_Scenario_Expected`
-# naming convention (intentional, not debt). The 18 CA1707 hits in src/Dax.Template itself
-# (production code, including some public constants) stay deferred to the Stage 2 sweep - CA1707
-# is NOT disabled repo-wide.
+# CA1707 ("identifiers should not contain underscores") is disabled for the test project only
+# (see the [src/Dax.Template.Tests/**.cs] section below). The 105 hits there are the idiomatic xUnit
+# `Method_Scenario_Expected` naming convention (intentional, not debt). In src/Dax.Template production
+# code CA1707 is fully clean: the Stage 2 public-API rename sweep (2.10b) eliminated all 18 hits and
+# CA1707 was removed from the WarningsNotAsErrors allowlist. CA1707 is NOT disabled repo-wide.
 [src/Dax.Template.Tests/**.cs]
 dotnet_diagnostic.CA1707.severity = none

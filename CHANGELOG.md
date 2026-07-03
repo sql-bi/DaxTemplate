@@ -51,6 +51,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   this codebase); read/write access from subclasses is otherwise unaffected. No runtime behavior, emitted
   DAX/BIM output, or JSON template configuration is affected — these hold template-build state, not
   JSON-deserialized or emitted values.
+- **BREAKING (next release: 2.0.0):** exception constructor parameter renames (identifier-only; messages
+  and runtime behavior are otherwise unchanged): `daxExpressionmessage` → `daxExpression` on
+  `CircularDependencyException`, `InvalidVariableReferenceException`, and all three
+  `InvalidMacroReferenceException` constructors; `entitymessage` → `entityName` on
+  `InvalidAttributeException`. Also fixes a message typo in `CircularDependencyException`: "Circulare
+  dependency" → "Circular dependency".
+- **BREAKING (next release: 2.0.0):** `Extensions.ReflectionHelper` (and its `GetPropertyValue`/
+  `SetPropertyValue` extension methods) is now `internal` (was `public`) and removed from the public API
+  surface — it is TOM-internal reflection plumbing used by `Engine.GetModelChanges`; test code reaches it
+  via `InternalsVisibleTo`. `PublicApi.txt` was regenerated accordingly.
 
 ### Fixed
 
@@ -63,9 +73,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   internal state that consumers of `Hierarchy`/`Level` rely on.
 - Removed a redundant, no-op `Description` re-assignment in `CustomTableTemplate` when
   building hierarchies.
+- `ApplyHolidaysDefinitionTable` no longer leaves a phantom empty table in the model when
+  `TemplateEntry.Template` is blank — the `InvalidConfigurationException` validation now runs
+  before the target table is found-or-created, instead of after.
+- `CustomTableTemplate<T>.GetHierarchies` now throws a descriptive `TemplateException` naming the
+  hierarchy, level, and unknown column (e.g. `Hierarchy 'X' level 'Y' references unknown column
+  'Z'`) instead of a bare `InvalidOperationException` when a hierarchy level references a column
+  that doesn't exist.
+- `TableTemplateBase.AddHierarchies` now copies `Description` onto the generated TOM `Hierarchy`
+  and `Level` objects (previously silently dropped). No shipped template configures hierarchy/level
+  descriptions today, so emitted BIM for existing configs is unchanged. (This is a distinct fix from
+  the redundant no-op `Description` re-assignment removed above — that one was dead code; this one
+  is a genuine behavior fix.)
+- Dependency-sort cycle detection (`Extensions.TSort`) now detects multi-node (2+) cycles promptly
+  via DFS recursion-path tracking, throwing `CircularDependencyException` naming the offending
+  node's expression — previously a 2+ node cycle was only caught after a 1000-nested-call backstop,
+  with a generic "stack overflow" message. The `MAX_NESTED_CALLS` guard was removed. Note: a valid
+  but pathologically deep (>~1000 levels) *acyclic* dependency graph now fails via a CLR stack
+  overflow instead of a catchable exception; no current template approaches this depth.
+- A disabled `CustomDateTable` entry (`IsEnabled == false`) now removes its previously-created date
+  table, and its reference table if `ReferenceTable` is configured, consistent with the
+  `HolidaysDefinitionTable`/`HolidaysTable` handlers — previously it left both tables in the model.
+- Generated DAX now formats year integers with `CultureInfo.InvariantCulture`
+  (`BaseDateTemplate<T>.GenerateMinYearExpression`/`GenerateMaxYearExpression`/
+  `GenerateCalendarExpression`), making emitted DAX locale-independent (guards against non-Latin-digit
+  locales). Output on Latin-digit cultures is unchanged.
 
 ### Added
 
 - `HierarchyTabularReferenceTests`, covering the hierarchy/level back-reference contract
   fixed above, level ordinal ordering, column binding on levels, and `Reset()` behavior
   for hierarchies and levels.
+- Characterization tests for the defects fixed above were converted to fix-tests (asserting the
+  corrected behavior instead of documenting the prior bug), plus a new `Dispatch-08` fixture and
+  test covering the disabled-`CustomDateTable` reference-table cleanup. The offline suite now
+  stands at 130 passing + 1 skipped.

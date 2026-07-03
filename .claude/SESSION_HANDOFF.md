@@ -467,8 +467,23 @@ digit-substitute, so it would lack teeth; guarantees = WAE-green + byte-identica
 All Group A refactors (items 1-4) + all Group B defect fixes (B1-B5) + the CA1305/CA1309 culture item are
 done, reviewed, and committed. The Stage-2 analyzer-debt allowlist is fully cleared (empty). Suite 130
 passed + 1 skipped; golden BIM stable throughout. NEXT: **Stage 4 (docs sync & closeout)**.
-- **Stage 4 — Docs sync & closeout** — docs + reviewer.
-  Update AGENTS.md/docs/design for any changed conventions; final reviewer gate.
+- **Stage 4 — Docs sync & closeout — DONE (2026-07-03)** — `dotnet-team:docs` + `code-reviewer`.
+  Synced CHANGELOG.md (`[Unreleased]`/2.0.0 Changed+Fixed+Added: exception param renames, ReflectionHelper
+  internal, the 5 Group B behavior fixes, invariant-culture DAX), AGENTS.md ("Code style & analyzers":
+  allowlist now empty + CA1707 production-clean), `.editorconfig` (stale CA1707 comment), and 4 design docs
+  (domain-model-and-conventions: TSort DFS cycle detection + Syntax docs; apply-templates-lifecycle:
+  CustomDateTable/Holidays disable + GetModelChanges offline note; table-generation: Description copy +
+  GetHierarchies TemplateException + invariant year formatting; coverage: dated Stage-3 suite-count note).
+  Closeout gate GREEN: WAE build 0 warnings, `dotnet format --verify-no-changes` clean, no vulnerable
+  packages, suite 130 passed + 1 skipped. `code-reviewer` final verdict **GO-WITH-NITS** (all doc claims
+  verified against source; the one wording nit on coverage.md was fixed).
+
+## ✅ PHASE M COMPLETE (2026-07-03)
+Stages 0 (test hardening) -> 1 (style/analyzer infra) -> 2 (mechanical modernization) -> 3 (deeper
+refactors + defect backlog + culture) -> 4 (docs closeout) are ALL done, reviewed, and committed. The
+WarningsNotAsErrors allowlist is empty; suite 130 passed + 1 skipped; golden BIM stable; public API on the
+2.0.0 track. **NEXT: Phase 1 (Calendars).** Before Phase 1 backend, resolve Open Question #1 (Calendar
+column-binding: TMDL/JSON injection (preferred) vs reflection) — see the RISK section near the top.
 
 ### Phase M — dotnet-claude-kit alignment (2026-07-01)
 Additive to the five LOCKED decisions below — nothing here changes scope, targets, or coverage numbers;

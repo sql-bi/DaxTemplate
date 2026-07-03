@@ -25,6 +25,8 @@ Calculated-table and measure templates don't concatenate DAX strings by hand; th
 - `Var` (abstract) / `VarGlobal` / `VarRow` / `VarScope` — DAX variables scoped either globally to the table expression or per-row; `Var` implements `IDependencies<DaxBase>`, `IDaxName`, `IDaxComment`.
 - `IDependencies<T>`, `IGlobalScope`, `IDaxName`, `IDaxComment` — the contracts the dependency-sort and code-generation machinery below operate against.
 
+Every type in this subsystem now carries XML doc comments (public-API documentation, Stage 3).
+
 ## Dependency resolution & topological sort
 
 Expressions reference each other by name (`__VarName` or `[ColumnName]` tokens).
@@ -32,7 +34,7 @@ Three extension methods under [src/Dax.Template/Extensions/](../../src/Dax.Templ
 
 - `ComputeDependencies.cs` (`AddDependenciesFromExpression`) — scans each element's `Expression` text with a regex, resolves referenced tokens against the set of known `IDaxName` elements, and throws `InvalidVariableReferenceException` for an unresolved reference.
 - `GetDependencies.cs` (`GetDependencies`) — walks an item's `Dependencies` graph.
-- `TSort.cs` (`TSort`) — topologically sorts elements by dependency, assigning each a nesting "level" (used to decide which `VAR`s belong at which step of the generated DAX); it detects and reports cycles via `CircularDependencyException`.
+- `TSort.cs` (`TSort`) — topologically sorts elements by dependency, assigning each a nesting "level" (used to decide which `VAR`s belong at which step of the generated DAX); it detects cycles — including multi-node/N-way cycles, not just self-references — via DFS recursion-path tracking (a node already on the current path means a cycle), and reports them through `CircularDependencyException`, naming the offending node's expression. A pathologically deep (>~1000 levels) but *acyclic* dependency graph is not caught by this mechanism and fails via a CLR stack overflow instead; no current template approaches that depth.
 - `GetScanColumns.cs` (`GetScanColumns`) — given an `IScanConfig` (`OnlyTablesColumns`/`ExceptTablesColumns`/`AutoScan`), finds the model columns to consider for auto-detection (e.g. the min/max date range for `MeasuresTemplate`, or the date columns for the date-table templates' `AutoScan`-driven year-range detection).
 
 `AutoScan` (`Enums/AutoScan.cs`, `[Flags]`) controls *how* columns are auto-detected (`Disabled`, `SelectedTablesColumns`, `ScanActiveRelationships`, `ScanInactiveRelationships`, `Full`).

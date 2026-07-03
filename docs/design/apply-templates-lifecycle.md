@@ -41,9 +41,9 @@ flowchart TD
 
 ## Per-entry behavior
 
-- **`HolidaysDefinitionTable` / `HolidaysTable`**: find-or-create the target `Table` by `TemplateEntry.Table`; if `IsEnabled == false`, remove the table (and disable `Configuration.HolidaysReference`) instead of applying anything.
-  Otherwise construct the template type and call its `ApplyTemplate(table, isHidden, cancellationToken)`, then `RequestTableRefresh`.
-- **`CustomDateTable`**: optionally creates a hidden `ReferenceTable` first (shared/reused DAX expression for multiple visible date tables), then the visible date table itself, both via the private `CreateDateTable` helper, which instantiates `Tables/Dates/CustomDateTable` and applies it.
+- **`HolidaysDefinitionTable` / `HolidaysTable`**: find the target `Table` by `TemplateEntry.Table` (without creating it yet). If `IsEnabled == false`, remove the table if it exists (and disable `Configuration.HolidaysReference`) instead of applying anything.
+  Otherwise validate the entry first — `HolidaysDefinitionTable` requires a non-blank `TemplateEntry.Template`, throwing `InvalidConfigurationException` otherwise — **before** creating the table, so an invalid/empty `Template` no longer leaves a phantom empty table in the model. Only then find-or-create the table, construct the template type, call its `ApplyTemplate(table, isHidden, cancellationToken)`, and `RequestTableRefresh`.
+- **`CustomDateTable`**: validates `TemplateEntry.Template` and `TemplateEntry.Table` are non-blank (`InvalidConfigurationException` otherwise). If `IsEnabled == false`, removes the previously-created date table (`TemplateEntry.Table`) and, if configured, its reference table (`TemplateEntry.ReferenceTable`) — symmetric with the `HolidaysDefinitionTable`/`HolidaysTable` handling above (previously a disabled entry left both tables in the model). Otherwise it optionally creates a hidden `ReferenceTable` first (shared/reused DAX expression for multiple visible date tables), then the visible date table itself, both via the private `CreateDateTable` helper, which instantiates `Tables/Dates/CustomDateTable` and applies it.
 - **`MeasuresTemplate`**: reads a `MeasuresTemplateDefinition` from JSON and calls `MeasuresTemplate.ApplyTemplate(model, isEnabled, cancellationToken)` — see [measures.md](measures.md).
 - After all entries are applied, `RemoveOrphanTranslations` (local function) removes culture `ObjectTranslations` pointing at removed objects, and removes `model.Relationships` that reference a removed table or column.
 
@@ -58,3 +58,5 @@ A disconnected (in-memory, offline) model has no `Server` and would throw if ask
 When `model.HasLocalChanges`, it walks the TOM transaction log — `TxManager` → `CurrentSavepoint` → `AllBodies` — reached via `Extensions/ReflectionHelper.cs` because those members are internal to the TOM library.
 For each changed `Table`/`Measure`/`Column`/`Hierarchy` it records an add/modify/remove into a `Model.ModelChanges` result (`RemovedObjects`, `ModifiedObjects`), then calls `ModelChanges.SimplifyRemovedObjects` to collapse redundant entries (e.g. a removed column on a removed table).
 This is how a caller can present "what would/did this template change" without re-deriving it from the template definitions.
+
+`GetModelChanges` only inspects the transaction log when `model.HasLocalChanges` is `true`, which TOM only sets on a server-connected model. Calling `GetModelChanges` after applying templates to a disconnected/offline model (as built for the offline test harness) returns an empty `ModelChanges` even though the in-memory model was visibly changed — it is only meaningful against a server-connected model.
