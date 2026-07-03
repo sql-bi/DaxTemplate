@@ -35,12 +35,13 @@
       already-known, already-deferred debt, while still failing CI on any NEW warning (including
       any compiler CSxxxx warning, or any analyzer code not in this list).
 
-      Stage-2 deferred debt - remove each code below as Stage 2 fixes it across all subsystems.
-      Do NOT add new codes here to silence newly-introduced warnings; fix them instead.
+      Stage 3 (2026-07-03): the Stage-2 analyzer-debt allowlist is now EMPTY / fully cleared -
+      the last two codes (CA1305, CA1309) were fixed and removed. Any new analyzer or compiler
+      warning now fails CI. Do NOT add codes here to silence newly-introduced warnings; fix them
+      instead.
     -->
     <WarningsNotAsErrors>
       $(WarningsNotAsErrors);
-      CA1305;CA1309
     </WarningsNotAsErrors>
   </PropertyGroup>
 

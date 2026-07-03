@@ -445,12 +445,28 @@ disable cleanup). Each: TDD (convert the characterization test that PINS the bug
   (Holidays-disable test + Dispatch-07 Description). Golden BIM + `PublicApi.txt` byte-identical; suite
   **130 passed + 1 skipped** (one new test added).
 
-**GROUP B COMPLETE (2026-07-03):** B1+B2 (`f8d0323`), B3 (`2d251b2`), B4 (`4bf6020`), B5 (commit pending).
+**GROUP B COMPLETE (2026-07-03):** B1+B2 (`f8d0323`), B3 (`2d251b2`), B4 (`4bf6020`), B5 (`238a9fe`).
 Suite grew 129->130 (+1 ReferenceTable-cleanup test). All five defect-backlog items from Stage 0 are now
-fixed with fix-tests. **STAGE 3 REMAINING: only the CA1305/CA1309 culture-correctness decision** (the last
-2 codes in the WAE allowlist — needs the user's call on whether emitted DAX/number/date formatting requires
-`InvariantCulture`; lead to map all flagged call sites first). After that, Stage 3 closes and Phase M moves
-to Stage 4 (docs sync + closeout).
+fixed with fix-tests.
+
+#### CA1305/CA1309 culture-correctness (Option B) — DONE (2026-07-03, reviewed GO-WITH-NITS, nit addressed)
+`refactor-cleaner` (+ lead follow-up). User chose **Option B (full correctness)**. Made all year-int->DAX
+formatting invariant in `BaseDateTemplate.GenerateMinYearExpression`/`GenerateMaxYearExpression` (flagged
+`.ToString()` -> `.ToString(CultureInfo.InvariantCulture)` + interpolated int holes wrapped in
+`FormattableString.Invariant(...)`, DAX text incl. trailing spaces byte-preserved), and made
+`MeasuresTemplate.cs:203` `Name.Equals(m.Name)` explicitly `StringComparison.Ordinal` (was already ordinal).
+The reviewer nit (the `GenerateCalendarExpression` CALENDARAUTO fallback interpolated `minYear`/`maxYear`
+with the same latent pattern) was fixed by the lead (same `FormattableString.Invariant` wrap) for
+consistency. **WAE allowlist in `src/Directory.Build.props` is now EMPTY** (removed CA1305;CA1309 - the last
+2 codes; comment updated to record full clearance). Behavior-preserving on Latin-digit cultures: golden BIM +
+`PublicApi.txt` byte-identical, suite 130 passed + 1 skipped, `dotnet build ... -p:TreatWarningsAsErrors=true`
+GREEN (0 warnings repo-wide incl. TestUI). No culture-scoped test (on .NET 10 `int.ToString()` doesn't
+digit-substitute, so it would lack teeth; guarantees = WAE-green + byte-identical golden + explicit invariant).
+
+### PHASE M STAGE 3 COMPLETE (2026-07-03)
+All Group A refactors (items 1-4) + all Group B defect fixes (B1-B5) + the CA1305/CA1309 culture item are
+done, reviewed, and committed. The Stage-2 analyzer-debt allowlist is fully cleared (empty). Suite 130
+passed + 1 skipped; golden BIM stable throughout. NEXT: **Stage 4 (docs sync & closeout)**.
 - **Stage 4 — Docs sync & closeout** — docs + reviewer.
   Update AGENTS.md/docs/design for any changed conventions; final reviewer gate.
 

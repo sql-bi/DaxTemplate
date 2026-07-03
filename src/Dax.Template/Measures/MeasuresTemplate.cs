@@ -200,7 +200,7 @@ public class MeasuresTemplate
         if (overrideExistingMeasures)
         {
             // Remove measures with the same SQLBI_Template attribute that have not been overwritten
-            existingMeasuresFromSameTemplate.RemoveAll(m => appliedMeasures.Any(am => am.Name.Equals(m.Name)));
+            existingMeasuresFromSameTemplate.RemoveAll(m => appliedMeasures.Any(am => am.Name.Equals(m.Name, StringComparison.Ordinal)));
             foreach (var removeMeasure in existingMeasuresFromSameTemplate)
             {
                 cancellationToken.ThrowIfCancellationRequested();

@@ -311,13 +311,13 @@ public abstract class BaseDateTemplate<T> : CustomTableTemplate<T> where T : IDa
             int? maxYear = Config.LastYearMin ?? Config.LastYearMax;
             // Use CALENDARAUTO and apply filter later
             calendarExpression = (minYear == null && maxYear == null) ? "CALENDARAUTO()" :
-$@"
+FormattableString.Invariant($@"
     VAR __FirstYear = {minYear}
     VAR __LastYear = {maxYear}
     RETURN FILTER (
         CALENDARAUTO(),
         {((minYear != null) ? $"YEAR ( [Date] ) >= __FirstYear" : (maxYear != null) ? " && " : "")}{((maxYear != null) ? $"YEAR ( [Date] ) <= __LastYear" : "")}
-)";
+)");
         }
         return calendarExpression;
     }
@@ -333,10 +333,10 @@ $@"
         }
         firstYear =
             (string.IsNullOrEmpty(firstYear)) ?
-                ((Config.FirstYearMin != null) ? Config.FirstYearMin?.ToString() : Config.FirstYearMax?.ToString()) :
-                (Config.FirstYearMin != null && Config.FirstYearMax != null) ? $"MAX ( {Config.FirstYearMin}, MIN ( {Config.FirstYearMax}, {firstYear} ) )" :
-                (Config.FirstYearMin != null) ? $"MAX ( {Config.FirstYearMin}, {firstYear} )" :
-                (Config.FirstYearMax != null) ? $"MIN ( {Config.FirstYearMax}, {firstYear} )" :
+                ((Config.FirstYearMin != null) ? Config.FirstYearMin?.ToString(CultureInfo.InvariantCulture) : Config.FirstYearMax?.ToString(CultureInfo.InvariantCulture)) :
+                (Config.FirstYearMin != null && Config.FirstYearMax != null) ? FormattableString.Invariant($"MAX ( {Config.FirstYearMin}, MIN ( {Config.FirstYearMax}, {firstYear} ) )") :
+                (Config.FirstYearMin != null) ? FormattableString.Invariant($"MAX ( {Config.FirstYearMin}, {firstYear} )") :
+                (Config.FirstYearMax != null) ? FormattableString.Invariant($"MIN ( {Config.FirstYearMax}, {firstYear} )") :
                 firstYear;
 
         return firstYear;
@@ -354,10 +354,10 @@ $@"
         }
         lastYear =
             (string.IsNullOrEmpty(lastYear)) ?
-                ((Config.LastYearMin != null) ? Config.LastYearMin?.ToString() : Config.LastYearMax?.ToString()) :
-                (Config.LastYearMin != null && Config.LastYearMax != null) ? $"MAX ( {Config.LastYearMin}, MIN ( {Config.LastYearMax}, {lastYear} ) )" :
-                (Config.LastYearMin != null) ? $"MAX ( {Config.LastYearMin}, {lastYear} ) " :
-                (Config.LastYearMax != null) ? $"MIN ( {Config.LastYearMax}, {lastYear} ) " :
+                ((Config.LastYearMin != null) ? Config.LastYearMin?.ToString(CultureInfo.InvariantCulture) : Config.LastYearMax?.ToString(CultureInfo.InvariantCulture)) :
+                (Config.LastYearMin != null && Config.LastYearMax != null) ? FormattableString.Invariant($"MAX ( {Config.LastYearMin}, MIN ( {Config.LastYearMax}, {lastYear} ) )") :
+                (Config.LastYearMin != null) ? FormattableString.Invariant($"MAX ( {Config.LastYearMin}, {lastYear} ) ") :
+                (Config.LastYearMax != null) ? FormattableString.Invariant($"MIN ( {Config.LastYearMax}, {lastYear} ) ") :
                 lastYear;
 
         return lastYear;
