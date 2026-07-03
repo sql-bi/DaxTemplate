@@ -86,11 +86,6 @@ public static partial class Extensions
         return result;
     }
 
-    /// <summary>
-    /// Maximum number of nested calls in VisitDependencies
-    /// </summary>
-    private const int MAX_NESTED_CALLS = 1000;
-
     private static void Visit<T>(T item, HashSet<T> visited, List<(T, int level)> sorted, Func<T, IEnumerable<T>?> dependencies) where T : Syntax.IDependencies<Syntax.DaxBase>
     {
         if (visited.Add(item))
@@ -110,36 +105,39 @@ public static partial class Extensions
         }
     }
 
-    private static int VisitDependencies<T>(T item, HashSet<T> visited, List<(T, int level)> sorted, Func<T, IEnumerable<T>?> dependencies, int level = 0, int nestedCalls = 0) where T : Syntax.IDependencies<Syntax.DaxBase>
+    private static int VisitDependencies<T>(T item, HashSet<T> visited, List<(T, int level)> sorted, Func<T, IEnumerable<T>?> dependencies, int level = 0, HashSet<T>? path = null) where T : Syntax.IDependencies<Syntax.DaxBase>
     {
-        var allDependencies = dependencies(item);
-        // var dependenciesListAddLevel = allDependencies?.Where(d => d.AddLevel == true);
+        path ??= [];
 
-        if (nestedCalls > MAX_NESTED_CALLS)
+        // A cycle exists if `item` is already on the current DFS path (covers self-cycles AND N-node mutual cycles).
+        if (!path.Add(item))
         {
-            string? varName = (item as IDaxName)?.DaxName.ToString();
-            throw new CircularDependencyException(varName, "{STACK OVERFLOW: check complex dependencies}");
+            throw new CircularDependencyException((item as IDaxName)?.DaxName, item.Expression);
         }
 
-        if (allDependencies?.Contains(item) == true)
+        try
         {
-            throw new CircularDependencyException((item as IDaxName)?.DaxName.ToString(), item.Expression);
-        }
+            var allDependencies = dependencies(item);
 
-        level += item.AddLevel ? 1 : 0;
-        int maxLevel = level;
-        if (allDependencies != null)
-        {
-            foreach (var dep in allDependencies)
+            level += item.AddLevel ? 1 : 0;
+            int maxLevel = level;
+            if (allDependencies != null)
             {
-                var nestedLevel = VisitDependencies(dep, visited, sorted, dependencies, level, ++nestedCalls);
-                if (nestedLevel > maxLevel)
+                foreach (var dep in allDependencies)
                 {
-                    maxLevel = nestedLevel;
+                    var nestedLevel = VisitDependencies(dep, visited, sorted, dependencies, level, path);
+                    if (nestedLevel > maxLevel)
+                    {
+                        maxLevel = nestedLevel;
+                    }
                 }
             }
-        }
 
-        return maxLevel;
+            return maxLevel;
+        }
+        finally
+        {
+            path.Remove(item); // backtrack so siblings / diamond re-joins still process this node
+        }
     }
 }

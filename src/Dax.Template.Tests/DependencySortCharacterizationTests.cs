@@ -54,27 +54,32 @@ namespace Dax.Template.Tests
             var node = new DaxElement { Expression = "SelfRef" };
             node.Dependencies = new IDependencies<DaxBase>[] { node };
 
-            // Act & Assert: current behavior detects a direct self-reference via the
-            // `allDependencies.Contains(item)` check in VisitDependencies and throws immediately
-            // (no deep recursion needed).
+            // Act & Assert: VisitDependencies tracks the current DFS recursion path (Extensions/TSort.cs);
+            // re-visiting `node` while it is still on that path is detected the moment the self-reference
+            // is walked, so the exception is thrown immediately (no deep recursion needed).
             Assert.Throws<CircularDependencyException>(() => new[] { node }.TSort(x => x.Dependencies?.Cast<DaxElement>()).ToList());
         }
 
         [Fact]
-        public void TSort_TwoNodeMutualCycle_ThrowsCircularDependencyExceptionViaNestedCallGuard()
+        public void TSort_TwoNodeMutualCycle_ThrowsCircularDependencyExceptionPromptly()
         {
-            // Arrange: A -> B -> A. Neither node's *direct* Dependencies array contains itself, so the
-            // immediate self-reference check in VisitDependencies never trips; the mutual recursion
-            // instead grows until the MAX_NESTED_CALLS (1000) guard fires. This is a real quirk of the
-            // current implementation worth pinning: a 2+ node cycle is detected far less directly than
-            // a single-node self-loop (see previous test).
+            // Arrange: A -> B -> A. Neither node's *direct* Dependencies array contains itself, but the
+            // DFS recursion-path tracking in VisitDependencies (Extensions/TSort.cs) detects the cycle as
+            // soon as A is revisited while still on the current path (A -> B -> A), without needing any
+            // nested-call backstop.
             var nodeA = new DaxElement { Expression = "A" };
             var nodeB = new DaxElement { Expression = "B" };
             nodeA.Dependencies = new IDependencies<DaxBase>[] { nodeB };
             nodeB.Dependencies = new IDependencies<DaxBase>[] { nodeA };
 
-            // Act & Assert
-            Assert.Throws<CircularDependencyException>(() => new[] { nodeA }.TSort(x => x.Dependencies?.Cast<DaxElement>()).ToList());
+            // Act & Assert: detection is prompt and reports the actual cycle node/expression, not a
+            // generic stack-overflow-style message.
+            var ex = Assert.Throws<CircularDependencyException>(() => new[] { nodeA }.TSort(x => x.Dependencies?.Cast<DaxElement>()).ToList());
+            // The message must report an actual cycle node's Expression (A or B, whichever the DFS
+            // revisits first) rather than a generic stack-overflow message. A bare Contains("A") would be
+            // tautological since the fixed template text already contains "DAX".
+            Assert.Matches("expression: [AB]$", ex.Message);
+            Assert.DoesNotContain("STACK OVERFLOW", ex.Message);
         }
     }
 }

@@ -423,7 +423,19 @@ disable cleanup). Each: TDD (convert the characterization test that PINS the bug
   EMPIRICAL golden result: **no golden `.bim` changed** — no shipped config supplies hierarchy/level
   descriptions today (the built-in date-table path `SimpleDateTable` sets none), so this is a latent-
   correctness fix; golden BIM + `PublicApi.txt` byte-identical, suite 129 passed + 1 skipped.
-- **B4-B5 remaining.** Then the CA1305/CA1309 culture decision (empties the WAE allowlist).
+- **B4 2-node cycle detection — DONE (2026-07-03, reviewed GO-WITH-NITS, nits addressed)** — `test-engineer`.
+  Replaced the `nestedCalls`/`MAX_NESTED_CALLS` (1000) backstop + self-only `Contains(item)` check in
+  `TSort.VisitDependencies` with proper DFS recursion-path tracking (`HashSet<T> path` + `try/finally`
+  backtrack), so self-/2-node/N-node cycles all throw `CircularDependencyException` promptly with the real
+  node expression (not the generic "{STACK OVERFLOW}" message). `MAX_NESTED_CALLS` removed (no dangling
+  refs). Converted `DependencySort..._ViaNestedCallGuard` -> `..._Promptly`; the lead tightened its
+  assertion from a tautological `Contains("A")` to `Assert.Matches("expression: [AB]$", ...)` (DFS revisits
+  node B first — the reviewer's suggested "A" was also wrong). DAG sort output unchanged -> golden BIM +
+  `PublicApi.txt` byte-identical; suite 129 passed + 1 skipped. NOTE (reviewer, accepted forward-looking
+  risk): removing the soft 1000-depth backstop means a VALID but pathologically deep (>~thousands) acyclic
+  template graph now fails via an uncatchable CLR stack overflow instead of a catchable exception — no
+  current config approaches this; revisit only if very deep legitimate graphs appear.
+- **B5 remaining.** Then the CA1305/CA1309 culture decision (empties the WAE allowlist).
 - **Stage 4 — Docs sync & closeout** — docs + reviewer.
   Update AGENTS.md/docs/design for any changed conventions; final reviewer gate.
 
