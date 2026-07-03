@@ -343,6 +343,7 @@ public abstract class TableTemplateBase
                 Name = hierarchy.Name,
                 IsHidden = hierarchy.IsHidden,
                 DisplayFolder = hierarchy.DisplayFolder,
+                Description = hierarchy.Description,
             };
             if (dateTable.Model.Database.CompatibilityLevel >= 1540)
                 tabularHierarchy.LineageTag = Guid.NewGuid().ToString();
@@ -356,7 +357,8 @@ public abstract class TableTemplateBase
                 {
                     Name = level.Name,
                     Column = level.Column.TabularColumn,
-                    Ordinal = ordinal++
+                    Ordinal = ordinal++,
+                    Description = level.Description,
                 };
                 if (dateTable.Model.Database.CompatibilityLevel >= 1540)
                     tabularLevel.LineageTag = Guid.NewGuid().ToString();

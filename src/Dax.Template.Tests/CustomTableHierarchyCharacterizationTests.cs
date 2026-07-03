@@ -85,14 +85,14 @@ namespace Dax.Template.Tests
         }
 
         [Fact]
-        public void ApplyTemplate_HierarchyAndLevelDescriptions_AreNotCopiedToTheTabularObjects()
+        public void ApplyTemplate_HierarchyAndLevelDescriptions_AreCopiedToTheTabularObjects()
         {
-            // Arrange: current-behavior surprise -- GetHierarchies DOES capture Description from the JSON
-            // definition onto the internal Dax.Template.Model.Hierarchy/Level objects, but
-            // TableTemplateBase.AddHierarchies never copies hierarchy.Description or level.Description onto
-            // the Microsoft.AnalysisServices.Tabular.Hierarchy/Level it creates -- only Name, IsHidden,
-            // DisplayFolder (hierarchy) and Name, Column, Ordinal (level) are set. Configured descriptions
-            // are silently dropped from the generated model.
+            // Arrange: GetHierarchies captures Description from the JSON definition onto the internal
+            // Dax.Template.Model.Hierarchy/Level objects, and TableTemplateBase.AddHierarchies now copies
+            // hierarchy.Description and level.Description onto the
+            // Microsoft.AnalysisServices.Tabular.Hierarchy/Level it creates, alongside Name, IsHidden,
+            // DisplayFolder (hierarchy) and Name, Column, Ordinal (level). Configured descriptions are no
+            // longer silently dropped from the generated model.
             var definition = BuildDefinition(new CustomTemplateDefinition.Hierarchy
             {
                 Name = "Calendar",
@@ -111,8 +111,8 @@ namespace Dax.Template.Tests
             // Assert
             var tabularHierarchy = table.Hierarchies.Find("Calendar");
             Assert.NotNull(tabularHierarchy);
-            Assert.True(string.IsNullOrEmpty(tabularHierarchy!.Description));
-            Assert.True(string.IsNullOrEmpty(tabularHierarchy.Levels[0].Description));
+            Assert.Equal("Calendar hierarchy", tabularHierarchy!.Description);
+            Assert.Equal("Year level", tabularHierarchy.Levels[0].Description);
         }
 
         [Fact]

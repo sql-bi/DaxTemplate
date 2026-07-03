@@ -416,7 +416,14 @@ disable cleanup). Each: TDD (convert the characterization test that PINS the bug
   naming column/level/hierarchy; converted `CustomTableHierarchy..._ThrowsInvalidOperationException` ->
   `..._ThrowsTemplateException`. Both error-path: golden BIM + `PublicApi.txt` byte-identical, suite 129
   passed + 1 skipped (2 tests renamed, count unchanged), build green.
-- **B3-B5 remaining.** Then the CA1305/CA1309 culture decision (empties the WAE allowlist).
+- **B3 dropped Hierarchy/Level Description — DONE (2026-07-03, reviewed GO)** — `test-engineer`. Added
+  `Description = hierarchy.Description` / `= level.Description` to the TOM initializers in
+  `TableTemplateBase.AddHierarchies` (mirrors the existing `AddColumns` pattern). Converted
+  `CustomTableHierarchy..._AreNotCopiedToTheTabularObjects` -> `..._AreCopiedToTheTabularObjects`.
+  EMPIRICAL golden result: **no golden `.bim` changed** — no shipped config supplies hierarchy/level
+  descriptions today (the built-in date-table path `SimpleDateTable` sets none), so this is a latent-
+  correctness fix; golden BIM + `PublicApi.txt` byte-identical, suite 129 passed + 1 skipped.
+- **B4-B5 remaining.** Then the CA1305/CA1309 culture decision (empties the WAE allowlist).
 - **Stage 4 — Docs sync & closeout** — docs + reviewer.
   Update AGENTS.md/docs/design for any changed conventions; final reviewer gate.
 
