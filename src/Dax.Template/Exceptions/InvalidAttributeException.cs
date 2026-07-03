@@ -1,4 +1,4 @@
 ﻿namespace Dax.Template.Exceptions;
 
-public class InvalidAttributeException(string attributeValue, string entitymessage)
-    : TemplateException($"Invalid attribute type {attributeValue} in entity {entitymessage}");
+public class InvalidAttributeException(string attributeValue, string entityName)
+    : TemplateException($"Invalid attribute type {attributeValue} in entity {entityName}");

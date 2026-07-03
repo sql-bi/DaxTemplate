@@ -76,20 +76,20 @@ public enum Dax.Template.Enums.AutoScan : short
   field public const Dax.Template.Enums.AutoScan ScanInactiveRelationships = 4
   field public const Dax.Template.Enums.AutoScan SelectedTablesColumns = 1
 public class Dax.Template.Exceptions.CircularDependencyException : Dax.Template.Exceptions.TemplateException, System.Runtime.Serialization.ISerializable
-  ctor public CircularDependencyException(string variableName, string daxExpressionmessage)
+  ctor public CircularDependencyException(string variableName, string daxExpression)
 public class Dax.Template.Exceptions.ExistingTableException : Dax.Template.Exceptions.TemplateException, System.Runtime.Serialization.ISerializable
   ctor public ExistingTableException(string message)
 public class Dax.Template.Exceptions.InvalidAttributeException : Dax.Template.Exceptions.TemplateException, System.Runtime.Serialization.ISerializable
-  ctor public InvalidAttributeException(string attributeValue, string entitymessage)
+  ctor public InvalidAttributeException(string attributeValue, string entityName)
 public class Dax.Template.Exceptions.InvalidConfigurationException : Dax.Template.Exceptions.TemplateException, System.Runtime.Serialization.ISerializable
   ctor public InvalidConfigurationException(string message)
   ctor public InvalidConfigurationException(string variableName, string value)
 public class Dax.Template.Exceptions.InvalidMacroReferenceException : Dax.Template.Exceptions.TemplateException, System.Runtime.Serialization.ISerializable
-  ctor public InvalidMacroReferenceException(string macro, string daxExpressionmessage)
-  ctor public InvalidMacroReferenceException(string macro, string daxExpressionmessage, string additionalMessage)
-  ctor public InvalidMacroReferenceException(string macro, string[] multipleMatches, string daxExpressionmessage)
+  ctor public InvalidMacroReferenceException(string macro, string daxExpression)
+  ctor public InvalidMacroReferenceException(string macro, string daxExpression, string additionalMessage)
+  ctor public InvalidMacroReferenceException(string macro, string[] multipleMatches, string daxExpression)
 public class Dax.Template.Exceptions.InvalidVariableReferenceException : Dax.Template.Exceptions.TemplateException, System.Runtime.Serialization.ISerializable
-  ctor public InvalidVariableReferenceException(string variableName, string daxExpressionmessage)
+  ctor public InvalidVariableReferenceException(string variableName, string daxExpression)
 public class Dax.Template.Exceptions.TemplateConfigurationException : Dax.Template.Exceptions.TemplateException, System.Runtime.Serialization.ISerializable
   ctor public TemplateConfigurationException(string message)
   ctor public TemplateConfigurationException(string message, System.Exception innerException)

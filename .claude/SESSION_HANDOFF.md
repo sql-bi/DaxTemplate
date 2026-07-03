@@ -363,9 +363,18 @@ allowlist holds only CA1305/CA1309 (Stage 3 culture).**
   `UPDATE_GOLDEN`). `code-reviewer` verdict **GO**; the one should-fix (XML doc summary on the helper) was
   applied. Group B defect fixes + the CA1305/CA1309 culture decision remain DEFERRED until after the Group A
   refactors (per user, 2026-07-03).
-- Remaining Group A: reflection encapsulation (ReflectionHelper/GetModelChanges), Syntax readability pass,
-  exceptions/messages consistency (incl. the "Circulare" typo + `daxExpressionmessage` param in
-  `CircularDependencyException.cs`).
+- **Item 4 — exceptions/messages consistency — DONE (2026-07-03, reviewed; commit pending user OK)** —
+  `refactor-cleaner`. Fixed the "Circulare"->"Circular" typo in `CircularDependencyException.cs`; renamed
+  the misleading public ctor params `daxExpressionmessage`->`daxExpression` (4 sites across
+  CircularDependency/InvalidVariableReference/InvalidMacroReference×3) and `entitymessage`->`entityName`
+  (`InvalidAttributeException`). `PublicApi.txt` deliberately regenerated — diff limited to exactly those 6
+  ctor-param lines; golden BIM byte-identical; suite 129 passed + 1 skipped. `code-reviewer` verdict **GO**.
+  FOLLOW-UPS surfaced (out of scope, for later decision): `TemplateUnexpectedException : Exception` breaks
+  the `: TemplateException` pattern (changing it alters `catch (TemplateException)` semantics — behavior
+  change); `TemplateConfigurationException` vs `InvalidConfigurationException` naming/role overlap; and
+  `entityName` is still a mild misnomer (call sites pass a `"Column: X"` context string, not a bare name).
+- Remaining Group A: Syntax readability pass, then reflection encapsulation
+  (ReflectionHelper/GetModelChanges) — the heaviest, done last.
 - **Stage 4 — Docs sync & closeout** — docs + reviewer.
   Update AGENTS.md/docs/design for any changed conventions; final reviewer gate.
 
