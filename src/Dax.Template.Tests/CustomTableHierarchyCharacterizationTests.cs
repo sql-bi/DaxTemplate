@@ -4,7 +4,6 @@ namespace Dax.Template.Tests
     using Dax.Template.Tables;
     using Dax.Template.Tests.Infrastructure;
     using Microsoft.AnalysisServices.Tabular;
-    using System;
     using Xunit;
 
     /// <summary>
@@ -159,12 +158,12 @@ namespace Dax.Template.Tests
         }
 
         [Fact]
-        public void Construction_HierarchyLevelReferencesUnknownColumn_ThrowsInvalidOperationException()
+        public void Construction_HierarchyLevelReferencesUnknownColumn_ThrowsTemplateException()
         {
-            // Arrange: current characterization -- GetHierarchies resolves a level's Column via
-            // `Columns.First(column => column.Name == level.Column)`, an unguarded LINQ `.First()`. An
-            // unmatched name throws the generic BCL InvalidOperationException ("Sequence contains no
-            // matching element"), not a Dax.Template-specific exception.
+            // Arrange: fixed behavior -- GetHierarchies resolves a level's Column via
+            // `Columns.FirstOrDefault(column => column.Name == level.Column) ?? throw new TemplateException(...)`.
+            // An unmatched name now throws a Dax.Template-specific TemplateException naming the offending
+            // column, level, and hierarchy, instead of the generic BCL InvalidOperationException.
             var definition = BuildDefinition(new CustomTemplateDefinition.Hierarchy
             {
                 Name = "Calendar",
@@ -172,7 +171,10 @@ namespace Dax.Template.Tests
             });
 
             // Act & Assert
-            Assert.Throws<InvalidOperationException>(() => new CustomTableTemplate<TemplateConfiguration>(new TemplateConfiguration(), definition, model: null));
+            var ex = Assert.Throws<TemplateException>(() => new CustomTableTemplate<TemplateConfiguration>(new TemplateConfiguration(), definition, model: null));
+            Assert.Contains("NoSuchColumn", ex.Message);
+            Assert.Contains("Calendar", ex.Message);
+            Assert.Contains("Year", ex.Message);
         }
     }
 }

@@ -13,9 +13,10 @@ namespace Dax.Template.Tests
     ///    <c>Engine.ApplyConfigurationDefaults</c> has no default for `AutoScan` (unlike every other
     ///    IScanConfig/IHolidaysConfig/IMeasureTemplateConfig property, which all get a `??=` default).
     ///
-    /// B. <c>Engine.ApplyHolidaysDefinitionTable</c> creates the target Table and ADDS it to
-    ///    <c>model.Tables</c> BEFORE validating <c>templateEntry.Template</c> and throwing
-    ///    <see cref="InvalidConfigurationException"/> -- unlike <c>ApplyCustomDateTable</c> and
+    /// B. (FIXED -- Phase M Stage 3, Group B1) <c>Engine.ApplyHolidaysDefinitionTable</c> used to create the
+    ///    target Table and ADD it to <c>model.Tables</c> BEFORE validating <c>templateEntry.Template</c> and
+    ///    throwing <see cref="InvalidConfigurationException"/>, leaving a phantom half-created table behind.
+    ///    The validation now runs before the create/add, matching <c>ApplyCustomDateTable</c> and
     ///    <c>ApplyMeasuresTemplate</c>, which validate first and never touch the model on that failure path.
     /// </summary>
     public class ReviewerFollowUpCharacterizationTests
@@ -40,7 +41,7 @@ namespace Dax.Template.Tests
         }
 
         [Fact]
-        public void ApplyTemplates_HolidaysDefinitionTableWithEmptyTemplate_LeavesHalfCreatedTableInModel()
+        public void ApplyTemplates_HolidaysDefinitionTableWithEmptyTemplate_DoesNotLeaveHalfCreatedTableInModel()
         {
             // Arrange: reuses the same config as
             // EngineDispatchCharacterizationTests.ApplyTemplates_HolidaysDefinitionTableWithEmptyTemplate_ThrowsInvalidConfigurationException
@@ -52,14 +53,11 @@ namespace Dax.Template.Tests
             // Act
             Assert.Throws<InvalidConfigurationException>(() => engine.ApplyTemplates(database.Model));
 
-            // Assert: current behavior -- the table was already created and added to model.Tables by
-            // ApplyHolidaysDefinitionTable before the Template validation ran, so it survives the throw as
-            // an empty, half-created table (no columns, no partitions) rather than the model being left
-            // exactly as it was before the call.
+            // Assert: fixed behavior -- ApplyHolidaysDefinitionTable now validates templateEntry.Template
+            // BEFORE creating/adding the target Table, so the throw leaves the model exactly as it was
+            // before the call: no phantom half-created "HolidaysDefinition" table.
             var halfCreatedTable = database.Model.Tables.Find("HolidaysDefinition");
-            Assert.NotNull(halfCreatedTable);
-            Assert.Empty(halfCreatedTable!.Columns);
-            Assert.Empty(halfCreatedTable.Partitions);
+            Assert.Null(halfCreatedTable);
         }
     }
 }

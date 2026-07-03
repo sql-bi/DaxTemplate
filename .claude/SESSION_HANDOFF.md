@@ -402,7 +402,21 @@ allowlist holds only CA1305/CA1309 (Stage 3 culture).**
 item 2 commit pending. NEXT: the deferred work — Group B defect fixes (dropped Hierarchy/Level Description;
 Holidays phantom-table; CustomDateTable-disabled no-cleanup; GetHierarchies bare exception; 2-node cycle
 detection) as fix-tests, and the CA1305/CA1309 culture-correctness decision (the last 2 allowlisted analyzer
-codes). Both need user direction before starting.
+codes).
+
+#### Group B progress (behavior-changing defect fixes — user greenlit the group 2026-07-03)
+Sequence: B1+B2 (error-path, no golden) -> B3 (golden regen) -> B4 (cycle algorithm) -> B5 (date-table
+disable cleanup). Each: TDD (convert the characterization test that PINS the bug into a fix-test) ->
+`code-reviewer` -> commit.
+- **B1 Holidays phantom empty table + B2 GetHierarchies bare exception — DONE (2026-07-03, reviewed GO)** —
+  `test-engineer`. B1: hoisted the empty-`Template` validation above `Tables.Add` in
+  `Engine.ApplyHolidaysDefinitionTable` (no phantom table on throw); converted
+  `ReviewerFollowUp..._LeavesHalfCreatedTableInModel` -> `..._DoesNotLeaveHalfCreatedTableInModel`. B2:
+  `CustomTableTemplate.GetHierarchies` `.First` -> `FirstOrDefault ?? throw new TemplateException(...)`
+  naming column/level/hierarchy; converted `CustomTableHierarchy..._ThrowsInvalidOperationException` ->
+  `..._ThrowsTemplateException`. Both error-path: golden BIM + `PublicApi.txt` byte-identical, suite 129
+  passed + 1 skipped (2 tests renamed, count unchanged), build green.
+- **B3-B5 remaining.** Then the CA1305/CA1309 culture decision (empties the WAE allowlist).
 - **Stage 4 — Docs sync & closeout** — docs + reviewer.
   Update AGENTS.md/docs/design for any changed conventions; final reviewer gate.
 

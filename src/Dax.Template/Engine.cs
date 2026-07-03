@@ -175,6 +175,10 @@ public class Engine
 
                 return;
             }
+            if (string.IsNullOrWhiteSpace(templateEntry.Template))
+            {
+                throw new InvalidConfigurationException($"Undefined Template in class {templateEntry.Class} configuration");
+            }
             if (tableHolidaysDefinition == null)
             {
                 tableHolidaysDefinition = new Table { Name = templateEntry.Table };
@@ -183,10 +187,6 @@ public class Engine
                 model.Tables.Add(tableHolidaysDefinition);
             }
             CalculatedTableTemplateBase template;
-            if (string.IsNullOrWhiteSpace(templateEntry.Template))
-            {
-                throw new InvalidConfigurationException($"Undefined Template in class {templateEntry.Class} configuration");
-            }
             template = new HolidaysDefinitionTable(_package.ReadDefinition<HolidaysDefinitionTable.HolidaysDefinitions>(templateEntry.Template));
             template.ApplyTemplate(tableHolidaysDefinition, templateEntry.IsHidden, cancellationToken);
             RequestTableRefresh(tableHolidaysDefinition);

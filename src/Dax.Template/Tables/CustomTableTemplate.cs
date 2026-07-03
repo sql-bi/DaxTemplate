@@ -131,7 +131,8 @@ public class CustomTableTemplate<T> : ReferenceCalculatedTable where T : ICustom
             {
                 if (string.IsNullOrEmpty(level.Name)) throw new TemplateException("Missing Hierarchy Level Name definition");
                 if (string.IsNullOrEmpty(level.Column)) throw new TemplateException("Missing Hierarchy Level Column definition");
-                var modelColumn = Columns.First(column => column.Name == level.Column);
+                var modelColumn = Columns.FirstOrDefault(column => column.Name == level.Column)
+                    ?? throw new TemplateException($"Hierarchy '{hierarchyDefinition.Name}' level '{level.Name}' references unknown column '{level.Column}'");
                 Level modelLevel = new() { Name = level.Name, Column = modelColumn, Description = level.Description };
                 levels.Add(modelLevel);
             });
