@@ -373,8 +373,17 @@ allowlist holds only CA1305/CA1309 (Stage 3 culture).**
   the `: TemplateException` pattern (changing it alters `catch (TemplateException)` semantics — behavior
   change); `TemplateConfigurationException` vs `InvalidConfigurationException` naming/role overlap; and
   `entityName` is still a mild misnomer (call sites pass a `"Column: X"` context string, not a bare name).
-- Remaining Group A: Syntax readability pass, then reflection encapsulation
-  (ReflectionHelper/GetModelChanges) — the heaviest, done last.
+- **Item 3 — Syntax subsystem readability — DONE (2026-07-03, reviewed via lead assessment; commit
+  pending user OK)** — `dotnet-team:docs`. LEAD FINDING: the Syntax subsystem is 11 tiny files (~106 LOC)
+  of POCOs/interfaces/one enum, already modernized by Stage 2.4 — no behavior-preserving *refactor* was
+  warranted (the heavy DAX-string logic lives in `StringExtensions`/`Tables/*`, not here). The genuine
+  readability win was documentation: added XML `///` summaries to the 9 previously-undocumented public/
+  internal types (`DaxBase`, `Var`, `VarGlobal`, `VarRow`, `VarScope`, `IDependencies<T>`, `IDaxName`,
+  `IDaxComment`, `IGlobalScope`), matching the existing `DaxElement`/`DaxStep` tone. Doc-comment-only: no
+  code/signature changes, build green (no CS1570), suite 129 passed + 1 skipped, golden BIM + `PublicApi.txt`
+  byte-identical. No `code-reviewer` gate (doc-only, agreed with user).
+- Remaining Group A: **item 2 — reflection encapsulation** (`Extensions/ReflectionHelper.cs` +
+  `Engine.GetModelChanges`) with TOM-version fragility documented — the heaviest, done last.
 - **Stage 4 — Docs sync & closeout** — docs + reviewer.
   Update AGENTS.md/docs/design for any changed conventions; final reviewer gate.
 
