@@ -84,8 +84,9 @@ namespace Dax.Template.Tests
             // Act
             engine.ApplyTemplates(database.Model);
 
-            // Assert: current behavior actively removes the pre-existing table and flips the shared
-            // HolidaysReference.IsEnabled flag off, unlike a disabled CustomDateTable (see next test).
+            // Assert: current behavior actively removes the pre-existing table and additionally flips the
+            // shared HolidaysReference.IsEnabled flag off -- a disabled CustomDateTable removes its table(s)
+            // symmetrically but has no such reference flag to flip (see next tests).
             Assert.Null(database.Model.Tables.Find("Holidays"));
             Assert.False(engine.Configuration.HolidaysReference!.IsEnabled);
         }
@@ -100,14 +101,14 @@ namespace Dax.Template.Tests
             // Act
             engine.ApplyTemplates(database.Model);
 
-            // Assert: unlike Holidays* classes, a disabled CustomDateTable entry returns early without
-            // creating anything -- Table/Template must still be non-empty to pass the earlier guard
-            // checks, but IsEnabled=false itself is a pure no-op for CustomDateTable.
+            // Assert: a disabled CustomDateTable entry does not create anything -- Table/Template must
+            // still be non-empty to pass the earlier guard checks, and removing a non-existent table is
+            // a no-op, so "Date" stays absent.
             Assert.Null(database.Model.Tables.Find("Date"));
         }
 
         [Fact]
-        public void ApplyTemplates_CustomDateTableDisabled_DoesNotRemovePreExistingTable()
+        public void ApplyTemplates_CustomDateTableDisabled_RemovesPreExistingTable()
         {
             // Arrange: a pre-existing "Date" table simulates a previous run's output.
             var database = OfflineModelFixture.Build();
@@ -119,11 +120,31 @@ namespace Dax.Template.Tests
             // Act
             engine.ApplyTemplates(database.Model);
 
-            // Assert: the pre-existing table survives untouched -- CustomDateTable's disabled path never
-            // looks it up, unlike HolidaysTable/HolidaysDefinitionTable which actively remove it.
-            var dateTable = database.Model.Tables.Find("Date");
-            Assert.NotNull(dateTable);
-            Assert.Contains(dateTable!.Columns, c => c.Name == "Marker");
+            // Assert: a disabled CustomDateTable entry removes the pre-existing table, symmetric with the
+            // HolidaysTable/HolidaysDefinitionTable disabled handlers.
+            Assert.Null(database.Model.Tables.Find("Date"));
+        }
+
+        [Fact]
+        public void ApplyTemplates_CustomDateTableDisabledWithReferenceTable_RemovesBothTables()
+        {
+            // Arrange: pre-existing "Date" and "DateReference" tables simulate a previous run's output.
+            var database = OfflineModelFixture.Build();
+            var preExistingDateTable = new Table { Name = "Date" };
+            preExistingDateTable.Columns.Add(new DataColumn { Name = "Marker", DataType = DataType.String, SourceColumn = "Marker" });
+            database.Model.Tables.Add(preExistingDateTable);
+            var preExistingReferenceTable = new Table { Name = "DateReference" };
+            preExistingReferenceTable.Columns.Add(new DataColumn { Name = "Marker", DataType = DataType.String, SourceColumn = "Marker" });
+            database.Model.Tables.Add(preExistingReferenceTable);
+            var engine = new Engine(Package.LoadFromFile($@"{TemplatesDirectory}\Dispatch-08 - CustomDateTable-Disabled-WithReferenceTable.template.json"));
+
+            // Act
+            engine.ApplyTemplates(database.Model);
+
+            // Assert: a disabled CustomDateTable entry with a ReferenceTable removes both the date table
+            // and its reference table.
+            Assert.Null(database.Model.Tables.Find("Date"));
+            Assert.Null(database.Model.Tables.Find("DateReference"));
         }
     }
 }

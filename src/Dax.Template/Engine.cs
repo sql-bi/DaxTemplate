@@ -228,6 +228,16 @@ public class Engine
             }
             if (!templateEntry.IsEnabled)
             {
+                var existingDateTable = model.Tables.Find(templateEntry.Table);
+                if (existingDateTable != null)
+                    model.Tables.Remove(existingDateTable);
+
+                if (!string.IsNullOrWhiteSpace(templateEntry.ReferenceTable))
+                {
+                    var existingReferenceTable = model.Tables.Find(templateEntry.ReferenceTable);
+                    if (existingReferenceTable != null)
+                        model.Tables.Remove(existingReferenceTable);
+                }
                 return;
             }
             if (!string.IsNullOrWhiteSpace(templateEntry.ReferenceTable))

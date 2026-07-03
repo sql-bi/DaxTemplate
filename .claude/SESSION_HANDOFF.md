@@ -435,7 +435,22 @@ disable cleanup). Each: TDD (convert the characterization test that PINS the bug
   risk): removing the soft 1000-depth backstop means a VALID but pathologically deep (>~thousands) acyclic
   template graph now fails via an uncatchable CLR stack overflow instead of a catchable exception — no
   current config approaches this; revisit only if very deep legitimate graphs appear.
-- **B5 remaining.** Then the CA1305/CA1309 culture decision (empties the WAE allowlist).
+- **B5 CustomDateTable disabled no-cleanup — DONE (2026-07-03, reviewed GO-WITH-NITS, nits addressed)** —
+  `test-engineer`. `Engine.ApplyCustomDateTable`'s disabled branch now removes the pre-existing date table
+  AND (if set) its `ReferenceTable`, symmetric with the Holidays handlers (orphan relationships are swept
+  centrally by `RemoveOrphanTranslations` post-pass, so removing a related date table is safe). Converted
+  `EngineDispatch..._DoesNotRemovePreExistingTable` -> `..._RemovesPreExistingTable`. Follow-up (reviewer
+  nits): added `Dispatch-08 - CustomDateTable-Disabled-WithReferenceTable.template.json` fixture + a new
+  test covering the ReferenceTable-removal branch (fails if reverted), and fixed two stale comments
+  (Holidays-disable test + Dispatch-07 Description). Golden BIM + `PublicApi.txt` byte-identical; suite
+  **130 passed + 1 skipped** (one new test added).
+
+**GROUP B COMPLETE (2026-07-03):** B1+B2 (`f8d0323`), B3 (`2d251b2`), B4 (`4bf6020`), B5 (commit pending).
+Suite grew 129->130 (+1 ReferenceTable-cleanup test). All five defect-backlog items from Stage 0 are now
+fixed with fix-tests. **STAGE 3 REMAINING: only the CA1305/CA1309 culture-correctness decision** (the last
+2 codes in the WAE allowlist — needs the user's call on whether emitted DAX/number/date formatting requires
+`InvariantCulture`; lead to map all flagged call sites first). After that, Stage 3 closes and Phase M moves
+to Stage 4 (docs sync + closeout).
 - **Stage 4 — Docs sync & closeout** — docs + reviewer.
   Update AGENTS.md/docs/design for any changed conventions; final reviewer gate.
 
