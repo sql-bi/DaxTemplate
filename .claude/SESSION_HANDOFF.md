@@ -382,8 +382,27 @@ allowlist holds only CA1305/CA1309 (Stage 3 culture).**
   `IDaxComment`, `IGlobalScope`), matching the existing `DaxElement`/`DaxStep` tone. Doc-comment-only: no
   code/signature changes, build green (no CS1570), suite 129 passed + 1 skipped, golden BIM + `PublicApi.txt`
   byte-identical. No `code-reviewer` gate (doc-only, agreed with user).
-- Remaining Group A: **item 2 — reflection encapsulation** (`Extensions/ReflectionHelper.cs` +
-  `Engine.GetModelChanges`) with TOM-version fragility documented — the heaviest, done last.
+- **Item 2 — reflection encapsulation — DONE (2026-07-03, reviewed; commit pending user OK)** —
+  `refactor-cleaner`. Made `ReflectionHelper` + `GetPropertyValue`/`SetPropertyValue` **`internal`** (were
+  public; tests reach them via `[InternalsVisibleTo("Dax.Template.Tests")]`; deliberate 3-line `PublicApi.txt`
+  removal, ships under 2.0.0). Kept `SetPropertyValue` (no prod caller — reserved for Phase 1 Calendar
+  internal-member writes). Modernized `string.Format`->interpolation (exception type/paramName/message
+  unchanged). Centralized the 6 TOM-internal reflected member-name literals (`TxManager`, `CurrentSavepoint`,
+  `AllBodies`, `Owner`, `LastParent`, `Parent`) as documented consts in a `private static class
+  TomInternalMembers` (NOTE: consts are `internal const` — required so the outer `Engine` can read them; a
+  reviewer nit suggesting `private const` was WRONG and reverted after it broke the build — a nested class's
+  private members are not accessible from the enclosing type). Extracted `GetChangedBodies(TabularModel)` for
+  the TxManager->AllBodies traversal (exact null-propagation + hard `(IEnumerable)` cast preserved). Added
+  XML docs on both incl. the offline-apply-returns-empty `<remarks>` (closes that Stage-0 backlog doc item).
+  Behavior-preserving: whole-solution build green, suite 129 passed + 1 skipped, golden BIM byte-identical,
+  `PublicApi.txt` diff = exactly the 3 removed lines. `code-reviewer` verdict **GO** (high confidence).
+
+**GROUP A COMPLETE (2026-07-03):** items 1 (annotation dedup), 4 (exceptions naming), 3 (Syntax docs),
+2 (reflection encapsulation) all done + reviewed. Items 1/4/3 committed (`1b21352`, `82170e9`, `6d6e430`);
+item 2 commit pending. NEXT: the deferred work — Group B defect fixes (dropped Hierarchy/Level Description;
+Holidays phantom-table; CustomDateTable-disabled no-cleanup; GetHierarchies bare exception; 2-node cycle
+detection) as fix-tests, and the CA1305/CA1309 culture-correctness decision (the last 2 allowlisted analyzer
+codes). Both need user direction before starting.
 - **Stage 4 — Docs sync & closeout** — docs + reviewer.
   Update AGENTS.md/docs/design for any changed conventions; final reviewer gate.
 

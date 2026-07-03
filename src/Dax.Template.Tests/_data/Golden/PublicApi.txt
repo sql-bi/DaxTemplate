@@ -107,9 +107,6 @@ public static class Dax.Template.Extensions.Extensions
   method public static System.ValueTuple<string, string> SplitDaxIdentifier(string daxIdentifier)
   method public static void AddDependenciesFromExpression(System.Collections.Generic.IEnumerable<Dax.Template.Syntax.IDaxName> daxElements)
   method public static void AddDependenciesFromExpression(System.Collections.Generic.IEnumerable<Dax.Template.Syntax.IDependencies<Dax.Template.Syntax.DaxBase>> items, System.Collections.Generic.IEnumerable<Dax.Template.Syntax.IDaxName> daxElements)
-public static class Dax.Template.Extensions.ReflectionHelper
-  method public static object GetPropertyValue(object obj, string propertyName, bool errorIfNotFound = true)
-  method public static void SetPropertyValue(object obj, string propertyName, object val)
 public interface Dax.Template.Interfaces.ICustomTableConfig : Dax.Template.Interfaces.IScanConfig
   property public System.Collections.Generic.Dictionary<string, string> DefaultVariables { get; set; }
 public interface Dax.Template.Interfaces.IDateTemplateConfig : Dax.Template.Interfaces.ICustomTableConfig, Dax.Template.Interfaces.IScanConfig

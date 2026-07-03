@@ -27,26 +27,80 @@ public class Engine
 
     public TemplateConfiguration Configuration => _package.Configuration;
 
+    /// <summary>
+    /// Names of Microsoft.AnalysisServices.Tabular (TOM) internal members read via reflection (see
+    /// <see cref="Extensions.ReflectionHelper"/>) because TOM exposes no public API for the transaction
+    /// log. Every name here is TOM-internal and version-fragile: re-verify each one against the installed
+    /// Microsoft.AnalysisServices.Tabular package after any TOM upgrade, since a rename would only surface
+    /// at runtime (an <see cref="ArgumentOutOfRangeException"/> from <see
+    /// cref="Extensions.ReflectionHelper.GetPropertyValue"/>), not at compile time.
+    /// </summary>
+    private static class TomInternalMembers
+    {
+        /// <summary>TOM's internal transaction manager, reached off <see cref="TabularModel"/>.</summary>
+        internal const string TxManager = "TxManager";
+
+        /// <summary>The transaction manager's current savepoint (internal transaction log entry).</summary>
+        internal const string CurrentSavepoint = "CurrentSavepoint";
+
+        /// <summary>The savepoint's collection of changed TOM object bodies.</summary>
+        internal const string AllBodies = "AllBodies";
+
+        /// <summary>The TOM object (<see cref="Table"/>/<see cref="Measure"/>/<see cref="Column"/>/<see cref="Hierarchy"/>) that owns a changed body.</summary>
+        internal const string Owner = "Owner";
+
+        /// <summary>The owner's last-known parent table before the change, when tracked.</summary>
+        internal const string LastParent = "LastParent";
+
+        /// <summary>The owner's current parent table.</summary>
+        internal const string Parent = "Parent";
+    }
+
+    /// <summary>
+    /// Reaches into TOM's internal transaction log (<see cref="TomInternalMembers.TxManager"/> -&gt;
+    /// <see cref="TomInternalMembers.CurrentSavepoint"/> -&gt; <see cref="TomInternalMembers.AllBodies"/>)
+    /// via reflection and returns the collection of changed object bodies, or <see langword="null"/> if
+    /// any hop in the chain is unavailable.
+    /// </summary>
+    private static IEnumerable? GetChangedBodies(TabularModel model)
+    {
+        object? txManager = model.GetPropertyValue(TomInternalMembers.TxManager);
+        object? currentSavePoint = txManager?.GetPropertyValue(TomInternalMembers.CurrentSavepoint);
+        object? allBodies = currentSavePoint?.GetPropertyValue(TomInternalMembers.AllBodies);
+        return allBodies == null ? null : (IEnumerable)allBodies;
+    }
+
+    /// <summary>
+    /// Diffs the changes made to <paramref name="model"/> since its last commit by reflecting into TOM's
+    /// internal transaction log (see <see cref="GetChangedBodies"/> and <see cref="TomInternalMembers"/>),
+    /// returning the set of added, modified, and removed tables, measures, columns, and hierarchies.
+    /// </summary>
+    /// <remarks>
+    /// The reflected member names are TOM-internal, undocumented, and therefore version-fragile: verify
+    /// them after any Microsoft.AnalysisServices.Tabular package upgrade. Also note a behavioral quirk:
+    /// this method only inspects the transaction log when <c>model.HasLocalChanges</c> is <see
+    /// langword="true"/>, which TOM only sets on a model connected to a server. Calling this after
+    /// applying templates to a disconnected/offline model (as built for the offline test harness) returns
+    /// an empty <see cref="Model.ModelChanges"/> even though the in-memory model was visibly changed; it
+    /// is only meaningful against a server-connected model.
+    /// </remarks>
     public static Model.ModelChanges GetModelChanges(TabularModel model, CancellationToken cancellationToken = default)
     {
         Model.ModelChanges modelChanges = new();
 
         if (model.HasLocalChanges)
         {
-            object? txManager = model.GetPropertyValue("TxManager");
-            object? currentSavePoint = txManager?.GetPropertyValue("CurrentSavepoint");
-            object? allBodies = currentSavePoint?.GetPropertyValue("AllBodies");
+            IEnumerable? allBodies = GetChangedBodies(model);
 
             if (allBodies != null)
             {
-                var collection = (IEnumerable)allBodies;
-                foreach (var item in collection)
+                foreach (var item in allBodies)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    var owner = item?.GetPropertyValue("Owner");
-                    Table? lastParent = item?.GetPropertyValue("LastParent", false) as Table;
-                    Table? parent = lastParent ?? owner?.GetPropertyValue("Parent", false) as Table;
+                    var owner = item?.GetPropertyValue(TomInternalMembers.Owner);
+                    Table? lastParent = item?.GetPropertyValue(TomInternalMembers.LastParent, false) as Table;
+                    Table? parent = lastParent ?? owner?.GetPropertyValue(TomInternalMembers.Parent, false) as Table;
                     switch (owner)
                     {
                         case Table table: modelChanges.AddTable(table, table.IsRemoved); break;
