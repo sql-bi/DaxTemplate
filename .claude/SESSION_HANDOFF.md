@@ -45,22 +45,32 @@ entities, one at a time, with tests and no regressions:
 ## TOM object model for the new entities (confirmed in released 19.114.0)
 - Calendar: Microsoft.AnalysisServices.Tabular.Calendar -> attaches to `Table.Calendars`.
   Public: Name, Description, LineageTag, CalendarColumnGroups.
-  `CalendarColumnGroup` key members CalendarColumnReferences and TimeUnit are INTERNAL (not public)
-  in 19.114.0 — see RISK below.
+  NOTE: `CalendarColumnGroup` is a public ABSTRACT base (its `CalendarColumnReferences`/`TimeUnit` are
+  internal), but the public concrete subclasses `TimeUnitColumnAssociation` / `TimeRelatedColumnGroup`
+  expose a fully public typed binding API in 19.114.0 — see "RISK ... RESOLVED" below.
 - CalculationGroup / CalculationItem: attaches to `Table.CalculationGroup`.
   Public + complete: Expression, Ordinal, FormatStringDefinition, etc.
 - Function (UDF): attaches to `Model.Functions`. Public: Name, Expression, IsHidden, Description.
 - Compatibility level enforced SERVER-SIDE (not a hard TOM constant) — confirm exact minimum via the
   opt-in live-server test in each phase.
 
-## RISK — Calendar column binding (affects Phase 1 design)
-CalendarColumnGroup.CalendarColumnReferences and .TimeUnit are internal in 19.114.0, so a Calendar's
-meaningful content can't be set through the normal public API. Options:
-1. Reflection to set internal members (consistent with existing code; fragile across TOM versions)
-2. TMDL/JSON injection — build calendar definition as serialized metadata and deserialize
-   (most robust / version-tolerant) — LEANING TOWARD THIS
-3. Re-check a newer released TOM for a public surface
-OPEN DECISION — needs user input before implementing Phase 1.
+## RISK — Calendar column binding — RESOLVED (2026-07-04): use the PUBLIC subclass API
+The earlier RISK was based on inspecting the WRONG type. `CalendarColumnGroup` is a public **abstract**
+base (hence its private ctor + internal low-level `CalendarColumnReferences`/`TimeUnit`), but TOM
+**19.114.0 (our pinned version) already exposes a fully PUBLIC binding API via its concrete subclasses** —
+verified by reflection against the 19.114.0 assembly and cross-checked against Tabular Editor 2 (which
+compiles the same calls against an even older 19.112.0):
+- `TimeUnitColumnAssociation : CalendarColumnGroup` — public, `ctor(TimeUnit)`, public `TimeUnit`,
+  `PrimaryColumn` (Column), `AssociatedColumns` (ICollection<Column>).
+- `TimeRelatedColumnGroup : CalendarColumnGroup` — public, `ctor()`, public `Columns` (ICollection<Column>).
+- `Table.Calendars.Add(calendar)` and `calendar.CalendarColumnGroups.Add(group)` are public.
+So Phase 1 needs **NO reflection and NO TMSL/JSON injection** — build the calendar with the public typed API,
+exactly like the other template handlers. (TE2 reference: `TOMWrapper/TOMWrapper/CalendarColumnGroup.cs`
+`TimeUnitColumnAssociation.CreateNew`.)
+Remaining Phase-1 constraints (still true): (a) **min compatibility level 1701** (CompatibilityRequirement
+attribute on the calendar types) — the offline golden fixture (compat 1600) must be raised to >=1701 for a
+calendar golden test; (b) **`Calendar` has no `Annotations`** — idempotency/orphan-cleanup must key off the
+**parent table's** `SQLBI_Template` annotation (or `Calendar.Name`).
 
 ## Progress
 
@@ -602,7 +612,9 @@ locks are the agreed constraints for that execution.
      85%) once Stage 0 reveals the real baseline.
 
 ## Open questions for the user
-1. Calendar column-binding approach: TMDL/JSON injection (preferred) vs reflection?
+1. ~~Calendar column-binding approach: TMDL/JSON injection vs reflection?~~ RESOLVED 2026-07-04 — use the
+   PUBLIC `TimeUnitColumnAssociation`/`TimeRelatedColumnGroup` subclass API (no reflection, no TMSL); see
+   the "RISK — Calendar column binding — RESOLVED" section above.
 2. Resume the test harness solo, or first get the experiment-team specialist subagents reachable?
 
 ## Environment / delegation note (CORRECTED 2026-06-28)
