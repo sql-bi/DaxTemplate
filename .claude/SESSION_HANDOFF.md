@@ -1,8 +1,10 @@
 # Session Handoff — DAX Template: new DAX entities
 
 > Resume instructions: open this repo in Claude Code and say
-> **"Read .claude/SESSION_HANDOFF.md and start Phase M Stage 3 (deeper refactors)."**
-> Last updated: 2026-07-02
+> **"Read .claude/SESSION_HANDOFF.md and start Phase 1 (Calendars). The binding decision is resolved —
+> use the public TimeUnitColumnAssociation/TimeRelatedColumnGroup API."**
+> Phase M (Stages 0-4) is COMPLETE; Phase 1 (Calendars) is next.
+> Last updated: 2026-07-04
 
 ## Goal
 Extend the Dax.Template library (creates TOM objects from JSON templates) to support three new DAX
