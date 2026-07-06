@@ -1,10 +1,19 @@
 # Session Handoff — DAX Template: new DAX entities
 
-> Resume instructions: open this repo in Claude Code and say
-> **"Read .claude/SESSION_HANDOFF.md and start Phase 1 (Calendars). The binding decision is resolved —
-> use the public TimeUnitColumnAssociation/TimeRelatedColumnGroup API."**
-> Phase M (Stages 0-4) is COMPLETE; Phase 1 (Calendars) is next.
-> Last updated: 2026-07-04
+> ⚠️ START A NEW SESSION for the next step (this session is ending for scheduled maintenance).
+> Resume instructions: open this repo in Claude Code in a FRESH session and paste:
+> **"Read .claude/SESSION_HANDOFF.md. The offline roadmap (Phase 1 Calendars, Phase 2 Calc groups,
+> Phase 3 UDFs) is COMPLETE, reviewed, and pushed on branch `add-calendar` (HEAD `dc33b84`+). Run the
+> opt-in LIVE-SERVER validation for all three phases: set the `DAXTEMPLATE_LIVE_SERVER` and
+> `DAXTEMPLATE_LIVE_DATABASE` env vars against a compatibility-level >= 1702 database, run the
+> `[LiveServerFact]` tests (`CalendarGoldenTests`, `CalculationGroupGoldenTests`, `FunctionLibraryGoldenTests`
+> — the UDF one is the ONLY place the generated DAX signatures actually get compiled, since TOM does not
+> validate `Function.Expression` offline), and report results. Fix any failures via the normal
+> delegate→review-gate flow."**
+> STATUS: Phase M (Stages 0-4) COMPLETE; Phases 1-3 COMPLETE offline & pushed. NEXT = live-server tests only.
+> Offline suite: 161 passed + 4 skipped (the 4 skips are the opt-in live-server facts). Nothing left to
+> build offline. See the per-phase COMPLETE entries below for full detail.
+> Last updated: 2026-07-06
 
 ## Goal
 Extend the Dax.Template library (creates TOM objects from JSON templates) to support three new DAX
@@ -648,7 +657,53 @@ the calc-group template has NO dependency on Measures/Syntax/time-intelligence m
 - PENDING: not committed — awaiting user review/commit like Phase 1. Untracked: `Tables/CalculationGroups/` (2),
   `CalculationGroupGoldenTests.cs`, `CalcGroupOfflineModelFixture.cs`, 3 template JSONs, `Config-03 ...bim`;
   modified: `Engine.cs`, `Constants/Attributes.cs`, `PublicApi.txt`, CHANGELOG, AGENTS, 3 design docs.
-### Phase 3 — User-defined functions (not started): backend -> qa + docs -> reviewer (revisit compat level)
+### Phase 3 — User-defined functions (COMPLETE — reviewed GO-WITH-NITS, nits addressed; NOT yet committed 2026-07-06)
+DAX UDFs adopting the current standard (GA Sept 2025 + March 2026 reference types): structured typed
+parameters + optional parameters (default expressions), per the user's explicit requirement.
+- [x] backend (`dotnet-architect`): `FunctionLibraryTemplateDefinition` + `FunctionDefinition`
+      (+`GetBody()`) + `ParameterDefinition` POCOs in `src/Dax.Template/Functions/`;
+      `FunctionLibraryTemplate.ApplyTemplate(Model, bool isEnabled, CancellationToken)`;
+      `ApplyFunctionLibraryTemplate` wired into `Engine.ApplyTemplates` via `nameof(FunctionLibraryTemplate)`.
+      MODEL-LEVEL (target `Model.Functions`, no Table, no refresh). Additive JSON (reuses
+      `Class`/`Template`/`IsHidden`/`IsEnabled`; no `TemplateEntry` change). One sub-template = a LIBRARY
+      of many functions.
+- [x] SPIKE: `Function` has Name/Expression/Description/IsHidden/LineageTag AND `Annotations`.
+      `Expression` stores ONLY `( params ) => body`. **Minimum compat = 1702** (TOM throws below, at
+      `Model.Functions.Add`). TOM does NO grammar validation of the Expression (opaque string) — so the
+      engine's structured validation is the only pre-server safety net.
+- [x] HYBRID schema (user decision): structured params first-class (engine assembles `( ... ) => body` per
+      the grammar — types ANYVAL/SCALAR+Subtype/TABLE/REF-family, VAL/EXPR passing modes, REF types force
+      EXPR/no mode, `= default` => optional) + a `RawExpression` escape hatch (verbatim). Body via
+      `Body`/`MultiLineBody`. Engine-enforced validation: RawExpression XOR Body; SCALAR needs Subtype;
+      PassingMode rejected on REF types; PassingMode requires an explicit Type; optional-must-trail-mandatory;
+      no dup names in a library; non-blank function/param names. PascalCase guidance-only (not enforced).
+      Cross-FILE name collisions NOT detected (last-applied-wins) — documented, deferred (MeasuresTemplate
+      precedent).
+- [x] Idempotency: annotation-keyed (`SQLBI_Template = "Functions"`, new const
+      `Attributes.SqlbiTemplateFunctions`) like Measures/CalcGroups — reconcile-by-name + orphan cleanup;
+      `IsEnabled=false` removes all this-template functions. NO rename limitation (renamed function's old
+      object swept as an orphan), unlike Phase 1 Calendar.
+- [x] qa (`test-engineer`): dedicated compat-1702 `FunctionOfflineModelFixture` (the 1600/1605/1701 fixtures
+      untouched); `FunctionLibraryGoldenTests` = shape (exact rendered Expression strings) + snapshot
+      (`_data/Golden/Config-04 - Functions.bim`) + idempotency + orphan-cleanup + disabled-removal +
+      disabled-with-nothing + compat-1702 guard + RawExpression-positive + all validation rules (incl. the
+      four added in the review round: PassingMode-without-Type, blank function name, blank param name,
+      neither-RawExpression-nor-Body) + opt-in `[LiveServerFact]`. New fixtures `Functions-Statistics.json`,
+      `Config-04`/`Config-04b`. `PublicApi.txt` regenerated (diff = the 4 new types + the new const). Suite:
+      **161 passed + 4 skipped**; build green under `-p:TreatWarningsAsErrors=true`; `dotnet format` clean.
+- [x] docs (`dotnet-team:docs`): new page `docs/design/functions.md` (indexed in AGENTS.md Documentation
+      map + README.md); CHANGELOG `[Unreleased]` Added; AGENTS.md (dispatch list + `Functions/` folder);
+      apply-templates-lifecycle.md (dispatch branch + mermaid).
+- [x] reviewer gate (`code-reviewer`): first pass GO-WITH-NITS -> fixed 3 should-fixes (PassingMode-without-Type
+      validation; RawExpression/Parameters doc accuracy; 4 added regression tests) -> re-review GO-WITH-NITS
+      (2 residual doc-sync nits — functions.md validation list + CHANGELOG rule list/test count — fixed by the
+      lead). Net: **GO**, all findings addressed.
+- PENDING: not committed — awaiting user review/commit like Phases 1-2. LIVE-SERVER tests for all three phases
+  are authored but deferred (opt-in, skipped in CI) per user.
+
+## ROADMAP COMPLETE (offline): Phase 1 Calendars + Phase 2 Calc groups + Phase 3 UDFs all done & reviewed.
+Remaining: commit/push Phase 3; run the opt-in live-server tests when ready (esp. Phase 3 UDFs — the only
+place the generated DAX signatures actually get compiled, since TOM doesn't validate the Expression offline).
 
 ## Phase M — locked decisions (2026-07-01)
 All five decisions below are LOCKED by the user. Phase M is now IN EXECUTION (kicked off 2026-07-01):
