@@ -1,0 +1,11 @@
+{
+  "Description": "Minimal DAX user-defined-function library backend (Phase 3) characterization: a single generic FunctionLibraryTemplate entry creating PercentOfTotal and SafeDivide",
+  "Templates": [
+    {
+      "Class": "FunctionLibraryTemplate",
+      "Template": "Functions-Statistics.json",
+      "IsHidden": false,
+      "IsEnabled": true
+    }
+  ]
+}

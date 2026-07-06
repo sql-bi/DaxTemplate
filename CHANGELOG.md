@@ -140,6 +140,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Known limitation: renaming `ColumnName` between runs orphans the previous backing column (only the current
   `ColumnName` is found-or-created) — the same class of limitation as the `CalendarTemplate`
   rename/deletion gap and the existing `CustomDateTable` table-rename TODO.
+- New template `Class: "FunctionLibraryTemplate"` (`Functions/FunctionLibraryTemplate` +
+  `FunctionLibraryTemplateDefinition`) generates DAX **user-defined functions (UDFs)** onto
+  `Model.Functions`. Unlike every other template class, this one is **model-level**: it never touches a
+  `Table`, and `TemplateEntry.Table` is unused. JSON config is purely additive: it reuses the existing
+  `Class`/`Template`/`IsEnabled` `TemplateEntry` fields, with `Template` pointing at a sub-template
+  **library** file (`Functions[]`, each a `Name`/`Description`/`IsHidden`/`Parameters[]`/
+  `Body`-or-`MultiLineBody`-or-`RawExpression`). A function is defined either via `RawExpression` (an
+  escape hatch: the literal `( params ) => body` TOM expression string, used verbatim) or structurally via
+  `Parameters[]` (`Name`, `Type`, `Subtype`, `PassingMode`, `DefaultExpression`) plus `Body`/
+  `MultiLineBody` — never both, never neither (`InvalidConfigurationException`). The engine assembles
+  `Function.Expression` per the DAX UDF parameter grammar: reference-type parameters (`ANYREF`/
+  `MEASUREREF`/`COLUMNREF`/`TABLEREF`/`CALENDARREF`) reject an explicit `PassingMode` (always passed by
+  reference); `SCALAR` requires a `Subtype`; once a parameter has a `DefaultExpression`, every following
+  parameter must have one too (optional parameters must trail mandatory ones); duplicate function names
+  within one library are rejected. Cross-file name collisions across separate `FunctionLibraryTemplate`
+  entries are **not** detected (last-applied-wins) — a documented, deferred limitation matching the
+  existing `MeasuresTemplate` precedent. Requires database compatibility level >= 1702
+  (`InvalidConfigurationException` otherwise — TOM throws `CompatibilityViolationException` at
+  `Model.Functions.Add(...)` below that level, verified empirically). Idempotent via the `SQLBI_Template =
+  "Functions"` annotation (new `Attributes.SqlbiTemplateFunctions` constant) stamped on each generated
+  `Function`: re-applying the same entry reconciles by name (functions no longer in the definition are
+  removed) and `IsEnabled: false` removes every function this template previously created. Unlike
+  `CalendarTemplate`, this annotation-keyed idempotency means a **renamed** function is not orphaned — it
+  is swept up as part of the normal reconcile, the same as `MeasuresTemplate`/`CalculationGroupTemplate`.
+  (The offline test harness uses a dedicated compat-1702 fixture, `FunctionOfflineModelFixture`, leaving
+  the lower-compat fixtures/goldens untouched.)
+- `FunctionLibraryGoldenTests`, covering `FunctionLibraryTemplate` shape/snapshot output
+  (`Config-04 - Functions`), idempotency (apply-twice identical normalized output), orphan-by-rename
+  cleanup, the enable/disable lifecycle, the compat-1702 guard, and the validation rules above
+  (`RawExpression`-and-`Body` conflict, duplicate names, `SCALAR` without `Subtype`, `PassingMode` on a
+  reference type, `PassingMode` without an explicit `Type`, blank function/parameter names, and
+  mandatory-after-optional parameters). The offline suite now stands at 161 passing + 4 skipped.
 - `HierarchyTabularReferenceTests`, covering the hierarchy/level back-reference contract
   fixed above, level ordinal ordering, column binding on levels, and `Reset()` behavior
   for hierarchies and levels.

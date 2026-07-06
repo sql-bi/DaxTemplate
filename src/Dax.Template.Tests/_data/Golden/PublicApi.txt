@@ -1,6 +1,7 @@
 public static class Dax.Template.Constants.Attributes
   field public const string SqlbiTemplate = "SQLBI_Template"
   field public const string SqlbiTemplateDates = "Dates"
+  field public const string SqlbiTemplateFunctions = "Functions"
   field public const string SqlbiTemplateHolidays = "Holidays"
   field public const string SqlbiTemplateTable = "SQLBI_TemplateTable"
   field public const string SqlbiTemplateTableCalculationGroup = "CalculationGroup"
@@ -108,6 +109,30 @@ public static class Dax.Template.Extensions.Extensions
   method public static System.ValueTuple<string, string> SplitDaxIdentifier(string daxIdentifier)
   method public static void AddDependenciesFromExpression(System.Collections.Generic.IEnumerable<Dax.Template.Syntax.IDaxName> daxElements)
   method public static void AddDependenciesFromExpression(System.Collections.Generic.IEnumerable<Dax.Template.Syntax.IDependencies<Dax.Template.Syntax.DaxBase>> items, System.Collections.Generic.IEnumerable<Dax.Template.Syntax.IDaxName> daxElements)
+public class Dax.Template.Functions.FunctionDefinition
+  ctor public FunctionDefinition()
+  method public string GetBody()
+  property public Dax.Template.Functions.ParameterDefinition[] Parameters { get; set; }
+  property public bool IsHidden { get; set; }
+  property public required string Name { get; set; }
+  property public string Body { get; set; }
+  property public string Description { get; set; }
+  property public string RawExpression { get; set; }
+  property public string[] MultiLineBody { get; set; }
+public class Dax.Template.Functions.FunctionLibraryTemplate
+  ctor public FunctionLibraryTemplate(Dax.Template.Functions.FunctionLibraryTemplateDefinition definition)
+  method public void ApplyTemplate(Microsoft.AnalysisServices.Tabular.Model model, bool isEnabled, System.Threading.CancellationToken cancellationToken = null)
+  property public Dax.Template.Functions.FunctionLibraryTemplateDefinition Definition { get; }
+public class Dax.Template.Functions.FunctionLibraryTemplateDefinition
+  ctor public FunctionLibraryTemplateDefinition()
+  property public Dax.Template.Functions.FunctionDefinition[] Functions { get; set; }
+public class Dax.Template.Functions.ParameterDefinition
+  ctor public ParameterDefinition()
+  property public required string Name { get; set; }
+  property public string DefaultExpression { get; set; }
+  property public string PassingMode { get; set; }
+  property public string Subtype { get; set; }
+  property public string Type { get; set; }
 public interface Dax.Template.Interfaces.ICustomTableConfig : Dax.Template.Interfaces.IScanConfig
   property public System.Collections.Generic.Dictionary<string, string> DefaultVariables { get; set; }
 public interface Dax.Template.Interfaces.IDateTemplateConfig : Dax.Template.Interfaces.ICustomTableConfig, Dax.Template.Interfaces.IScanConfig

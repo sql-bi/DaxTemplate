@@ -2,6 +2,7 @@
 using Dax.Template.Enums;
 using Dax.Template.Exceptions;
 using Dax.Template.Extensions;
+using Dax.Template.Functions;
 using Dax.Template.Interfaces;
 using Dax.Template.Measures;
 using Dax.Template.Tables;
@@ -128,7 +129,8 @@ public class Engine
             ( nameof(CustomDateTable), ApplyCustomDateTable ),
             ( nameof(MeasuresTemplate), ApplyMeasuresTemplate ),
             ( nameof(CalendarTemplate), ApplyCalendarTemplate ),
-            ( nameof(CalculationGroupTemplate), ApplyCalculationGroupTemplate )
+            ( nameof(CalculationGroupTemplate), ApplyCalculationGroupTemplate ),
+            ( nameof(FunctionLibraryTemplate), ApplyFunctionLibraryTemplate )
         ];
 
         if (Configuration.Templates != null)
@@ -359,6 +361,16 @@ public class Engine
                     backingColumn.LineageTag = Guid.NewGuid().ToString();
                 }
             }
+        }
+        void ApplyFunctionLibraryTemplate(ITemplates.TemplateEntry templateEntry, CancellationToken cancellationToken = default)
+        {
+            if (string.IsNullOrWhiteSpace(templateEntry.Template))
+            {
+                throw new InvalidConfigurationException($"Undefined Template in class {templateEntry.Class} configuration");
+            }
+
+            var definition = _package.ReadDefinition<FunctionLibraryTemplateDefinition>(templateEntry.Template);
+            new FunctionLibraryTemplate(definition).ApplyTemplate(model, templateEntry.IsEnabled, cancellationToken);
         }
     }
 

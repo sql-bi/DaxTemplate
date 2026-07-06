@@ -11,4 +11,5 @@ public static class Attributes
     public const string SqlbiTemplateTableHolidays = "Holidays";
     public const string SqlbiTemplateTableHolidaysDefinition = "HolidaysDefinition";
     public const string SqlbiTemplateTableCalculationGroup = "CalculationGroup";
+    public const string SqlbiTemplateFunctions = "Functions";
 }

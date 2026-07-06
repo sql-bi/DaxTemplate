@@ -19,6 +19,7 @@ Entry point: `Engine.ApplyTemplates` in [src/Dax.Template/Engine.cs](../../src/D
 | `MeasuresTemplate` | `ApplyMeasuresTemplate` | `Measures/MeasuresTemplate` |
 | `CalendarTemplate` | `ApplyCalendarTemplate` | `Tables/Calendars/CalendarTemplate` |
 | `CalculationGroupTemplate` | `ApplyCalculationGroupTemplate` | `Tables/CalculationGroups/CalculationGroupTemplate` |
+| `FunctionLibraryTemplate` | `ApplyFunctionLibraryTemplate` | `Functions/FunctionLibraryTemplate` |
 
 An unrecognized `Class` value throws (`.First(c => c.className == template.Class)` with no match).
 
@@ -31,6 +32,7 @@ flowchart TD
     B -->|MeasuresTemplate| F[ApplyMeasuresTemplate]
     B -->|CalendarTemplate| N[ApplyCalendarTemplate]
     B -->|CalculationGroupTemplate| P[ApplyCalculationGroupTemplate]
+    B -->|FunctionLibraryTemplate| R[ApplyFunctionLibraryTemplate]
     C --> G["find-or-create Table + CalculatedTableTemplateBase.ApplyTemplate"]
     D --> G
     E --> H["CreateDateTable -> ReferenceCalculatedTable/CustomDateTable.ApplyTemplate"]
@@ -39,10 +41,12 @@ flowchart TD
     F --> J["MeasuresTemplate.ApplyTemplate"]
     N --> O["find existing Table (no create) + CalendarTemplate.ApplyTemplate"]
     P --> Q["foreign-table guard + build-then-add: CalculationGroupTemplate.ApplyTemplate"]
+    R --> S["FunctionLibraryTemplate.ApplyTemplate (Model.Functions, no Table)"]
     I --> K[model mutated]
     J --> K
     O --> K
     Q --> K
+    S --> K
     K --> L[RemoveOrphanTranslations]
     L --> M["Engine.GetModelChanges (optional, caller-invoked)"]
 ```
@@ -55,6 +59,7 @@ flowchart TD
 - **`MeasuresTemplate`**: reads a `MeasuresTemplateDefinition` from JSON and calls `MeasuresTemplate.ApplyTemplate(model, isEnabled, cancellationToken)` — see [measures.md](measures.md).
 - **`CalendarTemplate`**: validates `TemplateEntry.Table` and `TemplateEntry.Template` are non-blank (`InvalidConfigurationException` otherwise), then, unlike every other handler, **finds but never creates** the target table — `model.Tables.Find(TemplateEntry.Table)`. When `IsEnabled == true` it throws `TemplateException` if the table doesn't already exist (a calendar has nothing to attach to on its own); when `IsEnabled == false` a missing target table is a silent no-op (nothing to disable), matching the disabled-path behavior of the sibling handlers. It reads a `CalendarTemplateDefinition` from `TemplateEntry.Template` and calls `CalendarTemplate.ApplyTemplate(targetTable, isEnabled, cancellationToken)` — see [table-generation.md](table-generation.md#calendars) for the column-group schema, the compatibility-level guard, and the `Calendar.Name` idempotency model. No `RequestTableRefresh` is issued (attaching a calendar doesn't change the table's row/column shape).
 - **`CalculationGroupTemplate`**: validates `TemplateEntry.Table` is non-blank, then looks up an existing table by that name. If `IsEnabled == false`, removes the existing table (if any) and returns — a missing table is a silent no-op. Otherwise validates `TemplateEntry.Template` is non-blank, then applies a **foreign-table guard**: if a table with that name already exists and is not tagged with the `SQLBI_Template = "CalculationGroup"` annotation, it throws `TemplateException` rather than overwriting a user's unrelated table. It reads a `CalculationGroupTemplateDefinition` from `TemplateEntry.Template` and calls `CalculationGroupTemplate.ApplyTemplate(table, isHidden, cancellationToken)` against either the existing table or a brand-new, not-yet-attached `Table` instance — see [table-generation.md](table-generation.md#calculation-groups) for the calculation-item schema, the compatibility-level requirements, and the annotation-keyed idempotency model. For a brand-new table, the `Table` is only added to `model.Tables` (and stamped with a `LineageTag`) **after** `ApplyTemplate` returns successfully (build-then-add), so an invalid definition never leaves a phantom table in the model. No `RequestTableRefresh` is issued (calculation items are pure metadata; the `CalculationGroupSource` partition has no query to refresh).
+- **`FunctionLibraryTemplate`**: validates `TemplateEntry.Template` is non-blank (`InvalidConfigurationException` otherwise), reads a `FunctionLibraryTemplateDefinition` from it, and calls `FunctionLibraryTemplate.ApplyTemplate(model, isEnabled, cancellationToken)` — see [functions.md](functions.md) for the DAX user-defined-function (UDF) JSON schema, the compatibility-level guard, and the annotation-keyed idempotency model. Unlike every other handler, this one is **model-level**: it never looks up or creates a `Table` (`TemplateEntry.Table` is unused), so there is no find-or-create step and no `RequestTableRefresh` call — functions are created, updated, and reconciled directly on `Model.Functions`.
 - After all entries are applied, `RemoveOrphanTranslations` (local function) removes culture `ObjectTranslations` pointing at removed objects, and removes `model.Relationships` that reference a removed table or column.
 
 ## Refresh guard

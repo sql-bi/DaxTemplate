@@ -7,6 +7,7 @@ These are **not** loaded automatically into an agent's context — read on deman
 - [apply-templates-lifecycle.md](apply-templates-lifecycle.md) — `Engine.ApplyTemplates` dispatch by `Class`, handlers, TOM mutation, `GetModelChanges`.
 - [table-generation.md](table-generation.md) — the `Tables/` class hierarchy, columns/hierarchies/levels, the date-table branch, the `Tabular*` back-reference convention, attaching a native TOM `Calendar` to an existing table (`CalendarTemplate`), and generating a native TOM calculation-group table (`CalculationGroupTemplate`).
 - [measures.md](measures.md) — `MeasuresTemplate` / `MeasureTemplateBase`, target-measure expansion, `SQLBI_Template` idempotency.
+- [functions.md](functions.md) — `FunctionLibraryTemplate` / `FunctionLibraryTemplateDefinition`, the DAX user-defined-function (UDF) JSON schema, compatibility-level guard, and annotation-keyed idempotency.
 - [domain-model-and-conventions.md](domain-model-and-conventions.md) — `Model/*`, `EntityBase`, the additive-JSON rule, the `Syntax/` DAX expression subsystem and dependency-sort machinery.
 - [testing.md](testing.md) — offline golden-file harness, live-server opt-in tests, `InternalsVisibleTo`.
 - [coverage.md](coverage.md) — coverlet coverage configuration and baseline, CI threshold gate, Stryker.NET mutation-testing scaffold.
