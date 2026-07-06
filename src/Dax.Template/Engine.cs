@@ -4,6 +4,7 @@ using Dax.Template.Extensions;
 using Dax.Template.Interfaces;
 using Dax.Template.Measures;
 using Dax.Template.Tables;
+using Dax.Template.Tables.Calendars;
 using Dax.Template.Tables.Dates;
 using Microsoft.AnalysisServices.Tabular;
 using System;
@@ -123,7 +124,8 @@ public class Engine
             ( nameof(HolidaysDefinitionTable), ApplyHolidaysDefinitionTable ),
             ( nameof(HolidaysTable), ApplyHolidaysTable ),
             ( nameof(CustomDateTable), ApplyCustomDateTable ),
-            ( nameof(MeasuresTemplate), ApplyMeasuresTemplate )
+            ( nameof(MeasuresTemplate), ApplyMeasuresTemplate ),
+            ( nameof(CalendarTemplate), ApplyCalendarTemplate )
         ];
 
         if (Configuration.Templates != null)
@@ -271,6 +273,30 @@ public class Engine
             var measuresTemplateDefinition = _package.ReadDefinition<MeasuresTemplateDefinition>(templateEntry.Template);
             var template = new MeasuresTemplate(Configuration, measuresTemplateDefinition, templateEntry.Properties);
             template.ApplyTemplate(model, isEnabled: templateEntry.IsEnabled, cancellationToken: cancellationToken);
+        }
+        void ApplyCalendarTemplate(ITemplates.TemplateEntry templateEntry, CancellationToken cancellationToken = default)
+        {
+            if (string.IsNullOrWhiteSpace(templateEntry.Table))
+            {
+                throw new InvalidConfigurationException($"Undefined Table property in class {templateEntry.Class} configuration");
+            }
+            if (string.IsNullOrWhiteSpace(templateEntry.Template))
+            {
+                throw new InvalidConfigurationException($"Undefined Template in class {templateEntry.Class} configuration");
+            }
+            Table? targetTable = model.Tables.Find(templateEntry.Table);
+            if (!templateEntry.IsEnabled)
+            {
+                if (targetTable is null)
+                    return; // table already removed by a prior entry; nothing to disable
+            }
+            else
+            {
+                targetTable = targetTable ?? throw new TemplateException($"Calendar target table '{templateEntry.Table}' not found");
+            }
+
+            var definition = _package.ReadDefinition<CalendarTemplateDefinition>(templateEntry.Template);
+            new CalendarTemplate(definition).ApplyTemplate(targetTable!, templateEntry.IsEnabled, cancellationToken);
         }
     }
 

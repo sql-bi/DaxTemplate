@@ -345,6 +345,22 @@ public abstract class Dax.Template.Tables.CalculatedTableTemplateBase : Dax.Temp
   method protected virtual void AddPartitions(Microsoft.AnalysisServices.Tabular.Table dateTable, System.Threading.CancellationToken cancellationToken = null)
   method public virtual string GetDaxTableExpression(Microsoft.AnalysisServices.Tabular.Model model, System.Threading.CancellationToken cancellationToken = null)
   property public string IsoFormat { get; set; }
+public class Dax.Template.Tables.Calendars.CalendarTemplate
+  ctor public CalendarTemplate(Dax.Template.Tables.Calendars.CalendarTemplateDefinition definition)
+  method public Microsoft.AnalysisServices.Tabular.Calendar ApplyTemplate(Microsoft.AnalysisServices.Tabular.Table targetTable, bool isEnabled, System.Threading.CancellationToken cancellationToken = null)
+  property public Dax.Template.Tables.Calendars.CalendarTemplateDefinition Definition { get; }
+public class Dax.Template.Tables.Calendars.CalendarTemplateDefinition
+  ctor public CalendarTemplateDefinition()
+  property public Dax.Template.Tables.Calendars.CalendarTemplateDefinition.CalendarColumnGroupDefinition[] ColumnGroups { get; set; }
+  property public string Description { get; set; }
+  property public string Name { get; set; }
+public class Dax.Template.Tables.Calendars.CalendarTemplateDefinition.CalendarColumnGroupDefinition
+  ctor public CalendarColumnGroupDefinition()
+  property public Microsoft.AnalysisServices.Tabular.TimeUnit? TimeUnit { get; set; }
+  property public required string Type { get; set; }
+  property public string PrimaryColumn { get; set; }
+  property public string[] AssociatedColumns { get; set; }
+  property public string[] Columns { get; set; }
 public class Dax.Template.Tables.CustomTableTemplate<T> : Dax.Template.Tables.ReferenceCalculatedTable
   ctor protected CustomTableTemplate(T config, Dax.Template.CustomTemplateDefinition template, System.Predicate<Dax.Template.CustomTemplateDefinition.Column> skipColumn, Microsoft.AnalysisServices.Tabular.Model model)
   ctor public CustomTableTemplate(T config)

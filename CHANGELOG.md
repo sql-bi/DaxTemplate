@@ -101,6 +101,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- New template `Class: "CalendarTemplate"` (`Tables/Calendars/CalendarTemplate` + `CalendarTemplateDefinition`)
+  attaches a native TOM `Calendar` — with `TimeUnitColumnAssociation` (`Type: "TimeUnit"`) and
+  `TimeRelatedColumnGroup` (`Type: "TimeRelated"`) column groups — to an **existing** table; unlike the
+  other template classes, it does not generate a table. JSON config is purely additive: it reuses the
+  existing `Class`/`Table`/`Template`/`IsEnabled` `TemplateEntry` fields, with `Table` naming the
+  pre-existing table the calendar attaches to and `Template` pointing at a calendar sub-template file
+  (`Name`, `Description`, `ColumnGroups[]`). Requires database compatibility level >= 1701
+  (`InvalidConfigurationException` otherwise — TOM throws `CompatibilityViolationException` as soon as a
+  `Calendar` is added below that level). Idempotent by `Calendar.Name` within the target table (a
+  `Calendar` has no `Annotations`, so the usual `SQLBI_Template`-annotation tagging doesn't apply here):
+  re-applying the same entry clears and rebuilds that calendar's column groups, and `IsEnabled: false`
+  removes the named calendar. Known limitation: renaming or deleting a `CalendarTemplate` entry between
+  runs leaves an orphaned calendar the engine can no longer identify (the same class of limitation as the
+  existing `CustomDateTable` table-rename TODO and `MeasuresTemplate` entry-deletion behavior); a
+  provenance-tracking fix is deferred to a later phase.
 - `HierarchyTabularReferenceTests`, covering the hierarchy/level back-reference contract
   fixed above, level ordinal ordering, column binding on levels, and `Reset()` behavior
   for hierarchies and levels.

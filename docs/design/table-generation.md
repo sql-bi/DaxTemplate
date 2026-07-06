@@ -36,3 +36,42 @@ TableTemplateBase (abstract)
 Model objects keep an **internal** back-reference to the live TOM object they created: `Column.TabularColumn`, `Hierarchy.TabularHierarchy`, `Level.TabularLevel`.
 This is what lets `InternalsVisibleTo`-enabled test code (and internal engine code) inspect the actual TOM object a template produced.
 Every `EntityBase`-derived type implements `Reset()` (see [domain-model-and-conventions.md](domain-model-and-conventions.md)) which nulls these references out; `TableTemplateBase.ResetTabularReferences` calls `Reset()` across a table's model objects before a template is (re-)applied, so re-running a template against a model that already has the previous run's output is safe and produces a clean re-attach rather than stale references.
+
+## Calendars
+
+`Tables/Calendars/CalendarTemplate` (+ `CalendarTemplateDefinition`) is not part of the class hierarchy above: it doesn't generate a table. It attaches a native TOM `Calendar` — and its `CalendarColumnGroups` — to a table some other template already created, using the public typed TOM Calendar API (`TimeUnitColumnAssociation`/`TimeRelatedColumnGroup`); no reflection, no TMSL. It is dispatched from the `CalendarTemplate` `Class` in `Engine.ApplyTemplates` (see [apply-templates-lifecycle.md](apply-templates-lifecycle.md)), which finds (but never creates) the target `Table` by `TemplateEntry.Table` and reads a `CalendarTemplateDefinition` from `TemplateEntry.Template`.
+
+### JSON schema
+
+The sub-template file referenced by `TemplateEntry.Template` has the shape:
+
+```json
+{
+  "Name": "Calendar",
+  "Description": "...",
+  "ColumnGroups": [
+    { "Type": "TimeUnit", "TimeUnit": "Year", "PrimaryColumn": "Year", "AssociatedColumns": [ "..." ] },
+    { "Type": "TimeRelated", "Columns": [ "Day of Week" ] }
+  ]
+}
+```
+
+- `Name` (required) — the `Calendar.Name` to create or update on the target table; also the idempotency key (see below).
+- `Description` (optional) — copied onto `Calendar.Description`.
+- `ColumnGroups[]` — each entry is discriminated by `Type`:
+  - `"TimeUnit"` → a `TimeUnitColumnAssociation`, built from `TimeUnit` (required; the TOM `Microsoft.AnalysisServices.Tabular.TimeUnit` enum, e.g. `Year`, `MonthOfYear`, `Date` — bound via `JsonStringEnumConverter`), `PrimaryColumn` (required column name), and optional `AssociatedColumns` (column names).
+  - `"TimeRelated"` → a `TimeRelatedColumnGroup`, built from `Columns` (column names).
+  - Any other `Type` value throws `InvalidConfigurationException`.
+- All column names (`PrimaryColumn`, `AssociatedColumns`, `Columns`) are resolved against `targetTable.Columns` at apply time; an unresolved name throws `TemplateException`. A missing/blank `PrimaryColumn` or `Columns`/`AssociatedColumns` entry throws `InvalidConfigurationException`.
+
+Example: `src/Dax.Template.Tests/_data/Templates/Calendar-Standard.json`.
+
+### Compatibility level
+
+TOM requires database compatibility level **>= 1701** to add a `Calendar` to a table — it throws `CompatibilityViolationException` at `Table.Calendars.Add(...)` itself, before `Model.Validate()` runs. On the enabled path, `CalendarTemplate.ApplyTemplate` first guards that the table is attached to a model with a database (`targetTable.Model?.Database`, otherwise `InvalidConfigurationException`), then checks `CompatibilityLevel` up front and throws a template-specific `InvalidConfigurationException` instead of surfacing the raw TOM exception. (The offline test harness uses a dedicated compat-1701 fixture, `CalendarOfflineModelFixture`, so the compat-1600 fixture used by every other golden test stays untouched.)
+
+### Idempotency and its limitation
+
+A `Calendar` has no `Annotations`, so the usual `SQLBI_Template`-annotation convention (see [measures.md](measures.md)) doesn't apply. Instead, `CalendarTemplate.ApplyTemplate` keys off `Calendar.Name`: it looks up `targetTable.Calendars.Find(Definition.Name)` and either creates a new `Calendar` or clears and rebuilds the existing one's `CalendarColumnGroups`. `IsEnabled: false` removes the named calendar and returns without creating anything.
+
+**Known limitation:** because there is no provenance tag, renaming or deleting a `CalendarTemplate` entry between runs leaves the previously-created calendar in the model — the engine has no way to identify it as orphaned on a later run. This is the same class of gap as the `CustomDateTable` table-rename TODO and `MeasuresTemplate`'s entry-deletion behavior; a provenance-tracking fix is deferred to a later phase.

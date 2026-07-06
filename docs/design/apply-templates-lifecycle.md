@@ -17,6 +17,7 @@ Entry point: `Engine.ApplyTemplates` in [src/Dax.Template/Engine.cs](../../src/D
 | `HolidaysTable` | `ApplyHolidaysTable` | `Tables/Dates/HolidaysTable` |
 | `CustomDateTable` | `ApplyCustomDateTable` | `Tables/Dates/CustomDateTable` (via `CreateDateTable`) |
 | `MeasuresTemplate` | `ApplyMeasuresTemplate` | `Measures/MeasuresTemplate` |
+| `CalendarTemplate` | `ApplyCalendarTemplate` | `Tables/Calendars/CalendarTemplate` |
 
 An unrecognized `Class` value throws (`.First(c => c.className == template.Class)` with no match).
 
@@ -27,14 +28,17 @@ flowchart TD
     B -->|HolidaysTable| D[ApplyHolidaysTable]
     B -->|CustomDateTable| E[ApplyCustomDateTable]
     B -->|MeasuresTemplate| F[ApplyMeasuresTemplate]
+    B -->|CalendarTemplate| N[ApplyCalendarTemplate]
     C --> G["find-or-create Table + CalculatedTableTemplateBase.ApplyTemplate"]
     D --> G
     E --> H["CreateDateTable -> ReferenceCalculatedTable/CustomDateTable.ApplyTemplate"]
     G --> I[RequestTableRefresh guard]
     H --> I
     F --> J["MeasuresTemplate.ApplyTemplate"]
+    N --> O["find existing Table (no create) + CalendarTemplate.ApplyTemplate"]
     I --> K[model mutated]
     J --> K
+    O --> K
     K --> L[RemoveOrphanTranslations]
     L --> M["Engine.GetModelChanges (optional, caller-invoked)"]
 ```
@@ -45,6 +49,7 @@ flowchart TD
   Otherwise validate the entry first — `HolidaysDefinitionTable` requires a non-blank `TemplateEntry.Template`, throwing `InvalidConfigurationException` otherwise — **before** creating the table, so an invalid/empty `Template` no longer leaves a phantom empty table in the model. Only then find-or-create the table, construct the template type, call its `ApplyTemplate(table, isHidden, cancellationToken)`, and `RequestTableRefresh`.
 - **`CustomDateTable`**: validates `TemplateEntry.Template` and `TemplateEntry.Table` are non-blank (`InvalidConfigurationException` otherwise). If `IsEnabled == false`, removes the previously-created date table (`TemplateEntry.Table`) and, if configured, its reference table (`TemplateEntry.ReferenceTable`) — symmetric with the `HolidaysDefinitionTable`/`HolidaysTable` handling above (previously a disabled entry left both tables in the model). Otherwise it optionally creates a hidden `ReferenceTable` first (shared/reused DAX expression for multiple visible date tables), then the visible date table itself, both via the private `CreateDateTable` helper, which instantiates `Tables/Dates/CustomDateTable` and applies it.
 - **`MeasuresTemplate`**: reads a `MeasuresTemplateDefinition` from JSON and calls `MeasuresTemplate.ApplyTemplate(model, isEnabled, cancellationToken)` — see [measures.md](measures.md).
+- **`CalendarTemplate`**: validates `TemplateEntry.Table` and `TemplateEntry.Template` are non-blank (`InvalidConfigurationException` otherwise), then, unlike every other handler, **finds but never creates** the target table — `model.Tables.Find(TemplateEntry.Table)`. When `IsEnabled == true` it throws `TemplateException` if the table doesn't already exist (a calendar has nothing to attach to on its own); when `IsEnabled == false` a missing target table is a silent no-op (nothing to disable), matching the disabled-path behavior of the sibling handlers. It reads a `CalendarTemplateDefinition` from `TemplateEntry.Template` and calls `CalendarTemplate.ApplyTemplate(targetTable, isEnabled, cancellationToken)` — see [table-generation.md](table-generation.md#calendars) for the column-group schema, the compatibility-level guard, and the `Calendar.Name` idempotency model. No `RequestTableRefresh` is issued (attaching a calendar doesn't change the table's row/column shape).
 - After all entries are applied, `RemoveOrphanTranslations` (local function) removes culture `ObjectTranslations` pointing at removed objects, and removes `model.Relationships` that reference a removed table or column.
 
 ## Refresh guard

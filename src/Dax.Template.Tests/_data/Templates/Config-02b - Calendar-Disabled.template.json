@@ -1,0 +1,6 @@
+{
+  "Description": "Calendar characterization: a disabled CalendarTemplate entry removes a previously-created Calendar of the same Name from the target table (Table/Template are still required)",
+  "Templates": [
+    { "Class": "CalendarTemplate", "Table": "Date", "Template": "Calendar-Standard.json", "IsEnabled": false }
+  ]
+}

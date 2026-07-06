@@ -571,13 +571,38 @@ TOM class library — not a change to the Phase 1/2/3 checklists below, just the
 - **Out of scope** (same as Phase M): `api-designer`, `ef-core-specialist`, `ci-cd` deploy / NuGet-push
   YAML, and the web/OWASP/auth/CORS layers of `security-scan` — no HTTP/EF/web surface here.
 
-### Phase 1 — Calendars (not started)
-- [ ] backend: CalendarTemplateDefinition POCO + ApplyCalendarTemplate handler in Engine dispatch +
-      additive config/TemplateEntry extension + idempotency via SQLBI_Template annotation.
-      (Resolve the Calendar-binding RISK decision first.)
-- [ ] qa: Calendar fixtures + offline assertions + opt-in live-server test
-- [ ] docs: document new Class + JSON schema fields
-- [ ] reviewer gate
+### Phase 1 — Calendars (COMPLETE — reviewed GO-WITH-NITS, nits addressed; NOT yet committed 2026-07-04)
+- [x] backend (`dotnet-architect`): `CalendarTemplateDefinition` POCO + nested `CalendarColumnGroupDefinition`
+      (`src/Dax.Template/Tables/Calendars/`) + `CalendarTemplate.ApplyTemplate` + `ApplyCalendarTemplate`
+      handler wired into `Engine.ApplyTemplates` dispatch via `nameof(CalendarTemplate)`. Uses the PUBLIC
+      typed TOM API (`TimeUnitColumnAssociation`/`TimeRelatedColumnGroup`) — NO reflection, NO TMSL.
+      Additive JSON only (reuses existing `Class`/`Table`/`Template`/`IsEnabled`; no `TemplateEntry` change).
+- [x] SPIKE RESULT: TOM enforces the Calendar compat requirement at `Table.Calendars.Add(...)` itself
+      (throws `CompatibilityViolationException` below 1701, in-memory, before `Validate()`). Handler
+      pre-checks `Database.CompatibilityLevel < 1701` and throws `InvalidConfigurationException` (also
+      guards `Model?.Database` null on the public method).
+- [x] Idempotency: keyed on `Calendar.Name` within the target table (a `Calendar` has NO `Annotations`, so
+      the `SQLBI_Template` convention can't live on it). Re-apply clears+rebuilds column groups; `IsEnabled=false`
+      removes the named calendar; disabled + missing target table = safe no-op (matches sibling handlers).
+      KNOWN LIMITATION (documented, deferred): deleting/renaming an entry orphans its calendar — matches the
+      existing `CustomDateTable` rename-TODO / `MeasuresTemplate` entry-deletion precedent.
+- [x] qa (`test-engineer`): separate compat-1701 `CalendarOfflineModelFixture` (shared 1600 fixture untouched
+      → existing goldens byte-identical); `CalendarGoldenTests` = shape (typed TOM asserts) + snapshot
+      (`_data/Golden/Config-02 - Calendar.bim`) + idempotency + disabled-removal + disabled-with-missing-table
+      (blocker regression) + opt-in `[LiveServerFact]`. New template fixtures `Calendar-Standard.json`,
+      `Config-02 - Calendar.template.json`, `Config-02b - Calendar-Disabled.template.json`. `PublicApi.txt`
+      regenerated (diff = exactly the 3 new Calendar types + members). Suite: **135 passed + 2 skipped**;
+      build green under `-p:TreatWarningsAsErrors=true`; `dotnet format --verify-no-changes` clean.
+- [x] docs (`dotnet-team:docs` + lead): CHANGELOG `[Unreleased]` Added, AGENTS.md (dispatch list +
+      `Tables/Calendars/`), apply-templates-lifecycle.md (new dispatch branch), table-generation.md (Calendars
+      section: schema + compat guard + idempotency).
+- [x] reviewer gate (`code-reviewer`): NO-GO → fixed the disabled-path BLOCKER (unconditional
+      `TemplateException` aborted the whole run when the target table was already removed by a prior entry) +
+      a SHOULD-FIX `Model?.Database` null guard + regression test → re-review **GO-WITH-NITS**; the two
+      doc-accuracy nits (disabled-path no-op / Model?.Database guard) fixed in the lifecycle + table-generation docs.
+- PENDING: not committed — user reviews the full Phase 1 output first, then commit. `Config-02 - Calendar.bim`,
+  the new `Tables/Calendars/` files, and the test/data files are untracked; `Engine.cs`, `PublicApi.txt`,
+  CHANGELOG, AGENTS, and 3 design docs are modified.
 
 ### Phase 2 — Calculation groups (not started): backend -> qa + docs -> reviewer
 ### Phase 3 — User-defined functions (not started): backend -> qa + docs -> reviewer (revisit compat level)
