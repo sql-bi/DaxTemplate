@@ -1,9 +1,11 @@
-﻿using Dax.Template.Enums;
+﻿using Dax.Template.Constants;
+using Dax.Template.Enums;
 using Dax.Template.Exceptions;
 using Dax.Template.Extensions;
 using Dax.Template.Interfaces;
 using Dax.Template.Measures;
 using Dax.Template.Tables;
+using Dax.Template.Tables.CalculationGroups;
 using Dax.Template.Tables.Calendars;
 using Dax.Template.Tables.Dates;
 using Microsoft.AnalysisServices.Tabular;
@@ -125,7 +127,8 @@ public class Engine
             ( nameof(HolidaysTable), ApplyHolidaysTable ),
             ( nameof(CustomDateTable), ApplyCustomDateTable ),
             ( nameof(MeasuresTemplate), ApplyMeasuresTemplate ),
-            ( nameof(CalendarTemplate), ApplyCalendarTemplate )
+            ( nameof(CalendarTemplate), ApplyCalendarTemplate ),
+            ( nameof(CalculationGroupTemplate), ApplyCalculationGroupTemplate )
         ];
 
         if (Configuration.Templates != null)
@@ -297,6 +300,65 @@ public class Engine
 
             var definition = _package.ReadDefinition<CalendarTemplateDefinition>(templateEntry.Template);
             new CalendarTemplate(definition).ApplyTemplate(targetTable!, templateEntry.IsEnabled, cancellationToken);
+        }
+        void ApplyCalculationGroupTemplate(ITemplates.TemplateEntry templateEntry, CancellationToken cancellationToken = default)
+        {
+            if (string.IsNullOrWhiteSpace(templateEntry.Table))
+            {
+                throw new InvalidConfigurationException($"Undefined Table property in class {templateEntry.Class} configuration");
+            }
+
+            Table? existingTable = model.Tables.Find(templateEntry.Table);
+
+            if (!templateEntry.IsEnabled)
+            {
+                if (existingTable != null)
+                    model.Tables.Remove(existingTable);
+
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(templateEntry.Template))
+            {
+                throw new InvalidConfigurationException($"Undefined Template in class {templateEntry.Class} configuration");
+            }
+
+            // Foreign-table guard, performed before creating anything: refuse to take over a table this
+            // template did not itself create.
+            if (existingTable != null
+                && !existingTable.Annotations.Any(a => a.Name == Attributes.SqlbiTemplate && a.Value == Attributes.SqlbiTemplateTableCalculationGroup))
+            {
+                throw new TemplateException($"Table '{templateEntry.Table}' already exists and is not a calculation-group table managed by this template");
+            }
+
+            var definition = _package.ReadDefinition<CalculationGroupTemplateDefinition>(templateEntry.Template);
+
+            // Build-then-add: a brand-new Table is not added to the model until ApplyTemplate has fully
+            // validated the definition and applied it, so an invalid definition never leaves a phantom
+            // table in the model. CalculationGroupTemplate.ApplyTemplate tolerates a null Table.Model in
+            // this window (it just skips the backing column's LineageTag); this method stamps the table's
+            // own LineageTag, and backfills the backing column's LineageTag (left unset by ApplyTemplate
+            // while Table.Model was null), only after ApplyTemplate returns successfully.
+            Table table = existingTable ?? new Table { Name = templateEntry.Table };
+            new CalculationGroupTemplate(definition).ApplyTemplate(table, templateEntry.IsHidden, cancellationToken);
+
+            if (existingTable == null)
+            {
+                if (model.Database.CompatibilityLevel >= 1540)
+                {
+                    table.LineageTag = Guid.NewGuid().ToString();
+                }
+                model.Tables.Add(table);
+
+                // Backfill only: EnsureBackingColumn already stamps the column when it creates it against
+                // an already-attached table, so this never overwrites an existing tag (idempotent).
+                if (table.Columns.Find(definition.ColumnName) is { } backingColumn
+                    && string.IsNullOrEmpty(backingColumn.LineageTag)
+                    && model.Database.CompatibilityLevel >= 1540)
+                {
+                    backingColumn.LineageTag = Guid.NewGuid().ToString();
+                }
+            }
         }
     }
 

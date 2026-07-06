@@ -604,7 +604,50 @@ TOM class library — not a change to the Phase 1/2/3 checklists below, just the
   the new `Tables/Calendars/` files, and the test/data files are untracked; `Engine.cs`, `PublicApi.txt`,
   CHANGELOG, AGENTS, and 3 design docs are modified.
 
-### Phase 2 — Calculation groups (not started): backend -> qa + docs -> reviewer
+### Phase 2 — Calculation groups (COMPLETE — reviewed GO; NOT yet committed 2026-07-06)
+Generic calc-group generator (LOCKED: NOT time-intelligence — the user is deprecating calc groups for TI;
+the calc-group template has NO dependency on Measures/Syntax/time-intelligence machinery).
+- [x] backend (`dotnet-architect`): `CalculationGroupTemplateDefinition` POCO + nested `CalculationItemDefinition`
+      (+ `GetExpression()` mirroring MeasuresTemplate) in `src/Dax.Template/Tables/CalculationGroups/`;
+      `CalculationGroupTemplate.ApplyTemplate(Table, bool isHidden, CancellationToken)`; `ApplyCalculationGroupTemplate`
+      wired into `Engine.ApplyTemplates` via `nameof(CalculationGroupTemplate)`. Additive JSON only (reuses
+      `Class`/`Table`/`Template`/`IsHidden`/`IsEnabled`; no `TemplateEntry` change).
+- [x] SPIKE: `Table.CalculationGroup` needs compat >= 1470, `CalculationItem` >= 1500, and the two
+      `CalculationGroupExpression` selection props (`MultipleOrEmptySelectionExpression`/`NoSelectionExpression`)
+      >= 1605 — all enforced immediately at assignment. Plain calc groups work at the shared 1600 fixture; the
+      selection-expression golden needs a dedicated compat-1605 fixture.
+- [x] DAY-1 scope (per user): `CalculationGroupExpression` selection expressions supported as flat optional
+      template fields (`MultipleOrEmptySelectionExpression` + `...FormatStringExpression`, `NoSelectionExpression`
+      + `...FormatStringExpression`). CalculationItem has NO IsHidden/Annotations/LineageTag (TOM) — so `IsHidden`
+      was dropped from the item schema and item reconciliation is full-replace-by-name.
+- [x] Idempotency: keyed on the TABLE's `SQLBI_Template = "CalculationGroup"` annotation (new const
+      `Attributes.SqlbiTemplateTableCalculationGroup`). Re-apply reconciles items by name (orphans removed) +
+      clears selection expressions when omitted; `IsEnabled=false` removes the whole table; disabled + missing
+      table = safe no-op. FOREIGN-TABLE GUARD (user concern #1 / decision #4): applying onto an existing table
+      that lacks the ownership annotation throws `TemplateException` (won't overwrite a user's non-calc-group
+      table). Validate-before-mutate + build-then-add => NO phantom table on invalid input. Ordinal uniqueness
+      enforced (effective ordinal = explicit `Ordinal` else array index; duplicate => `InvalidConfigurationException`).
+      KNOWN LIMITATION (documented, deferred): renaming `ColumnName` orphans the old backing column — matches
+      Calendar/CustomDateTable precedent.
+- [x] qa (`test-engineer`): dedicated compat-1605 `CalcGroupOfflineModelFixture` (shared 1600 + Calendar 1701
+      fixtures untouched); `CalculationGroupGoldenTests` = shape (typed TOM asserts incl. CalculationGroupSource +
+      selection exprs) + snapshot (`_data/Golden/Config-03 - CalculationGroup.bim`) + idempotency + orphan-item
+      removal + selection-expr clear-on-empty + disabled-removal + disabled-with-missing-table + foreign-collision
+      + ordinal-uniqueness + opt-in `[LiveServerFact]`. New fixtures `CalcGroup-TimeIntelligence.json`,
+      `Config-03`/`Config-03b`. `PublicApi.txt` regenerated (diff = the new types + the new const). Suite:
+      **144 passed + 3 skipped**; build green under `-p:TreatWarningsAsErrors=true`; `dotnet format` clean.
+- [x] docs (`dotnet-team:docs`): CHANGELOG `[Unreleased]` Added, AGENTS.md (dispatch list + `Tables/CalculationGroups/`),
+      apply-templates-lifecycle.md (dispatch branch + mermaid), table-generation.md (Calculation groups section:
+      schema, FormatStringExpression quoting gotcha, ordinal rule, compat 1470/1500/1605, annotation idempotency +
+      foreign guard + rename limitation), README.md index.
+- [x] reviewer gate (`code-reviewer`): first pass GO-WITH-NITS -> fixed 2 should-fixes (backing-column LineageTag
+      backfill in Engine after Add; `EnsureBackingColumn` type-guard throws on non-String/non-DataColumn reuse) +
+      2 nits (regenerated golden = single added backing-column lineageTag; Config-03b Description wording) + added
+      the 2 missing coverage tests -> re-review **GO** (no residual issues; one harmless cosmetic double compat
+      check left as-is).
+- PENDING: not committed — awaiting user review/commit like Phase 1. Untracked: `Tables/CalculationGroups/` (2),
+  `CalculationGroupGoldenTests.cs`, `CalcGroupOfflineModelFixture.cs`, 3 template JSONs, `Config-03 ...bim`;
+  modified: `Engine.cs`, `Constants/Attributes.cs`, `PublicApi.txt`, CHANGELOG, AGENTS, 3 design docs.
 ### Phase 3 — User-defined functions (not started): backend -> qa + docs -> reviewer (revisit compat level)
 
 ## Phase M — locked decisions (2026-07-01)

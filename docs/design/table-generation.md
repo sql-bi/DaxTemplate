@@ -75,3 +75,66 @@ TOM requires database compatibility level **>= 1701** to add a `Calendar` to a t
 A `Calendar` has no `Annotations`, so the usual `SQLBI_Template`-annotation convention (see [measures.md](measures.md)) doesn't apply. Instead, `CalendarTemplate.ApplyTemplate` keys off `Calendar.Name`: it looks up `targetTable.Calendars.Find(Definition.Name)` and either creates a new `Calendar` or clears and rebuilds the existing one's `CalendarColumnGroups`. `IsEnabled: false` removes the named calendar and returns without creating anything.
 
 **Known limitation:** because there is no provenance tag, renaming or deleting a `CalendarTemplate` entry between runs leaves the previously-created calendar in the model — the engine has no way to identify it as orphaned on a later run. This is the same class of gap as the `CustomDateTable` table-rename TODO and `MeasuresTemplate`'s entry-deletion behavior; a provenance-tracking fix is deferred to a later phase.
+
+## Calculation groups
+
+`Tables/CalculationGroups/CalculationGroupTemplate` (+ `CalculationGroupTemplateDefinition`) is also not part of the class hierarchy above, but unlike `CalendarTemplate` it **does** generate its own table: a `Table` whose `CalculationGroup` holds a list of `CalculationItem`s, built using the public typed TOM API (`CalculationGroup`, `CalculationItem`, `CalculationGroupExpression`, `FormatStringDefinition`) — no reflection, no TMSL. It is a **generic** calculation-group generator: the JSON definition alone determines the calculation items and their DAX, with no dependency on the `Measures`/`Syntax`/time-intelligence-macro machinery used elsewhere in this library. It is dispatched from the `CalculationGroupTemplate` `Class` in `Engine.ApplyTemplates` (see [apply-templates-lifecycle.md](apply-templates-lifecycle.md)), which finds an existing table by `TemplateEntry.Table` (creating a new one only after a successful apply — see below) and reads a `CalculationGroupTemplateDefinition` from `TemplateEntry.Template`.
+
+### JSON schema
+
+The sub-template file referenced by `TemplateEntry.Template` has the shape:
+
+```json
+{
+  "Precedence": 10,
+  "ColumnName": "Time Intelligence",
+  "Description": "Time intelligence calculation group",
+  "CalculationItems": [
+    { "Name": "Current", "Expression": "SELECTEDMEASURE()" },
+    {
+      "Name": "MTD",
+      "Ordinal": 5,
+      "Expression": "CALCULATE ( SELECTEDMEASURE(), DATESMTD ( 'Date'[Date] ) )",
+      "FormatStringExpression": "SELECTEDMEASUREFORMATSTRING()"
+    },
+    {
+      "Name": "% vs Current",
+      "MultiLineExpression": [
+        "DIVIDE (",
+        "    SELECTEDMEASURE(),",
+        "    CALCULATE ( SELECTEDMEASURE(), CALCULATIONGROUPRESETSELECTION() )",
+        ")"
+      ],
+      "FormatStringExpression": "\"0.0%\""
+    }
+  ],
+  "MultipleOrEmptySelectionExpression": "SELECTEDMEASURE()",
+  "NoSelectionExpression": "SELECTEDMEASURE()"
+}
+```
+
+- `Precedence` (optional, defaults to `0`) — copied onto `CalculationGroup.Precedence`.
+- `ColumnName` (required) — the name of the single `String` `DataColumn` that backs the calculation group; found-or-created on the target table.
+- `Description` (optional) — copied onto `CalculationGroup.Description`.
+- `CalculationItems[]` (required, non-empty) — each entry needs a `Name` and either `Expression` (single-line DAX) or `MultiLineExpression` (an array of lines joined with `\r\n`, via `CalculationItemDefinition.GetExpression()`); an item with neither throws `InvalidConfigurationException`.
+  - `Ordinal` (optional) — when omitted, the item's 0-based position in the `CalculationItems` array is used instead (see "Ordinal defaulting and uniqueness" below).
+  - `FormatStringExpression` (optional) — a DAX expression producing the item's format string. **Quoting gotcha:** a literal format string must itself be a DAX string literal, so a fixed format needs embedded quotes in JSON (e.g. `"\"0.0%\""`, which DAX sees as `"0.0%"`), whereas a dynamic expression like `SELECTEDMEASUREFORMATSTRING()` is a bare DAX call with no extra quoting.
+- `MultipleOrEmptySelectionExpression` / `NoSelectionExpression` (both optional) — DAX for `CalculationGroup.MultipleOrEmptySelectionExpression` / `.NoSelectionExpression`; each has an optional sibling `MultipleOrEmptySelectionFormatStringExpression` / `NoSelectionFormatStringExpression` for its format string (same quoting gotcha as above). Omitting (or blanking) one of these on re-apply clears any previously-set expression.
+
+Example: `src/Dax.Template.Tests/_data/Templates/CalcGroup-TimeIntelligence.json`.
+
+### Ordinal defaulting and uniqueness
+
+An item's *effective* ordinal is its explicit `Ordinal` when set, otherwise its array position. `CalculationGroupTemplate.ApplyTemplate` computes the full set of effective ordinals up front and throws `InvalidConfigurationException` (naming the offending items) if any two collide — whether both are explicit, both defaulted, or a mix of the two.
+
+### Compatibility level
+
+TOM enforces three separate minimum compatibility levels, all at assignment time (no `Model.Validate()` needed to surface the violation): plain calculation groups need **>= 1470**, calculation items need **>= 1500**, and the two `CalculationGroupExpression` selection expressions (`MultipleOrEmptySelectionExpression`/`NoSelectionExpression`) need **>= 1605**. `CalculationGroupTemplate` does not pre-check these itself — it relies on TOM's own `CompatibilityViolationException` at the point of assignment. (The offline test harness uses a dedicated compat-1605 fixture, `CalcGroupOfflineModelFixture`, for the selection-expression golden, leaving the shared compat-1600 fixture and its goldens untouched.)
+
+### Idempotency, the foreign-table guard, and a rename limitation
+
+Unlike `CalendarTemplate`, a calculation-group **table** does carry `Annotations`, so `CalculationGroupTemplate` uses the standard `SQLBI_Template` convention (see [measures.md](measures.md)): it stamps the generated table with `SQLBI_Template = "CalculationGroup"` (`Attributes.SqlbiTemplateTableCalculationGroup`). Re-applying the same entry finds that table, reconciles `CalculationItems` **full-replace-by-name** (items present on the `CalculationGroup` but no longer in the JSON definition are removed), and updates the group's `Precedence`/`Description`/selection expressions in place.
+
+Before touching an existing same-named table, `Engine.ApplyCalculationGroupTemplate` applies a **foreign-table guard**: if the table exists but lacks that annotation, it throws `TemplateException` instead of silently taking over a table the template didn't create. For a brand-new table, the engine builds it via `CalculationGroupTemplate.ApplyTemplate` *before* adding it to `model.Tables` (build-then-add), so a definition that fails validation never leaves a phantom table behind — the same lesson already applied to `HolidaysDefinitionTable` (see the Fixed section of the changelog).
+
+**Known limitation:** only the *current* `ColumnName` is found-or-created on each apply. Renaming `ColumnName` between runs leaves the previous backing column in the table, orphaned — the same class of gap as the `CalendarTemplate` rename/deletion limitation above and the existing `CustomDateTable` table-rename TODO.

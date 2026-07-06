@@ -3,6 +3,7 @@ public static class Dax.Template.Constants.Attributes
   field public const string SqlbiTemplateDates = "Dates"
   field public const string SqlbiTemplateHolidays = "Holidays"
   field public const string SqlbiTemplateTable = "SQLBI_TemplateTable"
+  field public const string SqlbiTemplateTableCalculationGroup = "CalculationGroup"
   field public const string SqlbiTemplateTableDate = "Date"
   field public const string SqlbiTemplateTableDateAutoTemplate = "DateAutoTemplate"
   field public const string SqlbiTemplateTableHolidays = "Holidays"
@@ -345,6 +346,29 @@ public abstract class Dax.Template.Tables.CalculatedTableTemplateBase : Dax.Temp
   method protected virtual void AddPartitions(Microsoft.AnalysisServices.Tabular.Table dateTable, System.Threading.CancellationToken cancellationToken = null)
   method public virtual string GetDaxTableExpression(Microsoft.AnalysisServices.Tabular.Model model, System.Threading.CancellationToken cancellationToken = null)
   property public string IsoFormat { get; set; }
+public class Dax.Template.Tables.CalculationGroups.CalculationGroupTemplate
+  ctor public CalculationGroupTemplate(Dax.Template.Tables.CalculationGroups.CalculationGroupTemplateDefinition definition)
+  method public void ApplyTemplate(Microsoft.AnalysisServices.Tabular.Table targetTable, bool isHidden, System.Threading.CancellationToken cancellationToken = null)
+  property public Dax.Template.Tables.CalculationGroups.CalculationGroupTemplateDefinition Definition { get; }
+public class Dax.Template.Tables.CalculationGroups.CalculationGroupTemplateDefinition
+  ctor public CalculationGroupTemplateDefinition()
+  property public Dax.Template.Tables.CalculationGroups.CalculationGroupTemplateDefinition.CalculationItemDefinition[] CalculationItems { get; set; }
+  property public int Precedence { get; set; }
+  property public required string ColumnName { get; set; }
+  property public string Description { get; set; }
+  property public string MultipleOrEmptySelectionExpression { get; set; }
+  property public string MultipleOrEmptySelectionFormatStringExpression { get; set; }
+  property public string NoSelectionExpression { get; set; }
+  property public string NoSelectionFormatStringExpression { get; set; }
+public class Dax.Template.Tables.CalculationGroups.CalculationGroupTemplateDefinition.CalculationItemDefinition
+  ctor public CalculationItemDefinition()
+  method public string GetExpression()
+  property public int? Ordinal { get; set; }
+  property public required string Name { get; set; }
+  property public string Description { get; set; }
+  property public string Expression { get; set; }
+  property public string FormatStringExpression { get; set; }
+  property public string[] MultiLineExpression { get; set; }
 public class Dax.Template.Tables.Calendars.CalendarTemplate
   ctor public CalendarTemplate(Dax.Template.Tables.Calendars.CalendarTemplateDefinition definition)
   method public Microsoft.AnalysisServices.Tabular.Calendar ApplyTemplate(Microsoft.AnalysisServices.Tabular.Table targetTable, bool isEnabled, System.Threading.CancellationToken cancellationToken = null)

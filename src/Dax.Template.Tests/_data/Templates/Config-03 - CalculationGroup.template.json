@@ -1,0 +1,12 @@
+{
+  "Description": "Minimal calculation-group backend (Phase 2) characterization: a single generic CalculationGroupTemplate entry creating the 'Time Intelligence' calculation-group table",
+  "Templates": [
+    {
+      "Class": "CalculationGroupTemplate",
+      "Table": "Time Intelligence",
+      "Template": "CalcGroup-TimeIntelligence.json",
+      "IsHidden": false,
+      "IsEnabled": true
+    }
+  ]
+}

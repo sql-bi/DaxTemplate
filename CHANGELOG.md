@@ -116,6 +116,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   runs leaves an orphaned calendar the engine can no longer identify (the same class of limitation as the
   existing `CustomDateTable` table-rename TODO and `MeasuresTemplate` entry-deletion behavior); a
   provenance-tracking fix is deferred to a later phase.
+- New template `Class: "CalculationGroupTemplate"` (`Tables/CalculationGroups/CalculationGroupTemplate` +
+  `CalculationGroupTemplateDefinition`) generates a native TOM calculation-group table — a `Table` whose
+  `CalculationGroup` holds a list of `CalculationItem`s — from JSON. This is a **generic** calculation-group
+  generator: the JSON author defines any calculation items and selection-expression DAX, with no dependency
+  on the `Measures`/`Syntax`/time-intelligence-macro machinery elsewhere in this library. JSON config is
+  purely additive: it reuses the existing `Class`/`Table`/`Template`/`IsHidden`/`IsEnabled` `TemplateEntry`
+  fields, with `Template` pointing at a sub-template file (`Precedence`, `ColumnName`, `Description`,
+  `CalculationItems[]` with `Name`/`Ordinal`/`Expression`-or-`MultiLineExpression`/`FormatStringExpression`,
+  plus the two optional `CalculationGroupExpression` selection expressions,
+  `MultipleOrEmptySelectionExpression`/`NoSelectionExpression`, each with its own optional
+  `*FormatStringExpression`). `Ordinal` defaults to the item's 0-based position in the array when omitted;
+  the effective ordinals (explicit or defaulted) must be unique across all items, or
+  `InvalidConfigurationException` is thrown. Plain calculation groups require database compatibility level
+  >= 1470 and calculation items require >= 1500; the two selection expressions require >= 1605 — all
+  enforced by TOM itself at assignment time. Idempotent by the generated table's `SQLBI_Template =
+  "CalculationGroup"` annotation (unlike `CalendarTemplate`, which has no `Annotations` to key off and uses
+  `Calendar.Name` instead): re-applying the same entry reconciles calculation items full-replace-by-name
+  (items no longer in the definition are removed) and updates the group in place; a **foreign-table guard**
+  refuses to take over a same-named table that isn't already tagged with that annotation
+  (`TemplateException`); `IsEnabled: false` removes the whole table. A new table is only added to the model
+  after a successful `ApplyTemplate` (build-then-add), so an invalid definition never leaves a phantom table.
+  Known limitation: renaming `ColumnName` between runs orphans the previous backing column (only the current
+  `ColumnName` is found-or-created) — the same class of limitation as the `CalendarTemplate`
+  rename/deletion gap and the existing `CustomDateTable` table-rename TODO.
 - `HierarchyTabularReferenceTests`, covering the hierarchy/level back-reference contract
   fixed above, level ordinal ordering, column binding on levels, and `Reset()` behavior
   for hierarchies and levels.

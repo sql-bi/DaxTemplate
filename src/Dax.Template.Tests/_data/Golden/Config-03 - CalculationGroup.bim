@@ -1,0 +1,128 @@
+{
+  "name": "CalcGroupOfflineFixture",
+  "compatibilityLevel": 1605,
+  "model": {
+    "tables": [
+      {
+        "name": "Sales",
+        "columns": [
+          {
+            "name": "Order Date",
+            "dataType": "dateTime",
+            "sourceColumn": "Order Date"
+          },
+          {
+            "name": "Quantity",
+            "dataType": "int64",
+            "sourceColumn": "Quantity"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Sales",
+            "source": {
+              "type": "calculated",
+              "expression": "{ (DATE(2020,1,1), 1) }"
+            }
+          }
+        ],
+        "measures": [
+          {
+            "name": "Sales Amount",
+            "expression": "SUM(Sales[Quantity])"
+          },
+          {
+            "name": "Total Cost",
+            "expression": "SUM(Sales[Quantity])"
+          },
+          {
+            "name": "Margin",
+            "expression": "[Sales Amount] - [Total Cost]"
+          },
+          {
+            "name": "Margin %",
+            "expression": "DIVIDE([Margin], [Sales Amount])"
+          }
+        ]
+      },
+      {
+        "name": "Orders",
+        "columns": [
+          {
+            "name": "Delivery Date",
+            "dataType": "dateTime",
+            "sourceColumn": "Delivery Date"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Orders",
+            "source": {
+              "type": "calculated",
+              "expression": "{ (DATE(2020,1,1)) }"
+            }
+          }
+        ]
+      },
+      {
+        "name": "Time Intelligence",
+        "lineageTag": "",
+        "calculationGroup": {
+          "description": "Time intelligence calculation group",
+          "precedence": 10,
+          "multipleOrEmptySelectionExpression": {
+            "expression": "SELECTEDMEASURE()"
+          },
+          "noSelectionExpression": {
+            "expression": "SELECTEDMEASURE()"
+          },
+          "calculationItems": [
+            {
+              "name": "Current",
+              "expression": "SELECTEDMEASURE()",
+              "ordinal": 0
+            },
+            {
+              "name": "MTD",
+              "expression": "CALCULATE ( SELECTEDMEASURE(), DATESMTD ( 'Date'[Date] ) )",
+              "ordinal": 5,
+              "formatStringDefinition": {
+                "expression": "SELECTEDMEASUREFORMATSTRING()"
+              }
+            },
+            {
+              "name": "% vs Current",
+              "expression": "\r\nDIVIDE (\r\n    SELECTEDMEASURE(),\r\n    CALCULATE ( SELECTEDMEASURE(), CALCULATIONGROUPRESETSELECTION() )\r\n)",
+              "ordinal": 2,
+              "formatStringDefinition": {
+                "expression": "\"0.0%\""
+              }
+            }
+          ]
+        },
+        "columns": [
+          {
+            "name": "Time Intelligence",
+            "dataType": "string",
+            "sourceColumn": "Time Intelligence",
+            "lineageTag": ""
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Time Intelligence",
+            "source": {
+              "type": "calculationGroup"
+            }
+          }
+        ],
+        "annotations": [
+          {
+            "name": "SQLBI_Template",
+            "value": "CalculationGroup"
+          }
+        ]
+      }
+    ]
+  }
+}
