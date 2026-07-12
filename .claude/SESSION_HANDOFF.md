@@ -1,19 +1,32 @@
 # Session Handoff — DAX Template: new DAX entities
 
-> ⚠️ START A NEW SESSION for the next step (this session is ending for scheduled maintenance).
+> ⚠️ START A NEW SESSION for the next step (the user is exiting to SET the live-server env vars, then restarting).
 > Resume instructions: open this repo in Claude Code in a FRESH session and paste:
 > **"Read .claude/SESSION_HANDOFF.md. The offline roadmap (Phase 1 Calendars, Phase 2 Calc groups,
-> Phase 3 UDFs) is COMPLETE, reviewed, and pushed on branch `add-calendar` (HEAD `dc33b84`+). Run the
-> opt-in LIVE-SERVER validation for all three phases: set the `DAXTEMPLATE_LIVE_SERVER` and
-> `DAXTEMPLATE_LIVE_DATABASE` env vars against a compatibility-level >= 1702 database, run the
-> `[LiveServerFact]` tests (`CalendarGoldenTests`, `CalculationGroupGoldenTests`, `FunctionLibraryGoldenTests`
-> — the UDF one is the ONLY place the generated DAX signatures actually get compiled, since TOM does not
-> validate `Function.Expression` offline), and report results. Fix any failures via the normal
+> Phase 3 UDFs) is COMPLETE, reviewed, and pushed on branch `add-calendar` (HEAD `dc33b84`+). The
+> `DAXTEMPLATE_LIVE_SERVER` and `DAXTEMPLATE_LIVE_DATABASE` env vars are now SET, pointing at the published
+> `src/Dax.Template.Tests/pbix/EmptyTestTemplates.pbix` model (compatibility level >= 1702). Run the opt-in
+> LIVE-SERVER validation for all three phases — the `[LiveServerFact]` tests in `CalendarGoldenTests`,
+> `CalculationGroupGoldenTests`, and `FunctionLibraryGoldenTests` (filter `FullyQualifiedName~LiveServer`) —
+> the UDF one is the ONLY place the generated DAX signatures actually get compiled, since TOM does not
+> validate `Function.Expression` offline. Report results per phase; fix any failures via the normal
 > delegate→review-gate flow."**
-> STATUS: Phase M (Stages 0-4) COMPLETE; Phases 1-3 COMPLETE offline & pushed. NEXT = live-server tests only.
-> Offline suite: 161 passed + 4 skipped (the 4 skips are the opt-in live-server facts). Nothing left to
-> build offline. See the per-phase COMPLETE entries below for full detail.
-> Last updated: 2026-07-06
+> STATUS: Phase M (Stages 0-4) COMPLETE; Phases 1-3 COMPLETE offline & pushed. NEXT = live-server run only.
+> LIVE-SERVER MODEL (decided 2026-07-12): the target is the committed empty PBIX
+> `src/Dax.Template.Tests/pbix/EmptyTestTemplates.pbix`, published to a compat-level >= 1702 workspace/instance.
+> An EMPTY model is SUFFICIENT for all three tests (verified 2026-07-12) — no tables need pre-creating:
+>   - Functions config is model-level; UDF bodies reference only their own parameters.
+>   - CalcGroup config generates its own `Time Intelligence` table; item DAX is stored as opaque strings,
+>     never compiled (no `SaveChanges`).
+>   - Calendar config self-generates its `Date` table via `CustomDateTable`, then binds the Calendar to the
+>     `Year` / `Day of Week` columns it just created.
+> The run is NON-DESTRUCTIVE: `ApplyTemplates` + `GetModelChanges` only, never `SaveChanges` (changes discarded
+> on disconnect). CAVEAT: confirm the model reports `CompatibilityLevel >= 1702`, else the Functions test fails
+> on its compat guard (`InvalidConfigurationException`) rather than on real DAX compilation. See
+> `docs/design/testing.md` (Live-server tests section).
+> Offline suite: 161 passed + 4 skipped (the 4 skips are the opt-in live-server facts). Working tree CLEAN
+> (the stray leading blank-line edit in `CalculationGroupTemplate.cs` was reverted by the user).
+> Last updated: 2026-07-12
 
 ## Goal
 Extend the Dax.Template library (creates TOM objects from JSON templates) to support three new DAX
@@ -701,9 +714,13 @@ parameters + optional parameters (default expressions), per the user's explicit 
 - PENDING: not committed — awaiting user review/commit like Phases 1-2. LIVE-SERVER tests for all three phases
   are authored but deferred (opt-in, skipped in CI) per user.
 
-## ROADMAP COMPLETE (offline): Phase 1 Calendars + Phase 2 Calc groups + Phase 3 UDFs all done & reviewed.
-Remaining: commit/push Phase 3; run the opt-in live-server tests when ready (esp. Phase 3 UDFs — the only
-place the generated DAX signatures actually get compiled, since TOM doesn't validate the Expression offline).
+## ROADMAP COMPLETE (offline): Phase 1 Calendars + Phase 2 Calc groups + Phase 3 UDFs all done, reviewed & pushed.
+Remaining: run the opt-in live-server validation (esp. Phase 3 UDFs — the only place the generated DAX
+signatures actually get compiled, since TOM doesn't validate the Expression offline).
+LIVE-SERVER MODEL: the target is the committed empty PBIX `src/Dax.Template.Tests/pbix/EmptyTestTemplates.pbix`
+— publish it to a compat-level >= 1702 workspace/instance and set `DAXTEMPLATE_LIVE_SERVER` /
+`DAXTEMPLATE_LIVE_DATABASE` accordingly. An EMPTY model is sufficient (no tables to pre-create); the run is
+non-destructive (never `SaveChanges`). Full rationale in the top banner and `docs/design/testing.md`.
 
 ## Phase M — locked decisions (2026-07-01)
 All five decisions below are LOCKED by the user. Phase M is now IN EXECUTION (kicked off 2026-07-01):
