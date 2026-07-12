@@ -1,17 +1,17 @@
 # Session Handoff — DAX Template: new DAX entities
 
-> ⚠️ START A NEW SESSION for the next step (the user is exiting to SET the live-server env vars, then restarting).
-> Resume instructions: open this repo in Claude Code in a FRESH session and paste:
-> **"Read .claude/SESSION_HANDOFF.md. The offline roadmap (Phase 1 Calendars, Phase 2 Calc groups,
-> Phase 3 UDFs) is COMPLETE, reviewed, and pushed on branch `add-calendar` (HEAD `dc33b84`+). The
-> `DAXTEMPLATE_LIVE_SERVER` and `DAXTEMPLATE_LIVE_DATABASE` env vars are now SET, pointing at the published
-> `src/Dax.Template.Tests/pbix/EmptyTestTemplates.pbix` model (compatibility level >= 1702). Run the opt-in
-> LIVE-SERVER validation for all three phases — the `[LiveServerFact]` tests in `CalendarGoldenTests`,
-> `CalculationGroupGoldenTests`, and `FunctionLibraryGoldenTests` (filter `FullyQualifiedName~LiveServer`) —
-> the UDF one is the ONLY place the generated DAX signatures actually get compiled, since TOM does not
-> validate `Function.Expression` offline. Report results per phase; fix any failures via the normal
-> delegate→review-gate flow."**
-> STATUS: Phase M (Stages 0-4) COMPLETE; Phases 1-3 COMPLETE offline & pushed. NEXT = live-server run only.
+> ✅ ROADMAP FULLY VALIDATED — nothing left to do. Phase M + Phases 1-3 (Calendars → Calc groups → UDFs)
+> are complete, reviewed, and pushed (HEAD `d70fb32`), AND the opt-in live-server validation has now PASSED.
+> LIVE-SERVER VALIDATION (2026-07-12): ran the `[LiveServerFact]` tests via
+> `dotnet test --filter "FullyQualifiedName~LiveServer"` against the published `EmptyTestTemplates.pbix`
+> (env vars `DAXTEMPLATE_LIVE_SERVER`/`DAXTEMPLATE_LIVE_DATABASE` set). **Result: 4 passed / 0 failed / 0 skipped**
+> — `CalendarGoldenTests` (Phase 1), `CalculationGroupGoldenTests` (Phase 2), `FunctionLibraryGoldenTests`
+> (Phase 3), plus the Phase-0 `ApplyTemplatesGoldenTests` baseline. Non-destructive (`ApplyTemplates` +
+> `GetModelChanges`, never `SaveChanges`). The Phase-3 UDF pass is the meaningful one: attaching the
+> engine-assembled `( params ) => body` signatures to `Model.Functions` on the connected compat-≥1702 model
+> did NOT throw — i.e. the generated DAX signatures compiled server-side (the one thing the offline suite
+> cannot check, since TOM treats `Function.Expression` as an opaque string offline).
+> STATUS: Phase M (Stages 0-4) COMPLETE; Phases 1-3 COMPLETE offline & pushed; LIVE-SERVER validation COMPLETE (2026-07-12). ROADMAP FULLY VALIDATED — nothing left.
 > LIVE-SERVER MODEL (decided 2026-07-12): the target is the committed empty PBIX
 > `src/Dax.Template.Tests/pbix/EmptyTestTemplates.pbix`, published to a compat-level >= 1702 workspace/instance.
 > An EMPTY model is SUFFICIENT for all three tests (verified 2026-07-12) — no tables need pre-creating:
@@ -593,7 +593,7 @@ TOM class library — not a change to the Phase 1/2/3 checklists below, just the
 - **Out of scope** (same as Phase M): `api-designer`, `ef-core-specialist`, `ci-cd` deploy / NuGet-push
   YAML, and the web/OWASP/auth/CORS layers of `security-scan` — no HTTP/EF/web surface here.
 
-### Phase 1 — Calendars (COMPLETE — reviewed GO-WITH-NITS, nits addressed; NOT yet committed 2026-07-04)
+### Phase 1 — Calendars (COMPLETE — reviewed GO-WITH-NITS, nits addressed; committed & pushed, HEAD `d70fb32`; live-server PASS 2026-07-12)
 - [x] backend (`dotnet-architect`): `CalendarTemplateDefinition` POCO + nested `CalendarColumnGroupDefinition`
       (`src/Dax.Template/Tables/Calendars/`) + `CalendarTemplate.ApplyTemplate` + `ApplyCalendarTemplate`
       handler wired into `Engine.ApplyTemplates` dispatch via `nameof(CalendarTemplate)`. Uses the PUBLIC
@@ -622,11 +622,10 @@ TOM class library — not a change to the Phase 1/2/3 checklists below, just the
       `TemplateException` aborted the whole run when the target table was already removed by a prior entry) +
       a SHOULD-FIX `Model?.Database` null guard + regression test → re-review **GO-WITH-NITS**; the two
       doc-accuracy nits (disabled-path no-op / Model?.Database guard) fixed in the lifecycle + table-generation docs.
-- PENDING: not committed — user reviews the full Phase 1 output first, then commit. `Config-02 - Calendar.bim`,
-  the new `Tables/Calendars/` files, and the test/data files are untracked; `Engine.cs`, `PublicApi.txt`,
-  CHANGELOG, AGENTS, and 3 design docs are modified.
+- DONE: committed & pushed on `add-calendar` (HEAD `d70fb32`). Live-server validation PASSED 2026-07-12
+  (`CalendarGoldenTests.CalendarStandardConfig_LiveServerApply_ProducesModelChanges`).
 
-### Phase 2 — Calculation groups (COMPLETE — reviewed GO; NOT yet committed 2026-07-06)
+### Phase 2 — Calculation groups (COMPLETE — reviewed GO; committed & pushed, HEAD `d70fb32`; live-server PASS 2026-07-12)
 Generic calc-group generator (LOCKED: NOT time-intelligence — the user is deprecating calc groups for TI;
 the calc-group template has NO dependency on Measures/Syntax/time-intelligence machinery).
 - [x] backend (`dotnet-architect`): `CalculationGroupTemplateDefinition` POCO + nested `CalculationItemDefinition`
@@ -667,10 +666,9 @@ the calc-group template has NO dependency on Measures/Syntax/time-intelligence m
       2 nits (regenerated golden = single added backing-column lineageTag; Config-03b Description wording) + added
       the 2 missing coverage tests -> re-review **GO** (no residual issues; one harmless cosmetic double compat
       check left as-is).
-- PENDING: not committed — awaiting user review/commit like Phase 1. Untracked: `Tables/CalculationGroups/` (2),
-  `CalculationGroupGoldenTests.cs`, `CalcGroupOfflineModelFixture.cs`, 3 template JSONs, `Config-03 ...bim`;
-  modified: `Engine.cs`, `Constants/Attributes.cs`, `PublicApi.txt`, CHANGELOG, AGENTS, 3 design docs.
-### Phase 3 — User-defined functions (COMPLETE — reviewed GO-WITH-NITS, nits addressed; NOT yet committed 2026-07-06)
+- DONE: committed & pushed on `add-calendar` (HEAD `d70fb32`). Live-server validation PASSED 2026-07-12
+  (`CalculationGroupGoldenTests.CalculationGroupStandardConfig_LiveServerApply_ProducesModelChanges`).
+### Phase 3 — User-defined functions (COMPLETE — reviewed GO-WITH-NITS, nits addressed; committed & pushed, HEAD `d70fb32`; live-server PASS 2026-07-12)
 DAX UDFs adopting the current standard (GA Sept 2025 + March 2026 reference types): structured typed
 parameters + optional parameters (default expressions), per the user's explicit requirement.
 - [x] backend (`dotnet-architect`): `FunctionLibraryTemplateDefinition` + `FunctionDefinition`
@@ -711,16 +709,19 @@ parameters + optional parameters (default expressions), per the user's explicit 
       validation; RawExpression/Parameters doc accuracy; 4 added regression tests) -> re-review GO-WITH-NITS
       (2 residual doc-sync nits — functions.md validation list + CHANGELOG rule list/test count — fixed by the
       lead). Net: **GO**, all findings addressed.
-- PENDING: not committed — awaiting user review/commit like Phases 1-2. LIVE-SERVER tests for all three phases
-  are authored but deferred (opt-in, skipped in CI) per user.
+- DONE: committed & pushed on `add-calendar` (HEAD `d70fb32`). Live-server validation PASSED 2026-07-12
+  (`FunctionLibraryGoldenTests.FunctionLibraryStandardConfig_LiveServerApply_ProducesModelChanges`) — the
+  UDF signatures compiled server-side at compat ≥1702 (the only DAX-compilation check TOM performs).
 
-## ROADMAP COMPLETE (offline): Phase 1 Calendars + Phase 2 Calc groups + Phase 3 UDFs all done, reviewed & pushed.
-Remaining: run the opt-in live-server validation (esp. Phase 3 UDFs — the only place the generated DAX
-signatures actually get compiled, since TOM doesn't validate the Expression offline).
-LIVE-SERVER MODEL: the target is the committed empty PBIX `src/Dax.Template.Tests/pbix/EmptyTestTemplates.pbix`
-— publish it to a compat-level >= 1702 workspace/instance and set `DAXTEMPLATE_LIVE_SERVER` /
-`DAXTEMPLATE_LIVE_DATABASE` accordingly. An EMPTY model is sufficient (no tables to pre-create); the run is
-non-destructive (never `SaveChanges`). Full rationale in the top banner and `docs/design/testing.md`.
+## ✅ ROADMAP COMPLETE (offline AND live-server): Phase 1 Calendars + Phase 2 Calc groups + Phase 3 UDFs
+all done, reviewed & pushed (HEAD `d70fb32`), and the opt-in live-server validation has now PASSED.
+LIVE-SERVER VALIDATION (2026-07-12): `dotnet test --filter "FullyQualifiedName~LiveServer"` against the
+published `src/Dax.Template.Tests/pbix/EmptyTestTemplates.pbix` (compat >= 1702, env vars set) →
+**4 passed / 0 failed / 0 skipped** (Calendar, CalculationGroup, FunctionLibrary + the Phase-0 baseline).
+Non-destructive (`ApplyTemplates` + `GetModelChanges`, never `SaveChanges`). The Phase-3 UDF pass confirms
+the generated `( params ) => body` signatures compile server-side — the only DAX check TOM performs, since
+it treats `Function.Expression` as an opaque string offline. NOTHING LEFT ON THIS ROADMAP.
+Full rationale in the top banner and `docs/design/testing.md`.
 
 ## Phase M — locked decisions (2026-07-01)
 All five decisions below are LOCKED by the user. Phase M is now IN EXECUTION (kicked off 2026-07-01):
