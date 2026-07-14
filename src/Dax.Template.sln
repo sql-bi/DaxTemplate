@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dax.Template.TestUI", "Dax.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dax.Template.Tests", "Dax.Template.Tests\Dax.Template.Tests.csproj", "{7429EC2C-81D9-42E2-8D69-D5CD729BD503}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE1}") = "Solution Items", "Solution Items", "{8F3C1A2E-6B7D-4E9A-9C1F-2D6E4A8B5C3F}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A35F22B1-B92D-4F74-B36E-F14BDE1B3B3E}"
 	ProjectSection(SolutionItems) = preProject
 		..\AGENTS.md = ..\AGENTS.md
 		..\docs\design\README.md = ..\docs\design\README.md
