@@ -63,17 +63,29 @@ namespace Dax.Template.Tests.Infrastructure
             // callerFilePath points at the calling test's source file, which lives somewhere under the test
             // project. Walk up to the directory that holds the .csproj so snapshots are committed next to the
             // source and located independently of the build output directory or the caller's subfolder depth.
-            var dir = Path.GetDirectoryName(callerFilePath);
-            while (dir != null && Directory.GetFiles(dir, "*.csproj").Length == 0)
-            {
-                dir = Path.GetDirectoryName(dir);
-            }
+            // Under a ContinuousIntegrationBuild (e.g. the Azure Pipelines build step, which applies
+            // /p:ContinuousIntegrationBuild=true to every project), Roslyn's deterministic source-path mapping
+            // rewrites the [CallerFilePath] literal to a placeholder like "/_/src/...", which never exists on
+            // disk. AppContext.BaseDirectory is the test assembly's real runtime output directory and is
+            // unaffected by that compile-time remapping, so fall back to it when the caller path doesn't resolve.
+            var dir = FindProjectDirectory(Path.GetDirectoryName(callerFilePath))
+                ?? FindProjectDirectory(AppContext.BaseDirectory);
             if (dir == null)
             {
                 throw new InvalidOperationException(
-                    $"Could not locate the test project directory (.csproj) from caller path '{callerFilePath}'.");
+                    $"Could not locate the test project directory (.csproj) from caller path '{callerFilePath}' or base directory '{AppContext.BaseDirectory}'.");
             }
             return Path.Combine(dir, "_data", "Golden", name + "." + extension);
+        }
+
+        private static string? FindProjectDirectory(string? startDirectory)
+        {
+            var dir = startDirectory;
+            while (dir != null && Directory.Exists(dir) && Directory.GetFiles(dir, "*.csproj").Length == 0)
+            {
+                dir = Path.GetDirectoryName(dir);
+            }
+            return dir != null && Directory.Exists(dir) && Directory.GetFiles(dir, "*.csproj").Length > 0 ? dir : null;
         }
     }
 }
