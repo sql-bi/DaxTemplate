@@ -27,8 +27,11 @@ public abstract class BaseDateTemplate<T> : CustomTableTemplate<T> where T : IDa
     protected override string? GetDefaultFormatString(Dax.Template.Model.Column column, Microsoft.AnalysisServices.Tabular.Model model)
     {
         string isoCulture = string.IsNullOrWhiteSpace(IsoFormat) ? model.Culture : IsoFormat;
+        // useUserOverride: false - a template must produce the same DAX/TOM output regardless of the
+        // machine's personal Windows regional-format overrides (Control Panel > Region), which
+        // `new CultureInfo(name)` otherwise applies by default even for a fully-qualified culture name.
         return (column.DataType == DataType.DateTime)
-            ? new CultureInfo(isoCulture).DateTimeFormat.ShortDatePattern.Replace('M', 'm')
+            ? new CultureInfo(isoCulture, useUserOverride: false).DateTimeFormat.ShortDatePattern.Replace('M', 'm')
             : null;
     }
 
