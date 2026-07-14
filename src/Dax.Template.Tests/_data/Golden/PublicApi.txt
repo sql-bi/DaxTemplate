@@ -1,0 +1,591 @@
+public static class Dax.Template.Constants.Attributes
+  field public const string SqlbiTemplate = "SQLBI_Template"
+  field public const string SqlbiTemplateDates = "Dates"
+  field public const string SqlbiTemplateFunctions = "Functions"
+  field public const string SqlbiTemplateHolidays = "Holidays"
+  field public const string SqlbiTemplateTable = "SQLBI_TemplateTable"
+  field public const string SqlbiTemplateTableCalculationGroup = "CalculationGroup"
+  field public const string SqlbiTemplateTableDate = "Date"
+  field public const string SqlbiTemplateTableDateAutoTemplate = "DateAutoTemplate"
+  field public const string SqlbiTemplateTableHolidays = "Holidays"
+  field public const string SqlbiTemplateTableHolidaysDefinition = "HolidaysDefinition"
+public static class Dax.Template.Constants.Prefixes
+  field public const string ConflictRenamePrefix = "_old"
+public class Dax.Template.CustomTemplateDefinition
+  ctor public CustomTemplateDefinition()
+  property public Dax.Template.CustomTemplateDefinition.Column[] Columns { get; set; }
+  property public Dax.Template.CustomTemplateDefinition.GlobalVariable[] GlobalVariables { get; set; }
+  property public Dax.Template.CustomTemplateDefinition.Hierarchy[] Hierarchies { get; set; }
+  property public Dax.Template.CustomTemplateDefinition.RowVariable[] RowVariables { get; set; }
+  property public Dax.Template.CustomTemplateDefinition.TemplateStep[] Steps { get; set; }
+  property public System.Collections.Generic.Dictionary<string, string> Annotations { get; set; }
+  property public string[] FormatPrefixes { get; set; }
+public class Dax.Template.CustomTemplateDefinition.Column : Dax.Template.CustomTemplateDefinition.DaxExpression
+  ctor public Column()
+  property public System.Collections.Generic.Dictionary<string, object> Annotations { get; set; }
+  property public bool IsHidden { get; set; }
+  property public bool IsTemporary { get; set; }
+  property public bool RequiresHolidays { get; set; }
+  property public string AttributeType { get; set; }
+  property public string DataCategory { get; set; }
+  property public string DataType { get; set; }
+  property public string Description { get; set; }
+  property public string DisplayFolder { get; set; }
+  property public string FormatString { get; set; }
+  property public string SortByColumn { get; set; }
+  property public string Step { get; set; }
+  property public string[] AttributeTypes { get; set; }
+public class Dax.Template.CustomTemplateDefinition.DaxExpression
+  ctor public DaxExpression()
+  method public string GetExpression(string padding = null)
+  method public string[] GetComments()
+  property public string Comment { get; set; }
+  property public string Expression { get; set; }
+  property public string Name { get; set; }
+  property public string[] MultiLineComment { get; set; }
+  property public string[] MultiLineExpression { get; set; }
+public class Dax.Template.CustomTemplateDefinition.GlobalVariable : Dax.Template.CustomTemplateDefinition.DaxExpression
+  ctor public GlobalVariable()
+  property public bool IsConfigurable { get; set; }
+public class Dax.Template.CustomTemplateDefinition.Hierarchy
+  ctor public Hierarchy()
+  property public Dax.Template.CustomTemplateDefinition.HierarchyLevel[] Levels { get; set; }
+  property public string Description { get; set; }
+  property public string Name { get; set; }
+public class Dax.Template.CustomTemplateDefinition.HierarchyLevel
+  ctor public HierarchyLevel()
+  property public string Column { get; set; }
+  property public string Description { get; set; }
+  property public string Name { get; set; }
+public class Dax.Template.CustomTemplateDefinition.RowVariable : Dax.Template.CustomTemplateDefinition.DaxExpression
+  ctor public RowVariable()
+public class Dax.Template.CustomTemplateDefinition.TemplateStep : Dax.Template.CustomTemplateDefinition.DaxExpression
+  ctor public TemplateStep()
+public abstract class Dax.Template.CustomTemplateDefinition.Variable : Dax.Template.CustomTemplateDefinition.DaxExpression
+  ctor protected Variable()
+public class Dax.Template.Engine
+  ctor public Engine(Dax.Template.Package package)
+  method public static Dax.Template.Model.ModelChanges GetModelChanges(Microsoft.AnalysisServices.Tabular.Model model, System.Threading.CancellationToken cancellationToken = null)
+  method public void ApplyTemplates(Microsoft.AnalysisServices.Tabular.Model model, System.Threading.CancellationToken cancellationToken = null)
+  property public Dax.Template.Tables.TemplateConfiguration Configuration { get; }
+public enum Dax.Template.Enums.AutoNaming : int
+  field public const Dax.Template.Enums.AutoNaming Prefix = 1
+  field public const Dax.Template.Enums.AutoNaming Suffix = 0
+public enum Dax.Template.Enums.AutoScan : short
+  field public const Dax.Template.Enums.AutoScan Disabled = 0
+  field public const Dax.Template.Enums.AutoScan Full = 127
+  field public const Dax.Template.Enums.AutoScan ScanActiveRelationships = 2
+  field public const Dax.Template.Enums.AutoScan ScanInactiveRelationships = 4
+  field public const Dax.Template.Enums.AutoScan SelectedTablesColumns = 1
+public class Dax.Template.Exceptions.CircularDependencyException : Dax.Template.Exceptions.TemplateException, System.Runtime.Serialization.ISerializable
+  ctor public CircularDependencyException(string variableName, string daxExpression)
+public class Dax.Template.Exceptions.ExistingTableException : Dax.Template.Exceptions.TemplateException, System.Runtime.Serialization.ISerializable
+  ctor public ExistingTableException(string message)
+public class Dax.Template.Exceptions.InvalidAttributeException : Dax.Template.Exceptions.TemplateException, System.Runtime.Serialization.ISerializable
+  ctor public InvalidAttributeException(string attributeValue, string entityName)
+public class Dax.Template.Exceptions.InvalidConfigurationException : Dax.Template.Exceptions.TemplateException, System.Runtime.Serialization.ISerializable
+  ctor public InvalidConfigurationException(string message)
+  ctor public InvalidConfigurationException(string variableName, string value)
+public class Dax.Template.Exceptions.InvalidMacroReferenceException : Dax.Template.Exceptions.TemplateException, System.Runtime.Serialization.ISerializable
+  ctor public InvalidMacroReferenceException(string macro, string daxExpression)
+  ctor public InvalidMacroReferenceException(string macro, string daxExpression, string additionalMessage)
+  ctor public InvalidMacroReferenceException(string macro, string[] multipleMatches, string daxExpression)
+public class Dax.Template.Exceptions.InvalidVariableReferenceException : Dax.Template.Exceptions.TemplateException, System.Runtime.Serialization.ISerializable
+  ctor public InvalidVariableReferenceException(string variableName, string daxExpression)
+public class Dax.Template.Exceptions.TemplateConfigurationException : Dax.Template.Exceptions.TemplateException, System.Runtime.Serialization.ISerializable
+  ctor public TemplateConfigurationException(string message)
+  ctor public TemplateConfigurationException(string message, System.Exception innerException)
+public class Dax.Template.Exceptions.TemplateException : System.Exception, System.Runtime.Serialization.ISerializable
+  ctor public TemplateException()
+  ctor public TemplateException(string message)
+  ctor public TemplateException(string message, System.Exception innerException)
+public class Dax.Template.Exceptions.TemplateUnexpectedException : System.Exception, System.Runtime.Serialization.ISerializable
+  ctor public TemplateUnexpectedException(string message)
+  ctor public TemplateUnexpectedException(string message, System.Exception innerException)
+public static class Dax.Template.Extensions.Extensions
+  method public static System.Collections.Generic.IEnumerable<Dax.Template.Syntax.IDependencies<Dax.Template.Syntax.DaxBase>> GetDependencies(System.Collections.Generic.IEnumerable<Dax.Template.Syntax.IDependencies<Dax.Template.Syntax.DaxBase>> listDependencies, bool includeSelf = true)
+  method public static System.Collections.Generic.IEnumerable<Microsoft.AnalysisServices.Tabular.Column> GetScanColumns(Microsoft.AnalysisServices.Tabular.Model model, Dax.Template.Interfaces.IScanConfig Config, string dataCategory = null)
+  method public static System.Collections.Generic.IEnumerable<System.ValueTuple<T, int>> TSort<T>(System.Collections.Generic.IEnumerable<T> source, System.Func<T, System.Collections.Generic.IEnumerable<T>> dependencies, bool onlyAddLevel = true)
+  method public static System.ValueTuple<string, string> SplitDaxIdentifier(string daxIdentifier)
+  method public static void AddDependenciesFromExpression(System.Collections.Generic.IEnumerable<Dax.Template.Syntax.IDaxName> daxElements)
+  method public static void AddDependenciesFromExpression(System.Collections.Generic.IEnumerable<Dax.Template.Syntax.IDependencies<Dax.Template.Syntax.DaxBase>> items, System.Collections.Generic.IEnumerable<Dax.Template.Syntax.IDaxName> daxElements)
+public class Dax.Template.Functions.FunctionDefinition
+  ctor public FunctionDefinition()
+  method public string GetBody()
+  property public Dax.Template.Functions.ParameterDefinition[] Parameters { get; set; }
+  property public bool IsHidden { get; set; }
+  property public required string Name { get; set; }
+  property public string Body { get; set; }
+  property public string Description { get; set; }
+  property public string RawExpression { get; set; }
+  property public string[] MultiLineBody { get; set; }
+public class Dax.Template.Functions.FunctionLibraryTemplate
+  ctor public FunctionLibraryTemplate(Dax.Template.Functions.FunctionLibraryTemplateDefinition definition)
+  method public void ApplyTemplate(Microsoft.AnalysisServices.Tabular.Model model, bool isEnabled, System.Threading.CancellationToken cancellationToken = null)
+  property public Dax.Template.Functions.FunctionLibraryTemplateDefinition Definition { get; }
+public class Dax.Template.Functions.FunctionLibraryTemplateDefinition
+  ctor public FunctionLibraryTemplateDefinition()
+  property public Dax.Template.Functions.FunctionDefinition[] Functions { get; set; }
+public class Dax.Template.Functions.ParameterDefinition
+  ctor public ParameterDefinition()
+  property public required string Name { get; set; }
+  property public string DefaultExpression { get; set; }
+  property public string PassingMode { get; set; }
+  property public string Subtype { get; set; }
+  property public string Type { get; set; }
+public interface Dax.Template.Interfaces.ICustomTableConfig : Dax.Template.Interfaces.IScanConfig
+  property public System.Collections.Generic.Dictionary<string, string> DefaultVariables { get; set; }
+public interface Dax.Template.Interfaces.IDateTemplateConfig : Dax.Template.Interfaces.ICustomTableConfig, Dax.Template.Interfaces.IScanConfig
+  property public Dax.Template.Tables.Dates.HolidaysConfig HolidaysReference { get; set; }
+  property public int? FirstYearMax { get; set; }
+  property public int? FirstYearMin { get; set; }
+  property public int? LastYearMax { get; set; }
+  property public int? LastYearMin { get; set; }
+public interface Dax.Template.Interfaces.IHolidaysConfig : Dax.Template.Interfaces.ICustomTableConfig, Dax.Template.Interfaces.IDateTemplateConfig, Dax.Template.Interfaces.IScanConfig
+  property public string HolidaysDefinitionTable { get; set; }
+  property public string InLieuOfPrefix { get; set; }
+  property public string InLieuOfSuffix { get; set; }
+  property public string IsoCountry { get; set; }
+  property public string WorkingDays { get; set; }
+public interface Dax.Template.Interfaces.ILocalization
+  property public string IsoFormat { get; set; }
+  property public string IsoTranslation { get; set; }
+  property public string[] LocalizationFiles { get; set; }
+public interface Dax.Template.Interfaces.IMeasureTemplateConfig : Dax.Template.Interfaces.IScanConfig
+  property public Dax.Template.Enums.AutoNaming? AutoNaming { get; set; }
+  property public Dax.Template.Interfaces.IMeasureTemplateConfig.TargetMeasure[] TargetMeasures { get; set; }
+  property public System.Collections.Generic.Dictionary<string, string> DefaultVariables { get; set; }
+  property public string AutoNamingSeparator { get; set; }
+  property public string TableSingleInstanceMeasures { get; set; }
+public class Dax.Template.Interfaces.IMeasureTemplateConfig.TargetMeasure
+  ctor public TargetMeasure()
+  property public string Name { get; set; }
+public interface Dax.Template.Interfaces.IScanConfig
+  property public Dax.Template.Enums.AutoScan? AutoScan { get; set; }
+  property public string[] ExceptTablesColumns { get; set; }
+  property public string[] OnlyTablesColumns { get; set; }
+public interface Dax.Template.Interfaces.ITemplates
+  property public Dax.Template.Interfaces.ITemplates.TemplateEntry[] Templates { get; set; }
+public class Dax.Template.Interfaces.ITemplates.TemplateEntry
+  ctor public TemplateEntry()
+  property public Dax.Template.Interfaces.IMeasureTemplateConfig.TargetMeasure[] TargetMeasures { get; set; }
+  property public System.Collections.Generic.Dictionary<string, object> Properties { get; set; }
+  property public bool IsEnabled { get; set; }
+  property public bool IsHidden { get; set; }
+  property public string Class { get; set; }
+  property public string ReferenceTable { get; set; }
+  property public string Table { get; set; }
+  property public string Template { get; set; }
+  property public string[] LocalizationFiles { get; set; }
+public class Dax.Template.Measures.MeasureTemplateBase : Dax.Template.Model.Measure, Dax.Template.Syntax.IDaxComment
+  ctor public MeasureTemplateBase(Dax.Template.Measures.MeasuresTemplate template)
+  field public const string EntityColumnsList = "CL"
+  field public const string EntityColumnsTable = "CT"
+  field public const string EntitySingleColumn = "C"
+  field public const string EntitySingleTable = "T"
+  method public string GetDaxExpression(Microsoft.AnalysisServices.Tabular.Model model)
+  method public virtual Microsoft.AnalysisServices.Tabular.Measure ApplyTemplate(Microsoft.AnalysisServices.Tabular.Model model, Microsoft.AnalysisServices.Tabular.Table targetTable, bool overrideExistingMeasure = true, System.Threading.CancellationToken cancellationToken = null)
+  method public virtual string GetDaxExpression(Microsoft.AnalysisServices.Tabular.Model model, string originalMeasureName)
+  property protected Dax.Template.Measures.MeasuresTemplate Template { get; }
+  property public Microsoft.AnalysisServices.Tabular.Measure ReferenceMeasure { get; set; }
+  property public System.Collections.Generic.Dictionary<string, string> DefaultVariables { get; set; }
+  property public string Expression { get; }
+  property public string TemplateExpression { get; set; }
+public class Dax.Template.Measures.MeasuresTemplate
+  ctor public MeasuresTemplate(Dax.Template.Interfaces.IMeasureTemplateConfig config, Dax.Template.Measures.MeasuresTemplateDefinition measuresTemplateDefinition, System.Collections.Generic.Dictionary<string, object> properties)
+  method protected internal virtual string GetTargetMeasureName(string templateName, string referenceMeasureName)
+  method protected string ReplaceMacros(string expression, Microsoft.AnalysisServices.Tabular.Model model)
+  method protected virtual string GetDisplayFolder(Microsoft.AnalysisServices.Tabular.Measure measure, string templateDisplayFolder, string templateName)
+  method public void ApplyTemplate(Microsoft.AnalysisServices.Tabular.Model model, bool isEnabled, bool overrideExistingMeasures = true, System.Threading.CancellationToken cancellationToken = null)
+  property public Dax.Template.Interfaces.IMeasureTemplateConfig Config { get; init; }
+  property public Dax.Template.Measures.MeasuresTemplateDefinition Template { get; init; }
+  property public System.Collections.Generic.Dictionary<string, object> Properties { get; init; }
+  property public string DisplayFolderRule { get; }
+  property public string DisplayFolderRuleSingleInstanceMeasures { get; }
+public class Dax.Template.Measures.MeasuresTemplateDefinition
+  ctor public MeasuresTemplateDefinition()
+  property public Dax.Template.Measures.MeasuresTemplateDefinition.MeasureTemplate[] MeasureTemplates { get; set; }
+  property public System.Collections.Generic.Dictionary<string, string> TargetTable { get; set; }
+  property public System.Collections.Generic.Dictionary<string, string> TemplateAnnotations { get; set; }
+public class Dax.Template.Measures.MeasuresTemplateDefinition.MeasureTemplate
+  ctor public MeasureTemplate()
+  method public string GetExpression()
+  method public string[] GetComments()
+  property public System.Collections.Generic.Dictionary<string, string> Annotations { get; set; }
+  property public bool IsHidden { get; set; }
+  property public bool IsSingleInstance { get; set; }
+  property public string Comment { get; set; }
+  property public string Description { get; set; }
+  property public string DisplayFolder { get; set; }
+  property public string Expression { get; set; }
+  property public string FormatString { get; set; }
+  property public string Name { get; init; }
+  property public string[] MultiLineComment { get; set; }
+  property public string[] MultiLineExpression { get; set; }
+public class Dax.Template.Model.Column : Dax.Template.Model.EntityBase, Dax.Template.Syntax.IDaxComment, Dax.Template.Syntax.IDaxName, Dax.Template.Syntax.IDependencies<Dax.Template.Syntax.DaxBase>
+  ctor public Column()
+  method public sealed override string GetDebugInfo()
+  method public virtual void Reset()
+  property public Dax.Template.Model.Column SortByColumn { get; set; }
+  property public Dax.Template.Syntax.IDependencies<Dax.Template.Syntax.DaxBase>[] Dependencies { get; set; }
+  property public Microsoft.AnalysisServices.AttributeType[] AttributeType { get; set; }
+  property public Microsoft.AnalysisServices.Tabular.DataType DataType { get; init; }
+  property public System.Collections.Generic.Dictionary<string, object> Annotations { get; set; }
+  property public bool IgnoreAutoDependency { get; init; }
+  property public bool IsHidden { get; set; }
+  property public bool IsKey { get; set; }
+  property public bool IsTemporary { get; set; }
+  property public string DataCategory { get; set; }
+  property public string DisplayFolder { get; set; }
+  property public string Expression { get; set; }
+  property public string FormatString { get; set; }
+  property public string[] Comments { get; set; }
+public class Dax.Template.Model.DateColumn : Dax.Template.Model.Column, Dax.Template.Syntax.IDaxComment, Dax.Template.Syntax.IDaxName, Dax.Template.Syntax.IDependencies<Dax.Template.Syntax.DaxBase>
+  ctor public DateColumn()
+public abstract class Dax.Template.Model.EntityBase
+  ctor protected EntityBase()
+  method public abstract void Reset()
+  method public virtual string ToString()
+  property public required string Name { get; init; }
+  property public string Description { get; set; }
+public class Dax.Template.Model.Hierarchy : Dax.Template.Model.EntityBase
+  ctor public Hierarchy()
+  method public virtual void Reset()
+  property public Dax.Template.Model.Level[] Levels { get; init; }
+  property public bool IsHidden { get; init; }
+  property public string DisplayFolder { get; init; }
+public class Dax.Template.Model.Level : Dax.Template.Model.EntityBase
+  ctor public Level()
+  method public virtual void Reset()
+  property public required Dax.Template.Model.Column Column { get; init; }
+public class Dax.Template.Model.Measure : Dax.Template.Model.EntityBase, Dax.Template.Syntax.IDaxComment
+  ctor public Measure()
+  method public virtual void Reset()
+  property public System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<string, string>> Annotations { get; set; }
+  property public bool IsHidden { get; set; }
+  property public string DisplayFolder { get; set; }
+  property public string Expression { get; set; }
+  property public string FormatString { get; set; }
+  property public string[] Comments { get; set; }
+public class Dax.Template.Model.ModelChanges
+  ctor public ModelChanges()
+  method protected virtual Dax.Template.Model.ModelChanges.TableChanges AddTable(Microsoft.AnalysisServices.Tabular.Table table, System.Collections.Generic.ICollection<Dax.Template.Model.ModelChanges.TableChanges> collection)
+  method protected void AddColumn(Microsoft.AnalysisServices.Tabular.Column column, Microsoft.AnalysisServices.Tabular.Table table, System.Collections.Generic.ICollection<Dax.Template.Model.ModelChanges.TableChanges> collection)
+  method protected void AddHierarchy(Microsoft.AnalysisServices.Tabular.Hierarchy hierarchy, Microsoft.AnalysisServices.Tabular.Table table, System.Collections.Generic.ICollection<Dax.Template.Model.ModelChanges.TableChanges> collection)
+  method protected void AddMeasure(Microsoft.AnalysisServices.Tabular.Measure measure, Microsoft.AnalysisServices.Tabular.Table table, System.Collections.Generic.ICollection<Dax.Template.Model.ModelChanges.TableChanges> collection)
+  method public void AddTable(Microsoft.AnalysisServices.Tabular.Table table, bool isRemoved)
+  method public void PopulatePreview(Microsoft.AnalysisServices.AdomdClient.AdomdConnection connection, Microsoft.AnalysisServices.Tabular.Model model, int previewRows = 5, System.Threading.CancellationToken cancellationToken = null)
+  property public System.Collections.Generic.ICollection<Dax.Template.Model.ModelChanges.TableChanges> ModifiedObjects { get; init; }
+  property public System.Collections.Generic.ICollection<Dax.Template.Model.ModelChanges.TableChanges> RemovedObjects { get; init; }
+public class Dax.Template.Model.ModelChanges.ByItemName : System.Collections.Generic.IComparer<Dax.Template.Model.ModelChanges.ItemChanges>
+  ctor public ByItemName()
+  method public sealed override int Compare(Dax.Template.Model.ModelChanges.ItemChanges x, Dax.Template.Model.ModelChanges.ItemChanges y)
+public class Dax.Template.Model.ModelChanges.ColumnChanges : Dax.Template.Model.ModelChanges.ItemChanges
+  ctor public ColumnChanges(string name)
+  property public bool IsHidden { get; set; }
+  property public string DataType { get; set; }
+public class Dax.Template.Model.ModelChanges.HierarchyChanges : Dax.Template.Model.ModelChanges.ItemChanges
+  ctor public HierarchyChanges(string name)
+  property public bool IsHidden { get; set; }
+  property public string[] Levels { get; set; }
+public abstract class Dax.Template.Model.ModelChanges.ItemChanges
+  ctor public ItemChanges(string name)
+  property public string Name { get; init; }
+public class Dax.Template.Model.ModelChanges.MeasureChanges : Dax.Template.Model.ModelChanges.ItemChanges
+  ctor public MeasureChanges(string name)
+  property public bool IsHidden { get; set; }
+  property public string DisplayFolder { get; set; }
+  property public string Expression { get; set; }
+public class Dax.Template.Model.ModelChanges.TableChanges : Dax.Template.Model.ModelChanges.ItemChanges
+  ctor public TableChanges(string name)
+  property public System.Collections.Generic.ICollection<Dax.Template.Model.ModelChanges.ColumnChanges> Columns { get; init; }
+  property public System.Collections.Generic.ICollection<Dax.Template.Model.ModelChanges.HierarchyChanges> Hierarchies { get; set; }
+  property public System.Collections.Generic.ICollection<Dax.Template.Model.ModelChanges.MeasureChanges> Measures { get; set; }
+  property public bool IsHidden { get; set; }
+  property public object Preview { get; set; }
+  property public string Expression { get; set; }
+public class Dax.Template.Package
+  field public const string PackageConfig = "Config"
+  field public const string TemplateFileExtension = ".template.json"
+  method public static Dax.Template.Package LoadFromFile(string path)
+  method public static System.Collections.Generic.IEnumerable<string> FindTemplateFiles(string path)
+  method public void SaveTo(string path)
+  property public Dax.Template.Tables.TemplateConfiguration Configuration { get; }
+public abstract class Dax.Template.Syntax.DaxBase
+  ctor protected DaxBase()
+public class Dax.Template.Syntax.DaxElement : Dax.Template.Syntax.DaxBase, Dax.Template.Syntax.IDependencies<Dax.Template.Syntax.DaxBase>
+  ctor public DaxElement()
+  method public sealed override string GetDebugInfo()
+  property public Dax.Template.Syntax.IDependencies<Dax.Template.Syntax.DaxBase>[] Dependencies { get; set; }
+  property public bool IgnoreAutoDependency { get; init; }
+  property public string Expression { get; set; }
+public class Dax.Template.Syntax.DaxStep : Dax.Template.Syntax.DaxElement, Dax.Template.Syntax.IDaxComment, Dax.Template.Syntax.IDaxName, Dax.Template.Syntax.IDependencies<Dax.Template.Syntax.DaxBase>
+  ctor public DaxStep()
+  method public virtual string ToString()
+  property public required string Name { get; init; }
+  property public string DaxName { get; }
+  property public string[] Comments { get; set; }
+public interface Dax.Template.Syntax.IDaxComment
+  property public string[] Comments { get; set; }
+public interface Dax.Template.Syntax.IDaxName : Dax.Template.Syntax.IDependencies<Dax.Template.Syntax.DaxBase>
+  property public string DaxName { get; }
+public interface Dax.Template.Syntax.IDependencies<T>
+  method public abstract string GetDebugInfo()
+  property public Dax.Template.Syntax.IDependencies<T>[] Dependencies { get; set; }
+  property public bool AddLevel { get; init; }
+  property public bool IgnoreAutoDependency { get; init; }
+  property public string Expression { get; set; }
+public abstract class Dax.Template.Syntax.Var : Dax.Template.Syntax.DaxBase, Dax.Template.Syntax.IDaxComment, Dax.Template.Syntax.IDaxName, Dax.Template.Syntax.IDependencies<Dax.Template.Syntax.DaxBase>
+  ctor protected Var()
+  method public sealed override string GetDebugInfo()
+  method public virtual string ToString()
+  property public Dax.Template.Syntax.IDependencies<Dax.Template.Syntax.DaxBase>[] Dependencies { get; set; }
+  property public Dax.Template.Syntax.VarScope Scope { get; init; }
+  property public bool IgnoreAutoDependency { get; init; }
+  property public required string Name { get; init; }
+  property public string DaxName { get; }
+  property public string Expression { get; set; }
+  property public string[] Comments { get; set; }
+public class Dax.Template.Syntax.VarGlobal : Dax.Template.Syntax.Var, Dax.Template.Syntax.IDaxComment, Dax.Template.Syntax.IDaxName, Dax.Template.Syntax.IDependencies<Dax.Template.Syntax.DaxBase>, Dax.Template.Syntax.IGlobalScope
+  ctor public VarGlobal()
+  property public bool IsConfigurable { get; set; }
+public class Dax.Template.Syntax.VarRow : Dax.Template.Syntax.Var, Dax.Template.Syntax.IDaxComment, Dax.Template.Syntax.IDaxName, Dax.Template.Syntax.IDependencies<Dax.Template.Syntax.DaxBase>
+  ctor public VarRow()
+public enum Dax.Template.Syntax.VarScope : int
+  field public const Dax.Template.Syntax.VarScope Global = 0
+  field public const Dax.Template.Syntax.VarScope Row = 1
+public abstract class Dax.Template.Tables.CalculatedTableTemplateBase : Dax.Template.Tables.TableTemplateBase
+  ctor protected CalculatedTableTemplateBase()
+  field protected static readonly string PadColumnAddColumnsDefinition
+  field protected static readonly string PadColumnAddColumnsExpression
+  field protected static readonly string PadColumnGenerateDefinition
+  field protected static readonly string PadColumnGenerateExpression
+  field protected static readonly string PadGlobalVarDefinition
+  field protected static readonly string PadGlobalVarExpression
+  field protected static readonly string PadRowVarDefinition
+  field protected static readonly string PadRowVarExpression
+  field protected static readonly string PadStepDefinition
+  method protected static string GetComments(Dax.Template.Syntax.IDaxComment daxComment, string padding)
+  method protected virtual bool RemoveExistingPartitions(Microsoft.AnalysisServices.Tabular.Table dateTable)
+  method protected virtual string ProcessDaxExpression(string expression, string lastStep, Microsoft.AnalysisServices.Tabular.Model model = null, System.Threading.CancellationToken cancellationToken = null)
+  method protected virtual void AddPartitions(Microsoft.AnalysisServices.Tabular.Table dateTable, System.Threading.CancellationToken cancellationToken = null)
+  method public virtual string GetDaxTableExpression(Microsoft.AnalysisServices.Tabular.Model model, System.Threading.CancellationToken cancellationToken = null)
+  property public string IsoFormat { get; set; }
+public class Dax.Template.Tables.CalculationGroups.CalculationGroupTemplate
+  ctor public CalculationGroupTemplate(Dax.Template.Tables.CalculationGroups.CalculationGroupTemplateDefinition definition)
+  method public void ApplyTemplate(Microsoft.AnalysisServices.Tabular.Table targetTable, bool isHidden, System.Threading.CancellationToken cancellationToken = null)
+  property public Dax.Template.Tables.CalculationGroups.CalculationGroupTemplateDefinition Definition { get; }
+public class Dax.Template.Tables.CalculationGroups.CalculationGroupTemplateDefinition
+  ctor public CalculationGroupTemplateDefinition()
+  property public Dax.Template.Tables.CalculationGroups.CalculationGroupTemplateDefinition.CalculationItemDefinition[] CalculationItems { get; set; }
+  property public int Precedence { get; set; }
+  property public required string ColumnName { get; set; }
+  property public string Description { get; set; }
+  property public string MultipleOrEmptySelectionExpression { get; set; }
+  property public string MultipleOrEmptySelectionFormatStringExpression { get; set; }
+  property public string NoSelectionExpression { get; set; }
+  property public string NoSelectionFormatStringExpression { get; set; }
+public class Dax.Template.Tables.CalculationGroups.CalculationGroupTemplateDefinition.CalculationItemDefinition
+  ctor public CalculationItemDefinition()
+  method public string GetExpression()
+  property public int? Ordinal { get; set; }
+  property public required string Name { get; set; }
+  property public string Description { get; set; }
+  property public string Expression { get; set; }
+  property public string FormatStringExpression { get; set; }
+  property public string[] MultiLineExpression { get; set; }
+public class Dax.Template.Tables.Calendars.CalendarTemplate
+  ctor public CalendarTemplate(Dax.Template.Tables.Calendars.CalendarTemplateDefinition definition)
+  method public Microsoft.AnalysisServices.Tabular.Calendar ApplyTemplate(Microsoft.AnalysisServices.Tabular.Table targetTable, bool isEnabled, System.Threading.CancellationToken cancellationToken = null)
+  property public Dax.Template.Tables.Calendars.CalendarTemplateDefinition Definition { get; }
+public class Dax.Template.Tables.Calendars.CalendarTemplateDefinition
+  ctor public CalendarTemplateDefinition()
+  property public Dax.Template.Tables.Calendars.CalendarTemplateDefinition.CalendarColumnGroupDefinition[] ColumnGroups { get; set; }
+  property public string Description { get; set; }
+  property public string Name { get; set; }
+public class Dax.Template.Tables.Calendars.CalendarTemplateDefinition.CalendarColumnGroupDefinition
+  ctor public CalendarColumnGroupDefinition()
+  property public Microsoft.AnalysisServices.Tabular.TimeUnit? TimeUnit { get; set; }
+  property public required string Type { get; set; }
+  property public string PrimaryColumn { get; set; }
+  property public string[] AssociatedColumns { get; set; }
+  property public string[] Columns { get; set; }
+public class Dax.Template.Tables.CustomTableTemplate<T> : Dax.Template.Tables.ReferenceCalculatedTable
+  ctor protected CustomTableTemplate(T config, Dax.Template.CustomTemplateDefinition template, System.Predicate<Dax.Template.CustomTemplateDefinition.Column> skipColumn, Microsoft.AnalysisServices.Tabular.Model model)
+  ctor public CustomTableTemplate(T config)
+  ctor public CustomTableTemplate(T config, Dax.Template.CustomTemplateDefinition template, Microsoft.AnalysisServices.Tabular.Model model)
+  method protected static string ReplacePrefixes(string expression, System.Collections.Generic.List<Dax.Template.Tables.CustomTableTemplate<T>.FormatPrefix> prefixes)
+  method protected virtual Dax.Template.Model.Column CreateColumn(string name, Microsoft.AnalysisServices.Tabular.DataType dataType)
+  method protected virtual void GetColumns(Dax.Template.CustomTemplateDefinition templateDefinition, System.Collections.Generic.List<Dax.Template.Tables.CustomTableTemplate<T>.FormatPrefix> Prefixes, System.Collections.Generic.List<Dax.Template.Syntax.DaxStep> steps, System.Predicate<Dax.Template.CustomTemplateDefinition.Column> skipColumn)
+  method protected virtual void InitTemplate(T config, Dax.Template.CustomTemplateDefinition templateDefinition, System.Predicate<Dax.Template.CustomTemplateDefinition.Column> skipColumn, Microsoft.AnalysisServices.Tabular.Model model)
+  property public T Config { get; init; }
+protected class Dax.Template.Tables.CustomTableTemplate<T>.FormatPrefix
+  ctor public FormatPrefix(string name)
+  property public string Name { get; }
+  property public string PrefixFormat { get; }
+  property public string PrefixSearch { get; }
+public abstract class Dax.Template.Tables.Dates.BaseDateTemplate<T> : Dax.Template.Tables.CustomTableTemplate<T>
+  ctor public BaseDateTemplate(T config)
+  ctor public BaseDateTemplate(T config, Dax.Template.CustomTemplateDefinition template, Microsoft.AnalysisServices.Tabular.Model model)
+  ctor public BaseDateTemplate(T config, Dax.Template.CustomTemplateDefinition template, System.Predicate<Dax.Template.CustomTemplateDefinition.Column> skipColumn, Microsoft.AnalysisServices.Tabular.Model model)
+  field protected const string AnnotationCalendarType = "SQLBI_CalendarType"
+  field protected const string DataCategoryTime = "Time"
+  method protected string GenerateCalendarExpression(Microsoft.AnalysisServices.Tabular.Model model)
+  method protected string GenerateMaxYearExpression(Microsoft.AnalysisServices.Tabular.Model model, string lastYear = null)
+  method protected string GenerateMinYearExpression(Microsoft.AnalysisServices.Tabular.Model model, string firstYear = null)
+  method protected virtual bool IsRelationshipToSaveAndRestore(Microsoft.AnalysisServices.Tabular.SingleColumnRelationship relationship)
+  method protected virtual string GetDefaultFormatString(Dax.Template.Model.Column column, Microsoft.AnalysisServices.Tabular.Model model)
+  method protected virtual string ProcessDaxExpression(string expression, string lastStep, Microsoft.AnalysisServices.Tabular.Model model = null, System.Threading.CancellationToken cancellationToken = null)
+  method public virtual void ApplyTemplate(Microsoft.AnalysisServices.Tabular.Table tabularTable, System.Threading.CancellationToken cancellationToken = null)
+  property public string[] CalendarType { get; init; }
+public class Dax.Template.Tables.Dates.CustomDateTable : Dax.Template.Tables.Dates.BaseDateTemplate<Dax.Template.Interfaces.IDateTemplateConfig>
+  ctor public CustomDateTable(Dax.Template.Interfaces.IDateTemplateConfig config, Dax.Template.Tables.Dates.CustomDateTemplateDefinition template, Microsoft.AnalysisServices.Tabular.Model model, string referenceTable = null)
+  method protected virtual Dax.Template.Model.Column CreateColumn(string name, Microsoft.AnalysisServices.Tabular.DataType dataType)
+  method protected virtual void InitTemplate(Dax.Template.Interfaces.IDateTemplateConfig config, Dax.Template.CustomTemplateDefinition templateDefinition, System.Predicate<Dax.Template.CustomTemplateDefinition.Column> skipColumn, Microsoft.AnalysisServices.Tabular.Model model)
+public class Dax.Template.Tables.Dates.CustomDateTemplateDefinition : Dax.Template.CustomTemplateDefinition
+  ctor public CustomDateTemplateDefinition()
+  property public string CalendarType { get; set; }
+  property public string[] CalendarTypes { get; set; }
+public class Dax.Template.Tables.Dates.HolidaysConfig
+  ctor public HolidaysConfig()
+  method public static bool HasHolidays(Dax.Template.Tables.Dates.HolidaysConfig holidaysConfig)
+  property public bool IsEnabled { get; set; }
+  property public string DateColumnName { get; set; }
+  property public string HolidayColumnName { get; set; }
+  property public string TableName { get; set; }
+public class Dax.Template.Tables.Dates.HolidaysDefinitionTable : Dax.Template.Tables.CalculatedTableTemplateBase
+  ctor public HolidaysDefinitionTable(Dax.Template.Tables.Dates.HolidaysDefinitionTable.HolidaysDefinitions holidaysDefinitions)
+  method public virtual string GetDaxTableExpression(Microsoft.AnalysisServices.Tabular.Model model, System.Threading.CancellationToken cancellationToken = null)
+public class Dax.Template.Tables.Dates.HolidaysDefinitionTable.HolidayLine
+  ctor public HolidayLine()
+  property public Dax.Template.Tables.Dates.HolidaysDefinitionTable.Substitute SubstituteHoliday { get; set; }
+  property public int ConflictPriority { get; set; }
+  property public int DayNumber { get; set; }
+  property public int FirstYear { get; set; }
+  property public int LastYear { get; set; }
+  property public int MonthNumber { get; set; }
+  property public int OffsetDays { get; set; }
+  property public int OffsetWeek { get; set; }
+  property public int WeekDayNumber { get; set; }
+  property public string HolidayName { get; set; }
+  property public string IsoCountry { get; set; }
+public class Dax.Template.Tables.Dates.HolidaysDefinitionTable.HolidaysDefinitions
+  ctor public HolidaysDefinitions()
+  property public Dax.Template.Tables.Dates.HolidaysDefinitionTable.HolidayLine[] Holidays { get; set; }
+public enum Dax.Template.Tables.Dates.HolidaysDefinitionTable.Substitute : int
+  field public const Dax.Template.Tables.Dates.HolidaysDefinitionTable.Substitute FridayIfSaturdayOrMondayIfSunday = -1
+  field public const Dax.Template.Tables.Dates.HolidaysDefinitionTable.Substitute NoSubstituteHoliday = 0
+  field public const Dax.Template.Tables.Dates.HolidaysDefinitionTable.Substitute SubstituteHolidayWithNextNextWorkingDay = 2
+  field public const Dax.Template.Tables.Dates.HolidaysDefinitionTable.Substitute SubstituteHolidayWithNextWorkingDay = 1
+public class Dax.Template.Tables.Dates.HolidaysTable : Dax.Template.Tables.Dates.BaseDateTemplate<Dax.Template.Interfaces.IHolidaysConfig>
+  ctor public HolidaysTable(Dax.Template.Interfaces.IHolidaysConfig config)
+  method public virtual string GetDaxTableExpression(Microsoft.AnalysisServices.Tabular.Model model, System.Threading.CancellationToken cancellationToken = null)
+public class Dax.Template.Tables.Dates.SimpleDateTable : Dax.Template.Tables.Dates.BaseDateTemplate<Dax.Template.Tables.Dates.SimpleDateTemplateConfig>
+  ctor public SimpleDateTable(Dax.Template.Tables.Dates.SimpleDateTemplateConfig config, Microsoft.AnalysisServices.Tabular.Model model)
+public class Dax.Template.Tables.Dates.SimpleDateTemplateConfig : Dax.Template.Tables.TemplateConfiguration, Dax.Template.Interfaces.ICustomTableConfig, Dax.Template.Interfaces.IDateTemplateConfig, Dax.Template.Interfaces.IHolidaysConfig, Dax.Template.Interfaces.ILocalization, Dax.Template.Interfaces.IMeasureTemplateConfig, Dax.Template.Interfaces.IScanConfig, Dax.Template.Interfaces.ITemplates
+  ctor public SimpleDateTemplateConfig()
+  property public string FiscalQuarterPrefix { get; set; }
+  property public string FiscalYearPrefix { get; set; }
+  property public string QuarterPrefix { get; set; }
+public abstract class Dax.Template.Tables.ReferenceCalculatedTable : Dax.Template.Tables.CalculatedTableTemplateBase
+  ctor protected ReferenceCalculatedTable()
+  method protected virtual string GetSourceColumnName(Dax.Template.Model.Column column)
+  method public virtual string GetDaxTableExpression(Microsoft.AnalysisServices.Tabular.Model model, System.Threading.CancellationToken cancellationToken = null)
+  property public string HiddenTable { get; init; }
+public abstract class Dax.Template.Tables.TableTemplateBase
+  ctor protected TableTemplateBase()
+  field public const string AnnotationAttributeType = "SQLBI_AttributeTypes"
+  method protected abstract bool RemoveExistingPartitions(Microsoft.AnalysisServices.Tabular.Table dateTable)
+  method protected abstract void AddPartitions(Microsoft.AnalysisServices.Tabular.Table dateTable, System.Threading.CancellationToken cancellationToken = null)
+  method protected virtual bool IsRelationshipToSaveAndRestore(Microsoft.AnalysisServices.Tabular.SingleColumnRelationship relationship)
+  method protected virtual string GetDefaultFormatString(Dax.Template.Model.Column column, Microsoft.AnalysisServices.Tabular.Model model)
+  method protected virtual string GetSourceColumnName(Dax.Template.Model.Column column)
+  method protected virtual void AddAnnotations(Microsoft.AnalysisServices.Tabular.Table dateTable, System.Threading.CancellationToken cancellationToken = null)
+  method protected virtual void AddColumns(Microsoft.AnalysisServices.Tabular.Table dateTable, System.Threading.CancellationToken cancellationToken = null)
+  method protected virtual void AddHierarchies(Microsoft.AnalysisServices.Tabular.Table dateTable, System.Threading.CancellationToken cancellationToken = null)
+  method protected virtual void AddTranslation(Microsoft.AnalysisServices.Tabular.Table tabularTable, Dax.Template.Translations.Language language)
+  method protected virtual void ApplyTranslations(Microsoft.AnalysisServices.Tabular.Table tabularTable, System.Threading.CancellationToken cancellationToken = null)
+  method protected virtual void RemoveExistingColumns(Microsoft.AnalysisServices.Tabular.Table dateTable)
+  method protected virtual void RemoveExistingElements(Microsoft.AnalysisServices.Tabular.Table dateTable, System.Threading.CancellationToken cancellationToken = null)
+  method protected virtual void RemoveExistingHierarchies(Microsoft.AnalysisServices.Tabular.Table dateTable)
+  method protected virtual void RenameWithTranslation(Microsoft.AnalysisServices.Tabular.Table tabularTable, Dax.Template.Translations.Language language, System.Threading.CancellationToken cancellationToken = null)
+  method public virtual void ApplyTemplate(Microsoft.AnalysisServices.Tabular.Table tabularTable, System.Threading.CancellationToken cancellationToken = null)
+  method public void ApplyTemplate(Microsoft.AnalysisServices.Tabular.Table tabularTable, bool hideTable = false, System.Threading.CancellationToken cancellationToken = null)
+  property protected System.Collections.Generic.IEnumerable<System.ValueTuple<Microsoft.AnalysisServices.Tabular.SingleColumnRelationship, string, bool>> FixRelationshipsFrom { get; set; }
+  property protected System.Collections.Generic.IEnumerable<System.ValueTuple<Microsoft.AnalysisServices.Tabular.SingleColumnRelationship, string, bool>> FixRelationshipsTo { get; set; }
+  property public Dax.Template.Translations Translation { get; set; }
+  property public System.Collections.Generic.Dictionary<string, string> Annotations { get; set; }
+  property public System.Collections.Generic.List<Dax.Template.Model.Column> Columns { get; set; }
+  property public System.Collections.Generic.List<Dax.Template.Model.Hierarchy> Hierarchies { get; set; }
+public class Dax.Template.Tables.TemplateConfiguration : Dax.Template.Interfaces.ICustomTableConfig, Dax.Template.Interfaces.IDateTemplateConfig, Dax.Template.Interfaces.IHolidaysConfig, Dax.Template.Interfaces.ILocalization, Dax.Template.Interfaces.IMeasureTemplateConfig, Dax.Template.Interfaces.IScanConfig, Dax.Template.Interfaces.ITemplates
+  ctor public TemplateConfiguration()
+  property public Dax.Template.Enums.AutoNaming? AutoNaming { get; set; }
+  property public Dax.Template.Enums.AutoScan? AutoScan { get; set; }
+  property public Dax.Template.Interfaces.IMeasureTemplateConfig.TargetMeasure[] TargetMeasures { get; set; }
+  property public Dax.Template.Interfaces.ITemplates.TemplateEntry[] Templates { get; set; }
+  property public Dax.Template.Tables.Dates.HolidaysConfig HolidaysReference { get; set; }
+  property public System.Collections.Generic.Dictionary<string, string> DefaultVariables { get; set; }
+  property public int? FirstYear { get; set; }
+  property public int? FirstYearMax { get; set; }
+  property public int? FirstYearMin { get; set; }
+  property public int? LastYear { get; set; }
+  property public int? LastYearMax { get; set; }
+  property public int? LastYearMin { get; set; }
+  property public string AutoNamingSeparator { get; set; }
+  property public string Description { get; set; }
+  property public string DisplayFolderRule { get; set; }
+  property public string HolidaysDefinitionTable { get; set; }
+  property public string InLieuOfPrefix { get; set; }
+  property public string InLieuOfSuffix { get; set; }
+  property public string IsoCountry { get; set; }
+  property public string IsoFormat { get; set; }
+  property public string IsoTranslation { get; set; }
+  property public string Name { get; set; }
+  property public string TableSingleInstanceMeasures { get; set; }
+  property public string TemplateUri { get; set; }
+  property public string WorkingDays { get; set; }
+  property public string[] ExceptTablesColumns { get; set; }
+  property public string[] LocalizationFiles { get; set; }
+  property public string[] OnlyTablesColumns { get; set; }
+public static class Dax.Template.Tables.TemplateConfigurationExtensions
+  method public static string ToTemplateUri(System.IO.FileInfo file)
+public class Dax.Template.Translations
+  ctor public Translations(Dax.Template.Translations.Definitions definitions)
+  method public Dax.Template.Translations.Language GetTranslationIso(string iso)
+  method public System.Collections.Generic.IEnumerable<Dax.Template.Translations.Language> GetTranslations()
+  property protected Dax.Template.Translations.Definitions LanguageDefinitions { get; set; }
+  property public bool ApplyAllIso { get; set; }
+  property public string DefaultIso { get; set; }
+  property public string[] ApplyIso { get; set; }
+public class Dax.Template.Translations.Column : Dax.Template.Translations.EntityFormat
+  ctor public Column()
+public class Dax.Template.Translations.Definitions
+  ctor public Definitions()
+  property public Dax.Template.Translations.Language[] Translations { get; set; }
+public class Dax.Template.Translations.Entity
+  ctor public Entity()
+  property public string Description { get; set; }
+  property public string Name { get; set; }
+  property public string OriginalName { get; set; }
+public class Dax.Template.Translations.EntityDisplayFolder : Dax.Template.Translations.Entity
+  ctor public EntityDisplayFolder()
+  property public string DisplayFolders { get; set; }
+public class Dax.Template.Translations.EntityFormat : Dax.Template.Translations.EntityDisplayFolder
+  ctor public EntityFormat()
+  property public string FormatString { get; set; }
+public class Dax.Template.Translations.Hierarchy : Dax.Template.Translations.EntityDisplayFolder
+  ctor public Hierarchy()
+  property public Dax.Template.Translations.Level[] Levels { get; set; }
+public class Dax.Template.Translations.Language
+  ctor public Language()
+  property public Dax.Template.Translations.Column[] Columns { get; set; }
+  property public Dax.Template.Translations.Hierarchy[] Hierarchies { get; set; }
+  property public Dax.Template.Translations.Measure[] Measures { get; set; }
+  property public Dax.Template.Translations.Table Table { get; set; }
+  property public string Iso { get; set; }
+public class Dax.Template.Translations.Level : Dax.Template.Translations.Entity
+  ctor public Level()
+public class Dax.Template.Translations.Measure : Dax.Template.Translations.EntityFormat
+  ctor public Measure()
+public class Dax.Template.Translations.Table : Dax.Template.Translations.Entity
+  ctor public Table()

@@ -1,0 +1,6 @@
+{
+  "Description": "Dispatch characterization: MeasuresTemplate with an empty Template",
+  "Templates": [
+    { "Class": "MeasuresTemplate", "Template": "" }
+  ]
+}

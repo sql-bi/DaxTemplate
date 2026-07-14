@@ -1,0 +1,113 @@
+{
+  "name": "OfflineFixture",
+  "compatibilityLevel": 1600,
+  "model": {
+    "tables": [
+      {
+        "name": "Sales",
+        "columns": [
+          {
+            "name": "Order Date",
+            "dataType": "dateTime",
+            "sourceColumn": "Order Date"
+          },
+          {
+            "name": "Quantity",
+            "dataType": "int64",
+            "sourceColumn": "Quantity"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Sales",
+            "source": {
+              "type": "calculated",
+              "expression": "{ (DATE(2020,1,1), 1) }"
+            }
+          }
+        ],
+        "measures": [
+          {
+            "name": "Sales Amount",
+            "expression": "SUM(Sales[Quantity])"
+          },
+          {
+            "name": "Total Cost",
+            "expression": "SUM(Sales[Quantity])"
+          },
+          {
+            "name": "Margin",
+            "expression": "[Sales Amount] - [Total Cost]"
+          },
+          {
+            "name": "Margin %",
+            "expression": "DIVIDE([Margin], [Sales Amount])"
+          },
+          {
+            "name": "Sales Amount Rounded",
+            "expression": "ROUND ( [Sales Amount], 0 )",
+            "displayFolder": "Rounded",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "SimpleWrapper"
+              }
+            ]
+          },
+          {
+            "name": "Sales Amount Abs",
+            "expression": "ABS ( [Sales Amount] )",
+            "displayFolder": "Abs",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "SimpleWrapper"
+              }
+            ]
+          },
+          {
+            "name": "Total Cost Rounded",
+            "expression": "ROUND ( [Total Cost], 0 )",
+            "displayFolder": "Rounded",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "SimpleWrapper"
+              }
+            ]
+          },
+          {
+            "name": "Total Cost Abs",
+            "expression": "ABS ( [Total Cost] )",
+            "displayFolder": "Abs",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "SimpleWrapper"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Orders",
+        "columns": [
+          {
+            "name": "Delivery Date",
+            "dataType": "dateTime",
+            "sourceColumn": "Delivery Date"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Orders",
+            "source": {
+              "type": "calculated",
+              "expression": "{ (DATE(2020,1,1)) }"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

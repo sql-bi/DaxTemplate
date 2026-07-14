@@ -1,0 +1,29 @@
+{
+  "Functions": [
+    {
+      "Name": "PercentOfTotal",
+      "Description": "Returns Amount as a percentage of its total when Filter is removed, rounded to DecimalPlaces.",
+      "Parameters": [
+        { "Name": "Amount", "Type": "SCALAR", "Subtype": "DECIMAL", "PassingMode": "VAL" },
+        { "Name": "Filter", "Type": "TABLEREF" },
+        { "Name": "DecimalPlaces", "Type": "INT64", "DefaultExpression": "2" }
+      ],
+      "MultiLineBody": [
+        "ROUND (",
+        "    DIVIDE ( Amount, CALCULATE ( Amount, REMOVEFILTERS ( Filter ) ) ) * 100,",
+        "    DecimalPlaces",
+        ")"
+      ]
+    },
+    {
+      "Name": "SafeDivide",
+      "Description": "Divides Numerator by Denominator, returning AlternateResult when Denominator is blank or zero.",
+      "Parameters": [
+        { "Name": "Numerator", "Type": "SCALAR", "Subtype": "DECIMAL" },
+        { "Name": "Denominator", "Type": "SCALAR", "Subtype": "DECIMAL", "DefaultExpression": "BLANK()" },
+        { "Name": "AlternateResult", "Type": "ANYVAL", "DefaultExpression": "BLANK()" }
+      ],
+      "Body": "IF ( ISBLANK ( Denominator ) || Denominator = 0, AlternateResult, Numerator / Denominator )"
+    }
+  ]
+}

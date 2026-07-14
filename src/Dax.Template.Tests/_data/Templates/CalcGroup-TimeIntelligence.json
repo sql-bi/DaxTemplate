@@ -1,0 +1,30 @@
+{
+  "_comment": "Minimal calculation-group sub-template: 3 calculation items exercising no-ordinal/no-format, explicit-ordinal-plus-format, and multi-line-expression-plus-literal-format, plus the day-1 CalculationGroupExpression selection expressions (require database compatibility level >= 1605; see mini-spike notes in .claude/SESSION_HANDOFF.md).",
+  "Precedence": 10,
+  "ColumnName": "Time Intelligence",
+  "Description": "Time intelligence calculation group",
+  "CalculationItems": [
+    {
+      "Name": "Current",
+      "Expression": "SELECTEDMEASURE()"
+    },
+    {
+      "Name": "MTD",
+      "Ordinal": 5,
+      "Expression": "CALCULATE ( SELECTEDMEASURE(), DATESMTD ( 'Date'[Date] ) )",
+      "FormatStringExpression": "SELECTEDMEASUREFORMATSTRING()"
+    },
+    {
+      "Name": "% vs Current",
+      "MultiLineExpression": [
+        "DIVIDE (",
+        "    SELECTEDMEASURE(),",
+        "    CALCULATE ( SELECTEDMEASURE(), CALCULATIONGROUPRESETSELECTION() )",
+        ")"
+      ],
+      "FormatStringExpression": "\"0.0%\""
+    }
+  ],
+  "MultipleOrEmptySelectionExpression": "SELECTEDMEASURE()",
+  "NoSelectionExpression": "SELECTEDMEASURE()"
+}

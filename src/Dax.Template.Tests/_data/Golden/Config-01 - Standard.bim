@@ -1,0 +1,3682 @@
+{
+  "name": "OfflineFixture",
+  "compatibilityLevel": 1600,
+  "model": {
+    "tables": [
+      {
+        "name": "Sales",
+        "columns": [
+          {
+            "name": "Order Date",
+            "dataType": "dateTime",
+            "sourceColumn": "Order Date"
+          },
+          {
+            "name": "Quantity",
+            "dataType": "int64",
+            "sourceColumn": "Quantity"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Sales",
+            "source": {
+              "type": "calculated",
+              "expression": "{ (DATE(2020,1,1), 1) }"
+            }
+          }
+        ],
+        "measures": [
+          {
+            "name": "Sales Amount",
+            "expression": "SUM(Sales[Quantity])"
+          },
+          {
+            "name": "Total Cost",
+            "expression": "SUM(Sales[Quantity])"
+          },
+          {
+            "name": "Margin",
+            "expression": "[Sales Amount] - [Total Cost]"
+          },
+          {
+            "name": "Margin %",
+            "expression": "DIVIDE([Margin], [Sales Amount])"
+          },
+          {
+            "name": "_ShowValueForDates",
+            "expression": "\nVAR __LastDateWithData =\n    CALCULATE (\n        MAXX ( { MAX ( 'Sales'[Order Date] ), MAX ( 'Orders'[Delivery Date] ) }, ''[Value] ),\n        REMOVEFILTERS ()\n    )\nVAR __FirstDateVisible =\n    MIN ( 'Date'[Date] )\nVAR __Result =\n    __FirstDateVisible <= __LastDateWithData\nRETURN\n    __Result",
+            "isHidden": true,
+            "displayFolder": "Hidden Time Intelligence",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "YTD Sales Amount",
+            "expression": "\nIF (\n    [_ShowValueForDates],\n    CALCULATE (\n        [Sales Amount],\n        DATESYTD ( 'Date'[Date] )\n    )\n)",
+            "displayFolder": "Time intelligence\\To-date total\\Sales Amount",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "QTD Sales Amount",
+            "expression": "\nIF (\n    [_ShowValueForDates],\n    CALCULATE (\n        [Sales Amount],\n        DATESQTD ( 'Date'[Date] )\n    )\n)",
+            "displayFolder": "Time intelligence\\To-date total\\Sales Amount",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "MTD Sales Amount",
+            "expression": "\nIF (\n    [_ShowValueForDates],\n    CALCULATE (\n        [Sales Amount],\n        DATESMTD ( 'Date'[Date] )\n    )\n)",
+            "displayFolder": "Time intelligence\\To-date total\\Sales Amount",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "PY Sales Amount",
+            "expression": "\nIF (\n    [_ShowValueForDates],\n    CALCULATE (\n        [Sales Amount],\n        CALCULATETABLE (\n            DATEADD ( 'Date'[Date], -1, YEAR ),\n            'Date'[DateWithTransactions] = TRUE\n        )\n    )\n)",
+            "displayFolder": "Time intelligence\\Growth\\Sales Amount",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "YOY Sales Amount",
+            "expression": "\nVAR __ValueCurrentPeriod = [Sales Amount]\nVAR __ValuePreviousPeriod = [PY Sales Amount]\nVAR __Result =\n    IF (\n        NOT ISBLANK ( __ValueCurrentPeriod ) && NOT ISBLANK ( __ValuePreviousPeriod ),\n        __ValueCurrentPeriod - __ValuePreviousPeriod\n    )\nRETURN\n    __Result",
+            "displayFolder": "Time intelligence\\Growth\\Sales Amount",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "YOY % Sales Amount",
+            "expression": "\nDIVIDE ( \n    [YOY Sales Amount],\n    [PY Sales Amount]\n)",
+            "formatString": "0.00%",
+            "displayFolder": "Time intelligence\\Growth\\Sales Amount",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "PQ Sales Amount",
+            "expression": "\nIF (\n    [_ShowValueForDates],\n    CALCULATE (\n        [Sales Amount],\n        CALCULATETABLE (\n            DATEADD ( 'Date'[Date], -1, QUARTER ),\n            'Date'[DateWithTransactions] = TRUE\n        )\n    )\n)",
+            "displayFolder": "Time intelligence\\Growth\\Sales Amount",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "QOQ Sales Amount",
+            "expression": "\nVAR __ValueCurrentPeriod = [Sales Amount]\nVAR __ValuePreviousPeriod = [PQ Sales Amount]\nVAR __Result =\n    IF (\n        NOT ISBLANK ( __ValueCurrentPeriod ) && NOT ISBLANK ( __ValuePreviousPeriod ),\n        __ValueCurrentPeriod - __ValuePreviousPeriod\n    )\nRETURN\n    __Result",
+            "displayFolder": "Time intelligence\\Growth\\Sales Amount",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "QOQ % Sales Amount",
+            "expression": "\nDIVIDE ( \n    [QOQ Sales Amount],\n    [PQ Sales Amount]\n)",
+            "formatString": "0.00%",
+            "displayFolder": "Time intelligence\\Growth\\Sales Amount",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "PM Sales Amount",
+            "expression": "\nIF (\n    [_ShowValueForDates],\n    CALCULATE (\n        [Sales Amount],\n        CALCULATETABLE (\n            DATEADD ( 'Date'[Date], -1, MONTH ),\n            'Date'[DateWithTransactions] = TRUE\n        )\n    )\n)",
+            "displayFolder": "Time intelligence\\Growth\\Sales Amount",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "MOM Sales Amount",
+            "expression": "\nVAR __ValueCurrentPeriod = [Sales Amount]\nVAR __ValuePreviousPeriod = [PM Sales Amount]\nVAR __Result =\n    IF (\n        NOT ISBLANK ( __ValueCurrentPeriod ) && NOT ISBLANK ( __ValuePreviousPeriod ),\n        __ValueCurrentPeriod - __ValuePreviousPeriod\n    )\nRETURN\n    __Result",
+            "displayFolder": "Time intelligence\\Growth\\Sales Amount",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "MOM % Sales Amount",
+            "expression": "\nDIVIDE ( \n    [MOM Sales Amount],\n    [PM Sales Amount]\n)",
+            "formatString": "0.00%",
+            "displayFolder": "Time intelligence\\Growth\\Sales Amount",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "PYTD Sales Amount",
+            "expression": "\nIF (\n    [_ShowValueForDates],\n    CALCULATE (\n        [YTD Sales Amount],\n        CALCULATETABLE (\n            DATEADD ( 'Date'[Date], -1, YEAR ),\n            'Date'[DateWithTransactions] = TRUE\n        )\n    )\n)",
+            "displayFolder": "Time intelligence\\To-date growth\\Sales Amount",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "YOYTD Sales Amount",
+            "expression": "\nVAR __ValueCurrentPeriod = [YTD Sales Amount]\nVAR __ValuePreviousPeriod = [PYTD Sales Amount]\nVAR __Result =\n    IF (\n        NOT ISBLANK ( __ValueCurrentPeriod ) && NOT ISBLANK ( __ValuePreviousPeriod ),\n        __ValueCurrentPeriod - __ValuePreviousPeriod\n    )\nRETURN\n    __Result",
+            "displayFolder": "Time intelligence\\To-date growth\\Sales Amount",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "YOYTD % Sales Amount",
+            "expression": "\nDIVIDE ( \n    [YOYTD Sales Amount],\n    [PYTD Sales Amount]\n)",
+            "formatString": "0.00%",
+            "displayFolder": "Time intelligence\\To-date growth\\Sales Amount",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "PQTD Sales Amount",
+            "expression": "\nIF (\n    [_ShowValueForDates],\n    CALCULATE (\n        [QTD Sales Amount],\n        CALCULATETABLE (\n            DATEADD ( 'Date'[Date], -1, QUARTER ),\n            'Date'[DateWithTransactions] = TRUE\n        )\n    )\n)",
+            "displayFolder": "Time intelligence\\To-date growth\\Sales Amount",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "QOQTD Sales Amount",
+            "expression": "\nVAR __ValueCurrentPeriod = [QTD Sales Amount]\nVAR __ValuePreviousPeriod = [PQTD Sales Amount]\nVAR __Result =\n    IF (\n        NOT ISBLANK ( __ValueCurrentPeriod ) && NOT ISBLANK ( __ValuePreviousPeriod ),\n        __ValueCurrentPeriod - __ValuePreviousPeriod\n    )\nRETURN\n    __Result",
+            "displayFolder": "Time intelligence\\To-date growth\\Sales Amount",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "QOQTD % Sales Amount",
+            "expression": "\nDIVIDE ( \n    [QOQTD Sales Amount],\n    [PQTD Sales Amount]\n)",
+            "formatString": "0.00%",
+            "displayFolder": "Time intelligence\\To-date growth\\Sales Amount",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "PMTD Sales Amount",
+            "expression": "\nIF (\n    [_ShowValueForDates],\n    CALCULATE (\n        [MTD Sales Amount],\n        CALCULATETABLE (\n            DATEADD ( 'Date'[Date], -1, MONTH ),\n            'Date'[DateWithTransactions] = TRUE\n        )\n    )\n)",
+            "displayFolder": "Time intelligence\\To-date growth\\Sales Amount",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "MOMTD Sales Amount",
+            "expression": "\nVAR __ValueCurrentPeriod = [MTD Sales Amount]\nVAR __ValuePreviousPeriod = [PMTD Sales Amount]\nVAR __Result =\n    IF (\n        NOT ISBLANK ( __ValueCurrentPeriod ) && NOT ISBLANK ( __ValuePreviousPeriod ),\n        __ValueCurrentPeriod - __ValuePreviousPeriod\n    )\nRETURN\n    __Result",
+            "displayFolder": "Time intelligence\\To-date growth\\Sales Amount",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "MOMTD % Sales Amount",
+            "expression": "\nDIVIDE ( \n    [MOMTD Sales Amount],\n    [PMTD Sales Amount]\n)",
+            "formatString": "0.00%",
+            "displayFolder": "Time intelligence\\To-date growth\\Sales Amount",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "PYC Sales Amount",
+            "expression": "\nIF (\n    [_ShowValueForDates],\n    CALCULATE (\n        [Sales Amount],\n        PARALLELPERIOD ( 'Date'[Date], -1, YEAR )\n    )\n)",
+            "displayFolder": "Time intelligence\\Growth over full period\\Sales Amount",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "YTDOPY Sales Amount",
+            "expression": "\nVAR __ValueCurrentPeriod = [YTD Sales Amount]\nVAR __ValuePreviousPeriod = [PYC Sales Amount]\nVAR __Result =\n    IF (\n        NOT ISBLANK ( __ValueCurrentPeriod ) && NOT ISBLANK ( __ValuePreviousPeriod ),\n        __ValueCurrentPeriod - __ValuePreviousPeriod\n    )\nRETURN\n    __Result",
+            "displayFolder": "Time intelligence\\Growth over full period\\Sales Amount",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "YDTOPY % Sales Amount",
+            "expression": "\nDIVIDE ( \n    [YTDOPY Sales Amount],\n    [PYC Sales Amount]\n)",
+            "formatString": "0.00%",
+            "displayFolder": "Time intelligence\\Growth over full period\\Sales Amount",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "PQC Sales Amount",
+            "expression": "\nIF (\n    [_ShowValueForDates],\n    CALCULATE (\n        [Sales Amount],\n        PARALLELPERIOD ( 'Date'[Date], -1, QUARTER )\n    )\n)",
+            "displayFolder": "Time intelligence\\Growth over full period\\Sales Amount",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "QTDOPQ Sales Amount",
+            "expression": "\nVAR __ValueCurrentPeriod = [QTD Sales Amount]\nVAR __ValuePreviousPeriod = [PQC Sales Amount]\nVAR __Result =\n    IF (\n        NOT ISBLANK ( __ValueCurrentPeriod ) && NOT ISBLANK ( __ValuePreviousPeriod ),\n        __ValueCurrentPeriod - __ValuePreviousPeriod\n    )\nRETURN\n    __Result",
+            "displayFolder": "Time intelligence\\Growth over full period\\Sales Amount",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "QTDOPQ % Sales Amount",
+            "expression": "\nDIVIDE ( \n    [QTDOPQ Sales Amount],\n    [PQC Sales Amount]\n)",
+            "formatString": "0.00%",
+            "displayFolder": "Time intelligence\\Growth over full period\\Sales Amount",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "PMC Sales Amount",
+            "expression": "\nIF (\n    [_ShowValueForDates],\n    CALCULATE (\n        [Sales Amount],\n        PARALLELPERIOD ( 'Date'[Date], -1, MONTH )\n    )\n)",
+            "displayFolder": "Time intelligence\\Growth over full period\\Sales Amount",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "MTDOPM Sales Amount",
+            "expression": "\nVAR __ValueCurrentPeriod = [MTD Sales Amount]\nVAR __ValuePreviousPeriod = [PMC Sales Amount]\nVAR __Result =\n    IF (\n        NOT ISBLANK ( __ValueCurrentPeriod ) && NOT ISBLANK ( __ValuePreviousPeriod ),\n        __ValueCurrentPeriod - __ValuePreviousPeriod\n    )\nRETURN\n    __Result",
+            "displayFolder": "Time intelligence\\Growth over full period\\Sales Amount",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "MTDOPM % Sales Amount",
+            "expression": "\nDIVIDE ( \n    [MTDOPM Sales Amount],\n    [PMC Sales Amount]\n)",
+            "formatString": "0.00%",
+            "displayFolder": "Time intelligence\\Growth over full period\\Sales Amount",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "MAT Sales Amount",
+            "expression": "\nIF (\n    [_ShowValueForDates],\n    CALCULATE (\n        [Sales Amount],\n        DATESINPERIOD (\n            'Date'[Date],\n            MAX ( 'Date'[Date] ),\n            -1,\n            YEAR\n        )\n    )\n)",
+            "displayFolder": "Time intelligence\\Moving annual growth\\Sales Amount",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "PYMAT Sales Amount",
+            "expression": "\nIF (\n    [_ShowValueForDates],\n    CALCULATE (\n        [MAT Sales Amount],\n        DATEADD ( 'Date'[Date], -1, YEAR )\n    )\n)",
+            "displayFolder": "Time intelligence\\Moving annual growth\\Sales Amount",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "MATG Sales Amount",
+            "expression": "\nVAR __ValueCurrentPeriod = [MAT Sales Amount]\nVAR __ValuePreviousPeriod = [PYMAT Sales Amount]\nVAR __Result =\n    IF (\n        NOT ISBLANK ( __ValueCurrentPeriod ) && NOT ISBLANK ( __ValuePreviousPeriod ),\n        __ValueCurrentPeriod - __ValuePreviousPeriod\n    )\nRETURN\n    __Result",
+            "displayFolder": "Time intelligence\\Moving annual growth\\Sales Amount",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "MATG % Sales Amount",
+            "expression": "\nDIVIDE ( \n    [MATG Sales Amount],\n    [PYMAT Sales Amount]\n)",
+            "formatString": "0.00%",
+            "displayFolder": "Time intelligence\\Moving annual growth\\Sales Amount",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "YTD Total Cost",
+            "expression": "\nIF (\n    [_ShowValueForDates],\n    CALCULATE (\n        [Total Cost],\n        DATESYTD ( 'Date'[Date] )\n    )\n)",
+            "displayFolder": "Time intelligence\\To-date total\\Total Cost",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "QTD Total Cost",
+            "expression": "\nIF (\n    [_ShowValueForDates],\n    CALCULATE (\n        [Total Cost],\n        DATESQTD ( 'Date'[Date] )\n    )\n)",
+            "displayFolder": "Time intelligence\\To-date total\\Total Cost",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "MTD Total Cost",
+            "expression": "\nIF (\n    [_ShowValueForDates],\n    CALCULATE (\n        [Total Cost],\n        DATESMTD ( 'Date'[Date] )\n    )\n)",
+            "displayFolder": "Time intelligence\\To-date total\\Total Cost",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "PY Total Cost",
+            "expression": "\nIF (\n    [_ShowValueForDates],\n    CALCULATE (\n        [Total Cost],\n        CALCULATETABLE (\n            DATEADD ( 'Date'[Date], -1, YEAR ),\n            'Date'[DateWithTransactions] = TRUE\n        )\n    )\n)",
+            "displayFolder": "Time intelligence\\Growth\\Total Cost",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "YOY Total Cost",
+            "expression": "\nVAR __ValueCurrentPeriod = [Total Cost]\nVAR __ValuePreviousPeriod = [PY Total Cost]\nVAR __Result =\n    IF (\n        NOT ISBLANK ( __ValueCurrentPeriod ) && NOT ISBLANK ( __ValuePreviousPeriod ),\n        __ValueCurrentPeriod - __ValuePreviousPeriod\n    )\nRETURN\n    __Result",
+            "displayFolder": "Time intelligence\\Growth\\Total Cost",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "YOY % Total Cost",
+            "expression": "\nDIVIDE ( \n    [YOY Total Cost],\n    [PY Total Cost]\n)",
+            "formatString": "0.00%",
+            "displayFolder": "Time intelligence\\Growth\\Total Cost",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "PQ Total Cost",
+            "expression": "\nIF (\n    [_ShowValueForDates],\n    CALCULATE (\n        [Total Cost],\n        CALCULATETABLE (\n            DATEADD ( 'Date'[Date], -1, QUARTER ),\n            'Date'[DateWithTransactions] = TRUE\n        )\n    )\n)",
+            "displayFolder": "Time intelligence\\Growth\\Total Cost",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "QOQ Total Cost",
+            "expression": "\nVAR __ValueCurrentPeriod = [Total Cost]\nVAR __ValuePreviousPeriod = [PQ Total Cost]\nVAR __Result =\n    IF (\n        NOT ISBLANK ( __ValueCurrentPeriod ) && NOT ISBLANK ( __ValuePreviousPeriod ),\n        __ValueCurrentPeriod - __ValuePreviousPeriod\n    )\nRETURN\n    __Result",
+            "displayFolder": "Time intelligence\\Growth\\Total Cost",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "QOQ % Total Cost",
+            "expression": "\nDIVIDE ( \n    [QOQ Total Cost],\n    [PQ Total Cost]\n)",
+            "formatString": "0.00%",
+            "displayFolder": "Time intelligence\\Growth\\Total Cost",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "PM Total Cost",
+            "expression": "\nIF (\n    [_ShowValueForDates],\n    CALCULATE (\n        [Total Cost],\n        CALCULATETABLE (\n            DATEADD ( 'Date'[Date], -1, MONTH ),\n            'Date'[DateWithTransactions] = TRUE\n        )\n    )\n)",
+            "displayFolder": "Time intelligence\\Growth\\Total Cost",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "MOM Total Cost",
+            "expression": "\nVAR __ValueCurrentPeriod = [Total Cost]\nVAR __ValuePreviousPeriod = [PM Total Cost]\nVAR __Result =\n    IF (\n        NOT ISBLANK ( __ValueCurrentPeriod ) && NOT ISBLANK ( __ValuePreviousPeriod ),\n        __ValueCurrentPeriod - __ValuePreviousPeriod\n    )\nRETURN\n    __Result",
+            "displayFolder": "Time intelligence\\Growth\\Total Cost",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "MOM % Total Cost",
+            "expression": "\nDIVIDE ( \n    [MOM Total Cost],\n    [PM Total Cost]\n)",
+            "formatString": "0.00%",
+            "displayFolder": "Time intelligence\\Growth\\Total Cost",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "PYTD Total Cost",
+            "expression": "\nIF (\n    [_ShowValueForDates],\n    CALCULATE (\n        [YTD Total Cost],\n        CALCULATETABLE (\n            DATEADD ( 'Date'[Date], -1, YEAR ),\n            'Date'[DateWithTransactions] = TRUE\n        )\n    )\n)",
+            "displayFolder": "Time intelligence\\To-date growth\\Total Cost",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "YOYTD Total Cost",
+            "expression": "\nVAR __ValueCurrentPeriod = [YTD Total Cost]\nVAR __ValuePreviousPeriod = [PYTD Total Cost]\nVAR __Result =\n    IF (\n        NOT ISBLANK ( __ValueCurrentPeriod ) && NOT ISBLANK ( __ValuePreviousPeriod ),\n        __ValueCurrentPeriod - __ValuePreviousPeriod\n    )\nRETURN\n    __Result",
+            "displayFolder": "Time intelligence\\To-date growth\\Total Cost",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "YOYTD % Total Cost",
+            "expression": "\nDIVIDE ( \n    [YOYTD Total Cost],\n    [PYTD Total Cost]\n)",
+            "formatString": "0.00%",
+            "displayFolder": "Time intelligence\\To-date growth\\Total Cost",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "PQTD Total Cost",
+            "expression": "\nIF (\n    [_ShowValueForDates],\n    CALCULATE (\n        [QTD Total Cost],\n        CALCULATETABLE (\n            DATEADD ( 'Date'[Date], -1, QUARTER ),\n            'Date'[DateWithTransactions] = TRUE\n        )\n    )\n)",
+            "displayFolder": "Time intelligence\\To-date growth\\Total Cost",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "QOQTD Total Cost",
+            "expression": "\nVAR __ValueCurrentPeriod = [QTD Total Cost]\nVAR __ValuePreviousPeriod = [PQTD Total Cost]\nVAR __Result =\n    IF (\n        NOT ISBLANK ( __ValueCurrentPeriod ) && NOT ISBLANK ( __ValuePreviousPeriod ),\n        __ValueCurrentPeriod - __ValuePreviousPeriod\n    )\nRETURN\n    __Result",
+            "displayFolder": "Time intelligence\\To-date growth\\Total Cost",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "QOQTD % Total Cost",
+            "expression": "\nDIVIDE ( \n    [QOQTD Total Cost],\n    [PQTD Total Cost]\n)",
+            "formatString": "0.00%",
+            "displayFolder": "Time intelligence\\To-date growth\\Total Cost",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "PMTD Total Cost",
+            "expression": "\nIF (\n    [_ShowValueForDates],\n    CALCULATE (\n        [MTD Total Cost],\n        CALCULATETABLE (\n            DATEADD ( 'Date'[Date], -1, MONTH ),\n            'Date'[DateWithTransactions] = TRUE\n        )\n    )\n)",
+            "displayFolder": "Time intelligence\\To-date growth\\Total Cost",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "MOMTD Total Cost",
+            "expression": "\nVAR __ValueCurrentPeriod = [MTD Total Cost]\nVAR __ValuePreviousPeriod = [PMTD Total Cost]\nVAR __Result =\n    IF (\n        NOT ISBLANK ( __ValueCurrentPeriod ) && NOT ISBLANK ( __ValuePreviousPeriod ),\n        __ValueCurrentPeriod - __ValuePreviousPeriod\n    )\nRETURN\n    __Result",
+            "displayFolder": "Time intelligence\\To-date growth\\Total Cost",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "MOMTD % Total Cost",
+            "expression": "\nDIVIDE ( \n    [MOMTD Total Cost],\n    [PMTD Total Cost]\n)",
+            "formatString": "0.00%",
+            "displayFolder": "Time intelligence\\To-date growth\\Total Cost",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "PYC Total Cost",
+            "expression": "\nIF (\n    [_ShowValueForDates],\n    CALCULATE (\n        [Total Cost],\n        PARALLELPERIOD ( 'Date'[Date], -1, YEAR )\n    )\n)",
+            "displayFolder": "Time intelligence\\Growth over full period\\Total Cost",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "YTDOPY Total Cost",
+            "expression": "\nVAR __ValueCurrentPeriod = [YTD Total Cost]\nVAR __ValuePreviousPeriod = [PYC Total Cost]\nVAR __Result =\n    IF (\n        NOT ISBLANK ( __ValueCurrentPeriod ) && NOT ISBLANK ( __ValuePreviousPeriod ),\n        __ValueCurrentPeriod - __ValuePreviousPeriod\n    )\nRETURN\n    __Result",
+            "displayFolder": "Time intelligence\\Growth over full period\\Total Cost",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "YDTOPY % Total Cost",
+            "expression": "\nDIVIDE ( \n    [YTDOPY Total Cost],\n    [PYC Total Cost]\n)",
+            "formatString": "0.00%",
+            "displayFolder": "Time intelligence\\Growth over full period\\Total Cost",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "PQC Total Cost",
+            "expression": "\nIF (\n    [_ShowValueForDates],\n    CALCULATE (\n        [Total Cost],\n        PARALLELPERIOD ( 'Date'[Date], -1, QUARTER )\n    )\n)",
+            "displayFolder": "Time intelligence\\Growth over full period\\Total Cost",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "QTDOPQ Total Cost",
+            "expression": "\nVAR __ValueCurrentPeriod = [QTD Total Cost]\nVAR __ValuePreviousPeriod = [PQC Total Cost]\nVAR __Result =\n    IF (\n        NOT ISBLANK ( __ValueCurrentPeriod ) && NOT ISBLANK ( __ValuePreviousPeriod ),\n        __ValueCurrentPeriod - __ValuePreviousPeriod\n    )\nRETURN\n    __Result",
+            "displayFolder": "Time intelligence\\Growth over full period\\Total Cost",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "QTDOPQ % Total Cost",
+            "expression": "\nDIVIDE ( \n    [QTDOPQ Total Cost],\n    [PQC Total Cost]\n)",
+            "formatString": "0.00%",
+            "displayFolder": "Time intelligence\\Growth over full period\\Total Cost",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "PMC Total Cost",
+            "expression": "\nIF (\n    [_ShowValueForDates],\n    CALCULATE (\n        [Total Cost],\n        PARALLELPERIOD ( 'Date'[Date], -1, MONTH )\n    )\n)",
+            "displayFolder": "Time intelligence\\Growth over full period\\Total Cost",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "MTDOPM Total Cost",
+            "expression": "\nVAR __ValueCurrentPeriod = [MTD Total Cost]\nVAR __ValuePreviousPeriod = [PMC Total Cost]\nVAR __Result =\n    IF (\n        NOT ISBLANK ( __ValueCurrentPeriod ) && NOT ISBLANK ( __ValuePreviousPeriod ),\n        __ValueCurrentPeriod - __ValuePreviousPeriod\n    )\nRETURN\n    __Result",
+            "displayFolder": "Time intelligence\\Growth over full period\\Total Cost",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "MTDOPM % Total Cost",
+            "expression": "\nDIVIDE ( \n    [MTDOPM Total Cost],\n    [PMC Total Cost]\n)",
+            "formatString": "0.00%",
+            "displayFolder": "Time intelligence\\Growth over full period\\Total Cost",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "MAT Total Cost",
+            "expression": "\nIF (\n    [_ShowValueForDates],\n    CALCULATE (\n        [Total Cost],\n        DATESINPERIOD (\n            'Date'[Date],\n            MAX ( 'Date'[Date] ),\n            -1,\n            YEAR\n        )\n    )\n)",
+            "displayFolder": "Time intelligence\\Moving annual growth\\Total Cost",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "PYMAT Total Cost",
+            "expression": "\nIF (\n    [_ShowValueForDates],\n    CALCULATE (\n        [MAT Total Cost],\n        DATEADD ( 'Date'[Date], -1, YEAR )\n    )\n)",
+            "displayFolder": "Time intelligence\\Moving annual growth\\Total Cost",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "MATG Total Cost",
+            "expression": "\nVAR __ValueCurrentPeriod = [MAT Total Cost]\nVAR __ValuePreviousPeriod = [PYMAT Total Cost]\nVAR __Result =\n    IF (\n        NOT ISBLANK ( __ValueCurrentPeriod ) && NOT ISBLANK ( __ValuePreviousPeriod ),\n        __ValueCurrentPeriod - __ValuePreviousPeriod\n    )\nRETURN\n    __Result",
+            "displayFolder": "Time intelligence\\Moving annual growth\\Total Cost",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "MATG % Total Cost",
+            "expression": "\nDIVIDE ( \n    [MATG Total Cost],\n    [PYMAT Total Cost]\n)",
+            "formatString": "0.00%",
+            "displayFolder": "Time intelligence\\Moving annual growth\\Total Cost",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "YTD Margin",
+            "expression": "\nIF (\n    [_ShowValueForDates],\n    CALCULATE (\n        [Margin],\n        DATESYTD ( 'Date'[Date] )\n    )\n)",
+            "displayFolder": "Time intelligence\\To-date total\\Margin",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "QTD Margin",
+            "expression": "\nIF (\n    [_ShowValueForDates],\n    CALCULATE (\n        [Margin],\n        DATESQTD ( 'Date'[Date] )\n    )\n)",
+            "displayFolder": "Time intelligence\\To-date total\\Margin",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "MTD Margin",
+            "expression": "\nIF (\n    [_ShowValueForDates],\n    CALCULATE (\n        [Margin],\n        DATESMTD ( 'Date'[Date] )\n    )\n)",
+            "displayFolder": "Time intelligence\\To-date total\\Margin",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "PY Margin",
+            "expression": "\nIF (\n    [_ShowValueForDates],\n    CALCULATE (\n        [Margin],\n        CALCULATETABLE (\n            DATEADD ( 'Date'[Date], -1, YEAR ),\n            'Date'[DateWithTransactions] = TRUE\n        )\n    )\n)",
+            "displayFolder": "Time intelligence\\Growth\\Margin",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "YOY Margin",
+            "expression": "\nVAR __ValueCurrentPeriod = [Margin]\nVAR __ValuePreviousPeriod = [PY Margin]\nVAR __Result =\n    IF (\n        NOT ISBLANK ( __ValueCurrentPeriod ) && NOT ISBLANK ( __ValuePreviousPeriod ),\n        __ValueCurrentPeriod - __ValuePreviousPeriod\n    )\nRETURN\n    __Result",
+            "displayFolder": "Time intelligence\\Growth\\Margin",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "YOY % Margin",
+            "expression": "\nDIVIDE ( \n    [YOY Margin],\n    [PY Margin]\n)",
+            "formatString": "0.00%",
+            "displayFolder": "Time intelligence\\Growth\\Margin",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "PQ Margin",
+            "expression": "\nIF (\n    [_ShowValueForDates],\n    CALCULATE (\n        [Margin],\n        CALCULATETABLE (\n            DATEADD ( 'Date'[Date], -1, QUARTER ),\n            'Date'[DateWithTransactions] = TRUE\n        )\n    )\n)",
+            "displayFolder": "Time intelligence\\Growth\\Margin",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "QOQ Margin",
+            "expression": "\nVAR __ValueCurrentPeriod = [Margin]\nVAR __ValuePreviousPeriod = [PQ Margin]\nVAR __Result =\n    IF (\n        NOT ISBLANK ( __ValueCurrentPeriod ) && NOT ISBLANK ( __ValuePreviousPeriod ),\n        __ValueCurrentPeriod - __ValuePreviousPeriod\n    )\nRETURN\n    __Result",
+            "displayFolder": "Time intelligence\\Growth\\Margin",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "QOQ % Margin",
+            "expression": "\nDIVIDE ( \n    [QOQ Margin],\n    [PQ Margin]\n)",
+            "formatString": "0.00%",
+            "displayFolder": "Time intelligence\\Growth\\Margin",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "PM Margin",
+            "expression": "\nIF (\n    [_ShowValueForDates],\n    CALCULATE (\n        [Margin],\n        CALCULATETABLE (\n            DATEADD ( 'Date'[Date], -1, MONTH ),\n            'Date'[DateWithTransactions] = TRUE\n        )\n    )\n)",
+            "displayFolder": "Time intelligence\\Growth\\Margin",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "MOM Margin",
+            "expression": "\nVAR __ValueCurrentPeriod = [Margin]\nVAR __ValuePreviousPeriod = [PM Margin]\nVAR __Result =\n    IF (\n        NOT ISBLANK ( __ValueCurrentPeriod ) && NOT ISBLANK ( __ValuePreviousPeriod ),\n        __ValueCurrentPeriod - __ValuePreviousPeriod\n    )\nRETURN\n    __Result",
+            "displayFolder": "Time intelligence\\Growth\\Margin",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "MOM % Margin",
+            "expression": "\nDIVIDE ( \n    [MOM Margin],\n    [PM Margin]\n)",
+            "formatString": "0.00%",
+            "displayFolder": "Time intelligence\\Growth\\Margin",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "PYTD Margin",
+            "expression": "\nIF (\n    [_ShowValueForDates],\n    CALCULATE (\n        [YTD Margin],\n        CALCULATETABLE (\n            DATEADD ( 'Date'[Date], -1, YEAR ),\n            'Date'[DateWithTransactions] = TRUE\n        )\n    )\n)",
+            "displayFolder": "Time intelligence\\To-date growth\\Margin",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "YOYTD Margin",
+            "expression": "\nVAR __ValueCurrentPeriod = [YTD Margin]\nVAR __ValuePreviousPeriod = [PYTD Margin]\nVAR __Result =\n    IF (\n        NOT ISBLANK ( __ValueCurrentPeriod ) && NOT ISBLANK ( __ValuePreviousPeriod ),\n        __ValueCurrentPeriod - __ValuePreviousPeriod\n    )\nRETURN\n    __Result",
+            "displayFolder": "Time intelligence\\To-date growth\\Margin",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "YOYTD % Margin",
+            "expression": "\nDIVIDE ( \n    [YOYTD Margin],\n    [PYTD Margin]\n)",
+            "formatString": "0.00%",
+            "displayFolder": "Time intelligence\\To-date growth\\Margin",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "PQTD Margin",
+            "expression": "\nIF (\n    [_ShowValueForDates],\n    CALCULATE (\n        [QTD Margin],\n        CALCULATETABLE (\n            DATEADD ( 'Date'[Date], -1, QUARTER ),\n            'Date'[DateWithTransactions] = TRUE\n        )\n    )\n)",
+            "displayFolder": "Time intelligence\\To-date growth\\Margin",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "QOQTD Margin",
+            "expression": "\nVAR __ValueCurrentPeriod = [QTD Margin]\nVAR __ValuePreviousPeriod = [PQTD Margin]\nVAR __Result =\n    IF (\n        NOT ISBLANK ( __ValueCurrentPeriod ) && NOT ISBLANK ( __ValuePreviousPeriod ),\n        __ValueCurrentPeriod - __ValuePreviousPeriod\n    )\nRETURN\n    __Result",
+            "displayFolder": "Time intelligence\\To-date growth\\Margin",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "QOQTD % Margin",
+            "expression": "\nDIVIDE ( \n    [QOQTD Margin],\n    [PQTD Margin]\n)",
+            "formatString": "0.00%",
+            "displayFolder": "Time intelligence\\To-date growth\\Margin",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "PMTD Margin",
+            "expression": "\nIF (\n    [_ShowValueForDates],\n    CALCULATE (\n        [MTD Margin],\n        CALCULATETABLE (\n            DATEADD ( 'Date'[Date], -1, MONTH ),\n            'Date'[DateWithTransactions] = TRUE\n        )\n    )\n)",
+            "displayFolder": "Time intelligence\\To-date growth\\Margin",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "MOMTD Margin",
+            "expression": "\nVAR __ValueCurrentPeriod = [MTD Margin]\nVAR __ValuePreviousPeriod = [PMTD Margin]\nVAR __Result =\n    IF (\n        NOT ISBLANK ( __ValueCurrentPeriod ) && NOT ISBLANK ( __ValuePreviousPeriod ),\n        __ValueCurrentPeriod - __ValuePreviousPeriod\n    )\nRETURN\n    __Result",
+            "displayFolder": "Time intelligence\\To-date growth\\Margin",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "MOMTD % Margin",
+            "expression": "\nDIVIDE ( \n    [MOMTD Margin],\n    [PMTD Margin]\n)",
+            "formatString": "0.00%",
+            "displayFolder": "Time intelligence\\To-date growth\\Margin",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "PYC Margin",
+            "expression": "\nIF (\n    [_ShowValueForDates],\n    CALCULATE (\n        [Margin],\n        PARALLELPERIOD ( 'Date'[Date], -1, YEAR )\n    )\n)",
+            "displayFolder": "Time intelligence\\Growth over full period\\Margin",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "YTDOPY Margin",
+            "expression": "\nVAR __ValueCurrentPeriod = [YTD Margin]\nVAR __ValuePreviousPeriod = [PYC Margin]\nVAR __Result =\n    IF (\n        NOT ISBLANK ( __ValueCurrentPeriod ) && NOT ISBLANK ( __ValuePreviousPeriod ),\n        __ValueCurrentPeriod - __ValuePreviousPeriod\n    )\nRETURN\n    __Result",
+            "displayFolder": "Time intelligence\\Growth over full period\\Margin",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "YDTOPY % Margin",
+            "expression": "\nDIVIDE ( \n    [YTDOPY Margin],\n    [PYC Margin]\n)",
+            "formatString": "0.00%",
+            "displayFolder": "Time intelligence\\Growth over full period\\Margin",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "PQC Margin",
+            "expression": "\nIF (\n    [_ShowValueForDates],\n    CALCULATE (\n        [Margin],\n        PARALLELPERIOD ( 'Date'[Date], -1, QUARTER )\n    )\n)",
+            "displayFolder": "Time intelligence\\Growth over full period\\Margin",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "QTDOPQ Margin",
+            "expression": "\nVAR __ValueCurrentPeriod = [QTD Margin]\nVAR __ValuePreviousPeriod = [PQC Margin]\nVAR __Result =\n    IF (\n        NOT ISBLANK ( __ValueCurrentPeriod ) && NOT ISBLANK ( __ValuePreviousPeriod ),\n        __ValueCurrentPeriod - __ValuePreviousPeriod\n    )\nRETURN\n    __Result",
+            "displayFolder": "Time intelligence\\Growth over full period\\Margin",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "QTDOPQ % Margin",
+            "expression": "\nDIVIDE ( \n    [QTDOPQ Margin],\n    [PQC Margin]\n)",
+            "formatString": "0.00%",
+            "displayFolder": "Time intelligence\\Growth over full period\\Margin",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "PMC Margin",
+            "expression": "\nIF (\n    [_ShowValueForDates],\n    CALCULATE (\n        [Margin],\n        PARALLELPERIOD ( 'Date'[Date], -1, MONTH )\n    )\n)",
+            "displayFolder": "Time intelligence\\Growth over full period\\Margin",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "MTDOPM Margin",
+            "expression": "\nVAR __ValueCurrentPeriod = [MTD Margin]\nVAR __ValuePreviousPeriod = [PMC Margin]\nVAR __Result =\n    IF (\n        NOT ISBLANK ( __ValueCurrentPeriod ) && NOT ISBLANK ( __ValuePreviousPeriod ),\n        __ValueCurrentPeriod - __ValuePreviousPeriod\n    )\nRETURN\n    __Result",
+            "displayFolder": "Time intelligence\\Growth over full period\\Margin",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "MTDOPM % Margin",
+            "expression": "\nDIVIDE ( \n    [MTDOPM Margin],\n    [PMC Margin]\n)",
+            "formatString": "0.00%",
+            "displayFolder": "Time intelligence\\Growth over full period\\Margin",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "MAT Margin",
+            "expression": "\nIF (\n    [_ShowValueForDates],\n    CALCULATE (\n        [Margin],\n        DATESINPERIOD (\n            'Date'[Date],\n            MAX ( 'Date'[Date] ),\n            -1,\n            YEAR\n        )\n    )\n)",
+            "displayFolder": "Time intelligence\\Moving annual growth\\Margin",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "PYMAT Margin",
+            "expression": "\nIF (\n    [_ShowValueForDates],\n    CALCULATE (\n        [MAT Margin],\n        DATEADD ( 'Date'[Date], -1, YEAR )\n    )\n)",
+            "displayFolder": "Time intelligence\\Moving annual growth\\Margin",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "MATG Margin",
+            "expression": "\nVAR __ValueCurrentPeriod = [MAT Margin]\nVAR __ValuePreviousPeriod = [PYMAT Margin]\nVAR __Result =\n    IF (\n        NOT ISBLANK ( __ValueCurrentPeriod ) && NOT ISBLANK ( __ValuePreviousPeriod ),\n        __ValueCurrentPeriod - __ValuePreviousPeriod\n    )\nRETURN\n    __Result",
+            "displayFolder": "Time intelligence\\Moving annual growth\\Margin",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "MATG % Margin",
+            "expression": "\nDIVIDE ( \n    [MATG Margin],\n    [PYMAT Margin]\n)",
+            "formatString": "0.00%",
+            "displayFolder": "Time intelligence\\Moving annual growth\\Margin",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "YTD Margin %",
+            "expression": "\nIF (\n    [_ShowValueForDates],\n    CALCULATE (\n        [Margin %],\n        DATESYTD ( 'Date'[Date] )\n    )\n)",
+            "displayFolder": "Time intelligence\\To-date total\\Margin %",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "QTD Margin %",
+            "expression": "\nIF (\n    [_ShowValueForDates],\n    CALCULATE (\n        [Margin %],\n        DATESQTD ( 'Date'[Date] )\n    )\n)",
+            "displayFolder": "Time intelligence\\To-date total\\Margin %",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "MTD Margin %",
+            "expression": "\nIF (\n    [_ShowValueForDates],\n    CALCULATE (\n        [Margin %],\n        DATESMTD ( 'Date'[Date] )\n    )\n)",
+            "displayFolder": "Time intelligence\\To-date total\\Margin %",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "PY Margin %",
+            "expression": "\nIF (\n    [_ShowValueForDates],\n    CALCULATE (\n        [Margin %],\n        CALCULATETABLE (\n            DATEADD ( 'Date'[Date], -1, YEAR ),\n            'Date'[DateWithTransactions] = TRUE\n        )\n    )\n)",
+            "displayFolder": "Time intelligence\\Growth\\Margin %",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "YOY Margin %",
+            "expression": "\nVAR __ValueCurrentPeriod = [Margin %]\nVAR __ValuePreviousPeriod = [PY Margin %]\nVAR __Result =\n    IF (\n        NOT ISBLANK ( __ValueCurrentPeriod ) && NOT ISBLANK ( __ValuePreviousPeriod ),\n        __ValueCurrentPeriod - __ValuePreviousPeriod\n    )\nRETURN\n    __Result",
+            "displayFolder": "Time intelligence\\Growth\\Margin %",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "YOY % Margin %",
+            "expression": "\nDIVIDE ( \n    [YOY Margin %],\n    [PY Margin %]\n)",
+            "formatString": "0.00%",
+            "displayFolder": "Time intelligence\\Growth\\Margin %",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "PQ Margin %",
+            "expression": "\nIF (\n    [_ShowValueForDates],\n    CALCULATE (\n        [Margin %],\n        CALCULATETABLE (\n            DATEADD ( 'Date'[Date], -1, QUARTER ),\n            'Date'[DateWithTransactions] = TRUE\n        )\n    )\n)",
+            "displayFolder": "Time intelligence\\Growth\\Margin %",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "QOQ Margin %",
+            "expression": "\nVAR __ValueCurrentPeriod = [Margin %]\nVAR __ValuePreviousPeriod = [PQ Margin %]\nVAR __Result =\n    IF (\n        NOT ISBLANK ( __ValueCurrentPeriod ) && NOT ISBLANK ( __ValuePreviousPeriod ),\n        __ValueCurrentPeriod - __ValuePreviousPeriod\n    )\nRETURN\n    __Result",
+            "displayFolder": "Time intelligence\\Growth\\Margin %",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "QOQ % Margin %",
+            "expression": "\nDIVIDE ( \n    [QOQ Margin %],\n    [PQ Margin %]\n)",
+            "formatString": "0.00%",
+            "displayFolder": "Time intelligence\\Growth\\Margin %",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "PM Margin %",
+            "expression": "\nIF (\n    [_ShowValueForDates],\n    CALCULATE (\n        [Margin %],\n        CALCULATETABLE (\n            DATEADD ( 'Date'[Date], -1, MONTH ),\n            'Date'[DateWithTransactions] = TRUE\n        )\n    )\n)",
+            "displayFolder": "Time intelligence\\Growth\\Margin %",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "MOM Margin %",
+            "expression": "\nVAR __ValueCurrentPeriod = [Margin %]\nVAR __ValuePreviousPeriod = [PM Margin %]\nVAR __Result =\n    IF (\n        NOT ISBLANK ( __ValueCurrentPeriod ) && NOT ISBLANK ( __ValuePreviousPeriod ),\n        __ValueCurrentPeriod - __ValuePreviousPeriod\n    )\nRETURN\n    __Result",
+            "displayFolder": "Time intelligence\\Growth\\Margin %",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "MOM % Margin %",
+            "expression": "\nDIVIDE ( \n    [MOM Margin %],\n    [PM Margin %]\n)",
+            "formatString": "0.00%",
+            "displayFolder": "Time intelligence\\Growth\\Margin %",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "PYTD Margin %",
+            "expression": "\nIF (\n    [_ShowValueForDates],\n    CALCULATE (\n        [YTD Margin %],\n        CALCULATETABLE (\n            DATEADD ( 'Date'[Date], -1, YEAR ),\n            'Date'[DateWithTransactions] = TRUE\n        )\n    )\n)",
+            "displayFolder": "Time intelligence\\To-date growth\\Margin %",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "YOYTD Margin %",
+            "expression": "\nVAR __ValueCurrentPeriod = [YTD Margin %]\nVAR __ValuePreviousPeriod = [PYTD Margin %]\nVAR __Result =\n    IF (\n        NOT ISBLANK ( __ValueCurrentPeriod ) && NOT ISBLANK ( __ValuePreviousPeriod ),\n        __ValueCurrentPeriod - __ValuePreviousPeriod\n    )\nRETURN\n    __Result",
+            "displayFolder": "Time intelligence\\To-date growth\\Margin %",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "YOYTD % Margin %",
+            "expression": "\nDIVIDE ( \n    [YOYTD Margin %],\n    [PYTD Margin %]\n)",
+            "formatString": "0.00%",
+            "displayFolder": "Time intelligence\\To-date growth\\Margin %",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "PQTD Margin %",
+            "expression": "\nIF (\n    [_ShowValueForDates],\n    CALCULATE (\n        [QTD Margin %],\n        CALCULATETABLE (\n            DATEADD ( 'Date'[Date], -1, QUARTER ),\n            'Date'[DateWithTransactions] = TRUE\n        )\n    )\n)",
+            "displayFolder": "Time intelligence\\To-date growth\\Margin %",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "QOQTD Margin %",
+            "expression": "\nVAR __ValueCurrentPeriod = [QTD Margin %]\nVAR __ValuePreviousPeriod = [PQTD Margin %]\nVAR __Result =\n    IF (\n        NOT ISBLANK ( __ValueCurrentPeriod ) && NOT ISBLANK ( __ValuePreviousPeriod ),\n        __ValueCurrentPeriod - __ValuePreviousPeriod\n    )\nRETURN\n    __Result",
+            "displayFolder": "Time intelligence\\To-date growth\\Margin %",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "QOQTD % Margin %",
+            "expression": "\nDIVIDE ( \n    [QOQTD Margin %],\n    [PQTD Margin %]\n)",
+            "formatString": "0.00%",
+            "displayFolder": "Time intelligence\\To-date growth\\Margin %",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "PMTD Margin %",
+            "expression": "\nIF (\n    [_ShowValueForDates],\n    CALCULATE (\n        [MTD Margin %],\n        CALCULATETABLE (\n            DATEADD ( 'Date'[Date], -1, MONTH ),\n            'Date'[DateWithTransactions] = TRUE\n        )\n    )\n)",
+            "displayFolder": "Time intelligence\\To-date growth\\Margin %",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "MOMTD Margin %",
+            "expression": "\nVAR __ValueCurrentPeriod = [MTD Margin %]\nVAR __ValuePreviousPeriod = [PMTD Margin %]\nVAR __Result =\n    IF (\n        NOT ISBLANK ( __ValueCurrentPeriod ) && NOT ISBLANK ( __ValuePreviousPeriod ),\n        __ValueCurrentPeriod - __ValuePreviousPeriod\n    )\nRETURN\n    __Result",
+            "displayFolder": "Time intelligence\\To-date growth\\Margin %",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "MOMTD % Margin %",
+            "expression": "\nDIVIDE ( \n    [MOMTD Margin %],\n    [PMTD Margin %]\n)",
+            "formatString": "0.00%",
+            "displayFolder": "Time intelligence\\To-date growth\\Margin %",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "PYC Margin %",
+            "expression": "\nIF (\n    [_ShowValueForDates],\n    CALCULATE (\n        [Margin %],\n        PARALLELPERIOD ( 'Date'[Date], -1, YEAR )\n    )\n)",
+            "displayFolder": "Time intelligence\\Growth over full period\\Margin %",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "YTDOPY Margin %",
+            "expression": "\nVAR __ValueCurrentPeriod = [YTD Margin %]\nVAR __ValuePreviousPeriod = [PYC Margin %]\nVAR __Result =\n    IF (\n        NOT ISBLANK ( __ValueCurrentPeriod ) && NOT ISBLANK ( __ValuePreviousPeriod ),\n        __ValueCurrentPeriod - __ValuePreviousPeriod\n    )\nRETURN\n    __Result",
+            "displayFolder": "Time intelligence\\Growth over full period\\Margin %",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "YDTOPY % Margin %",
+            "expression": "\nDIVIDE ( \n    [YTDOPY Margin %],\n    [PYC Margin %]\n)",
+            "formatString": "0.00%",
+            "displayFolder": "Time intelligence\\Growth over full period\\Margin %",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "PQC Margin %",
+            "expression": "\nIF (\n    [_ShowValueForDates],\n    CALCULATE (\n        [Margin %],\n        PARALLELPERIOD ( 'Date'[Date], -1, QUARTER )\n    )\n)",
+            "displayFolder": "Time intelligence\\Growth over full period\\Margin %",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "QTDOPQ Margin %",
+            "expression": "\nVAR __ValueCurrentPeriod = [QTD Margin %]\nVAR __ValuePreviousPeriod = [PQC Margin %]\nVAR __Result =\n    IF (\n        NOT ISBLANK ( __ValueCurrentPeriod ) && NOT ISBLANK ( __ValuePreviousPeriod ),\n        __ValueCurrentPeriod - __ValuePreviousPeriod\n    )\nRETURN\n    __Result",
+            "displayFolder": "Time intelligence\\Growth over full period\\Margin %",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "QTDOPQ % Margin %",
+            "expression": "\nDIVIDE ( \n    [QTDOPQ Margin %],\n    [PQC Margin %]\n)",
+            "formatString": "0.00%",
+            "displayFolder": "Time intelligence\\Growth over full period\\Margin %",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "PMC Margin %",
+            "expression": "\nIF (\n    [_ShowValueForDates],\n    CALCULATE (\n        [Margin %],\n        PARALLELPERIOD ( 'Date'[Date], -1, MONTH )\n    )\n)",
+            "displayFolder": "Time intelligence\\Growth over full period\\Margin %",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "MTDOPM Margin %",
+            "expression": "\nVAR __ValueCurrentPeriod = [MTD Margin %]\nVAR __ValuePreviousPeriod = [PMC Margin %]\nVAR __Result =\n    IF (\n        NOT ISBLANK ( __ValueCurrentPeriod ) && NOT ISBLANK ( __ValuePreviousPeriod ),\n        __ValueCurrentPeriod - __ValuePreviousPeriod\n    )\nRETURN\n    __Result",
+            "displayFolder": "Time intelligence\\Growth over full period\\Margin %",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "MTDOPM % Margin %",
+            "expression": "\nDIVIDE ( \n    [MTDOPM Margin %],\n    [PMC Margin %]\n)",
+            "formatString": "0.00%",
+            "displayFolder": "Time intelligence\\Growth over full period\\Margin %",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "MAT Margin %",
+            "expression": "\nIF (\n    [_ShowValueForDates],\n    CALCULATE (\n        [Margin %],\n        DATESINPERIOD (\n            'Date'[Date],\n            MAX ( 'Date'[Date] ),\n            -1,\n            YEAR\n        )\n    )\n)",
+            "displayFolder": "Time intelligence\\Moving annual growth\\Margin %",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "PYMAT Margin %",
+            "expression": "\nIF (\n    [_ShowValueForDates],\n    CALCULATE (\n        [MAT Margin %],\n        DATEADD ( 'Date'[Date], -1, YEAR )\n    )\n)",
+            "displayFolder": "Time intelligence\\Moving annual growth\\Margin %",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "MATG Margin %",
+            "expression": "\nVAR __ValueCurrentPeriod = [MAT Margin %]\nVAR __ValuePreviousPeriod = [PYMAT Margin %]\nVAR __Result =\n    IF (\n        NOT ISBLANK ( __ValueCurrentPeriod ) && NOT ISBLANK ( __ValuePreviousPeriod ),\n        __ValueCurrentPeriod - __ValuePreviousPeriod\n    )\nRETURN\n    __Result",
+            "displayFolder": "Time intelligence\\Moving annual growth\\Margin %",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          },
+          {
+            "name": "MATG % Margin %",
+            "expression": "\nDIVIDE ( \n    [MATG Margin %],\n    [PYMAT Margin %]\n)",
+            "formatString": "0.00%",
+            "displayFolder": "Time intelligence\\Moving annual growth\\Margin %",
+            "annotations": [
+              {
+                "name": "SQLBI_Template",
+                "value": "TimeIntelligence"
+              },
+              {
+                "name": "SQLBI_TimeIntelligence",
+                "value": "Standard"
+              },
+              {
+                "name": "SQLBI_CalendarType",
+                "value": "Calendar"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Orders",
+        "columns": [
+          {
+            "name": "Delivery Date",
+            "dataType": "dateTime",
+            "sourceColumn": "Delivery Date"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Orders",
+            "source": {
+              "type": "calculated",
+              "expression": "{ (DATE(2020,1,1)) }"
+            }
+          }
+        ]
+      },
+      {
+        "name": "HolidaysDefinition",
+        "isHidden": true,
+        "lineageTag": "",
+        "columns": [
+          {
+            "type": "calculatedTableColumn",
+            "name": "ISO Country",
+            "dataType": "string",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "sourceColumn": "[ISO Country]",
+            "lineageTag": "",
+            "summarizeBy": "none"
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "MonthNumber",
+            "dataType": "int64",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "sourceColumn": "[MonthNumber]",
+            "lineageTag": "",
+            "summarizeBy": "none"
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "DayNumber",
+            "dataType": "int64",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "sourceColumn": "[DayNumber]",
+            "lineageTag": "",
+            "summarizeBy": "none"
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "WeekDayNumber",
+            "dataType": "int64",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "sourceColumn": "[WeekDayNumber]",
+            "lineageTag": "",
+            "summarizeBy": "none"
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "OffsetWeek",
+            "dataType": "int64",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "sourceColumn": "[OffsetWeek]",
+            "lineageTag": "",
+            "summarizeBy": "none"
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "OffsetDays",
+            "dataType": "int64",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "sourceColumn": "[OffsetDays]",
+            "lineageTag": "",
+            "summarizeBy": "none"
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "HolidayName",
+            "dataType": "string",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "sourceColumn": "[HolidayName]",
+            "lineageTag": "",
+            "summarizeBy": "none"
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "SubstituteHoliday",
+            "dataType": "int64",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "sourceColumn": "[SubstituteHoliday]",
+            "lineageTag": "",
+            "summarizeBy": "none"
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "ConflictPriority",
+            "dataType": "int64",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "sourceColumn": "[ConflictPriority]",
+            "lineageTag": "",
+            "summarizeBy": "none"
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "FirstYear",
+            "dataType": "int64",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "sourceColumn": "[FirstYear]",
+            "lineageTag": "",
+            "summarizeBy": "none"
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "LastYear",
+            "dataType": "int64",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "sourceColumn": "[LastYear]",
+            "lineageTag": "",
+            "summarizeBy": "none"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "HolidaysDefinition",
+            "mode": "import",
+            "source": {
+              "type": "calculated",
+              "expression": "\r\nDATATABLE (\r\n    \"ISO Country\", STRING,        -- ISO country code(to enable filter based on country)\r\n    \"MonthNumber\", INTEGER,       -- Number of month - use 99,98,97,96 for relative dates using an offset over special references:\r\n                                  --     99 = Easter (DayNumber 1 = Easter Monday, DayNumber -2 = Easter Friday)\r\n                                  --     98 = Swedish Midsummer Day \r\n                                  --     97 = September Equinox\r\n                                  --     96 = March Equinox\r\n    \"DayNumber\", INTEGER,         -- Absolute day(ignore WeekDayNumber, otherwise use 0)\r\n    \"WeekDayNumber\", INTEGER,     -- 0 = Sunday, 1 = Monday, ... , 7 = Saturday\r\n    \"OffsetWeek\", INTEGER,        -- 1 = first, 2 = second, ... -1 = last, -2 = second - last, ...\r\n    \"OffsetDays\", INTEGER,        -- days to add after offsetWeek and WeekDayNumber have been applied\r\n    \"HolidayName\", STRING,        -- Holiday name\r\n    \"SubstituteHoliday\", INTEGER, -- 0 = no substituteHoliday, 1 = substitute holiday with next working day, 2 = substitute holiday with next working day\r\n                                  -- (use 2 before 1 only, e.g.Christmas = 2, Boxing Day = 1)\r\n                                  -- -1 = if it falls on a Saturday then it is observed on Friday, if it falls on a Sunday then it is observed on Monday\r\n    \"ConflictPriority\", INTEGER,  -- Priority in case of two or more holidays in the same date - lower number-- > higher priority\r\n                                  -- For example: marking Easter relative days with 150 and other holidays with 100 means that other holidays take\r\n                                  --              precedence over Easter - related days; use 50 for Easter related holidays to invert such a priority\r\n    \"FirstYear\", INTEGER,         -- First year for the holiday, 0 if it is not defined\r\n    \"LastYear\", INTEGER,          -- Last year for the holiday, 0 if it is not defined\r\n    {\r\n        { \"US\", 1, 1, 0, 0, 0, \"New Year's Day\", 0, 100, 0, 0 },\r\n        { \"US\", 1, 0, 1, 3, 0, \"Martin Luther King, Jr.\", 0, 100, 0, 0 },\r\n        { \"US\", 2, 0, 1, 3, 0, \"Presidents' Day\", 0, 100, 0, 0 },\r\n        { \"US\", 5, 0, 1, -1, 0, \"Memorial Day\", 0, 100, 0, 0 },\r\n        { \"US\", 6, 19, 0, 0, 0, \"Juneteenth\", -1, 100, 2021, 0 },\r\n        { \"US\", 7, 4, 0, 0, 0, \"Independence Day\", 0, 100, 0, 0 },\r\n        { \"US\", 9, 0, 1, 1, 0, \"Labor Day\", 0, 100, 0, 0 },\r\n        { \"US\", 10, 0, 1, 2, 0, \"Columbus Day\", 0, 100, 0, 0 },\r\n        { \"US\", 11, 11, 0, 0, 0, \"Veterans Day\", 0, 100, 0, 0 },\r\n        { \"US\", 11, 0, 4, 4, 0, \"Thanksgiving Day\", 0, 100, 0, 0 },\r\n        { \"US\", 11, 0, 4, 4, 1, \"Black Friday\", 0, 100, 0, 0 },\r\n        { \"US\", 12, 25, 0, 0, 0, \"Christmas Day\", -1, 100, 0, 0 },\r\n        { \"AT\", 1, 1, 0, 0, 0, \"New Year's Day\", 0, 100, 0, 0 },\r\n        { \"AT\", 1, 6, 0, 0, 0, \"Epiphany\", 0, 100, 0, 0 },\r\n        { \"AT\", 99, 1, 0, 0, 0, \"Easter Monday\", 0, 50, 0, 0 },\r\n        { \"AT\", 5, 1, 0, 0, 0, \"Labour Day\", 0, 100, 0, 0 },\r\n        { \"AT\", 99, 39, 0, 0, 0, \"Ascension Day\", 0, 50, 0, 0 },\r\n        { \"AT\", 99, 50, 0, 0, 0, \"Whit Monday\", 0, 50, 0, 0 },\r\n        { \"AT\", 99, 60, 0, 0, 0, \"Corpus Christi\", 0, 50, 0, 0 },\r\n        { \"AT\", 8, 15, 0, 0, 0, \"Assumption Day\", 0, 100, 0, 0 },\r\n        { \"AT\", 10, 26, 0, 0, 0, \"National Day\", 0, 100, 0, 0 },\r\n        { \"AT\", 11, 1, 0, 0, 0, \"All Saints' Day\", 0, 100, 0, 0 },\r\n        { \"AT\", 12, 8, 0, 0, 0, \"Immaculate Conception Day\", 0, 100, 0, 0 },\r\n        { \"AT\", 12, 25, 0, 0, 0, \"Christmas Day\", 0, 100, 0, 0 },\r\n        { \"AT\", 12, 26, 0, 0, 0, \"St. Stephen's Day\", 0, 100, 0, 0 },\r\n        { \"AU\", 1, 1, 0, 0, 0, \"New Year's Day\", 1, 100, 0, 0 },\r\n        { \"AU\", 1, 26, 0, 0, 0, \"Australia Day\", 1, 100, 0, 0 },\r\n        { \"AU\", 99, -1, 0, 0, 0, \"Good Friday\", 0, 50, 0, 0 },\r\n        { \"AU\", 99, 1, 0, 0, 0, \"Easter Monday\", 0, 50, 0, 0 },\r\n        { \"AU\", 4, 25, 0, 0, 0, \"Anzac Day\", 1, 100, 0, 0 },\r\n        { \"AU\", 12, 25, 0, 0, 0, \"Christmas Day\", 2, 100, 0, 0 },\r\n        { \"AU\", 12, 26, 0, 0, 0, \"Boxing Day\", 1, 100, 0, 0 },\r\n        { \"BE\", 1, 1, 0, 0, 0, \"New Year's Day\", 0, 100, 0, 0 },\r\n        { \"BE\", 99, 1, 0, 0, 0, \"Easter Monday\", 0, 50, 0, 0 },\r\n        { \"BE\", 99, 39, 0, 0, 0, \"Ascension Day\", 0, 50, 0, 0 },\r\n        { \"BE\", 99, 50, 0, 0, 0, \"Whit Monday\", 0, 50, 0, 0 },\r\n        { \"BE\", 5, 1, 0, 0, 0, \"Labour Day\", 0, 100, 0, 0 },\r\n        { \"BE\", 7, 21, 0, 0, 0, \"Belgian National Day\", 0, 100, 0, 0 },\r\n        { \"BE\", 8, 15, 0, 0, 0, \"Assumption Day\", 0, 100, 0, 0 },\r\n        { \"BE\", 11, 1, 0, 0, 0, \"All Saints' Day\", 0, 100, 0, 0 },\r\n        { \"BE\", 11, 11, 0, 0, 0, \"Armistice Day\", 0, 100, 0, 0 },\r\n        { \"BE\", 12, 25, 0, 0, 0, \"Christmas Day\", 0, 100, 0, 0 },\r\n        { \"CA\", 1, 1, 0, 0, 0, \"New Year's Day\", 0, 100, 0, 0 },\r\n        { \"CA\", 99, -2, 0, 0, 0, \"Good Friday\", 0, 50, 0, 0 },\r\n        { \"CA\", 7, 1, 0, 0, 0, \"Canada Day\", 0, 50, 0, 0 },\r\n        { \"CA\", 9, 0, 1, 1, 0, \"Labour Day\", 0, 100, 0, 0 },\r\n        { \"CA\", 10, 0, 1, 2, 0, \"Thanksgiving\", 0, 100, 0, 0 },\r\n        { \"CA\", 12, 25, 0, 0, 0, \"Christmas Day\", 0, 100, 0, 0 },\r\n        { \"DE\", 1, 1, 0, 0, 0, \"New Year's Day\", 0, 100, 0, 0 },\r\n        { \"DE\", 99, -2, 0, 0, 0, \"Good Friday\", 0, 50, 0, 0 },\r\n        { \"DE\", 99, 1, 0, 0, 0, \"Easter Monday\", 0, 50, 0, 0 },\r\n        { \"DE\", 5, 1, 0, 0, 0, \"Labour Day\", 0, 100, 0, 0 },\r\n        { \"DE\", 99, 39, 0, 0, 0, \"Ascension Day\", 0, 50, 0, 0 },\r\n        { \"DE\", 99, 50, 0, 0, 0, \"Whit Monday\", 0, 50, 0, 0 },\r\n        { \"DE\", 10, 3, 0, 0, 0, \"German Unity Day\", 0, 100, 0, 0 },\r\n        { \"DE\", 12, 25, 0, 0, 0, \"Christmas Day\", 0, 100, 0, 0 },\r\n        { \"DE\", 12, 26, 0, 0, 0, \"St. Stephen's Day\", 0, 100, 0, 0 },\r\n        { \"ES\", 1, 1, 0, 0, 0, \"New Year's Day\", 0, 100, 0, 0 },\r\n        { \"ES\", 1, 6, 0, 0, 0, \"Epiphany\", 0, 100, 0, 0 },\r\n        { \"ES\", 99, -3, 0, 0, 0, \"Maundy Thursday\", 0, 50, 0, 0 },\r\n        { \"ES\", 99, -2, 0, 0, 0, \"Good Friday\", 0, 50, 0, 0 },\r\n        { \"ES\", 99, 1, 0, 0, 0, \"Easter Monday\", 0, 50, 0, 0 },\r\n        { \"ES\", 5, 1, 0, 0, 0, \"Labour Day\", 0, 100, 0, 0 },\r\n        { \"ES\", 8, 15, 0, 0, 0, \"Assumption Day\", 0, 100, 0, 0 },\r\n        { \"ES\", 10, 12, 0, 0, 0, \"Fiesta Navional de España\", 0, 100, 0, 0 },\r\n        { \"ES\", 11, 1, 0, 0, 0, \"All Saints' Day\", 0, 100, 0, 0 },\r\n        { \"ES\", 12, 6, 0, 0, 0, \"Constitution Day\", 0, 100, 0, 0 },\r\n        { \"ES\", 12, 8, 0, 0, 0, \"Immaculate Conception\", 0, 100, 0, 0 },\r\n        { \"ES\", 12, 25, 0, 0, 0, \"Christmas Day\", 0, 100, 0, 0 },\r\n        { \"FR\", 1, 1, 0, 0, 0, \"New Year's Day\", 0, 100, 0, 0 },\r\n        { \"FR\", 99, 1, 0, 0, 0, \"Easter Monday\", 0, 50, 0, 0 },\r\n        { \"FR\", 5, 1, 0, 0, 0, \"Labour Day\", 0, 100, 0, 0 },\r\n        { \"FR\", 5, 8, 0, 0, 0, \"Victor in Europe Day\", 0, 100, 0, 0 },\r\n        { \"FR\", 99, 39, 0, 0, 0, \"Ascension Day\", 0, 50, 0, 0 },\r\n        { \"FR\", 99, 50, 0, 0, 0, \"Whit Monday\", 0, 50, 0, 0 },\r\n        { \"FR\", 7, 14, 0, 0, 0, \"Bastille Day\", 0, 100, 0, 0 },\r\n        { \"FR\", 8, 15, 0, 0, 0, \"Assumption Day\", 0, 100, 0, 0 },\r\n        { \"FR\", 11, 1, 0, 0, 0, \"All Saints' Day\", 0, 100, 0, 0 },\r\n        { \"FR\", 11, 11, 0, 0, 0, \"Armistice Day\", 0, 100, 0, 0 },\r\n        { \"FR\", 12, 25, 0, 0, 0, \"Christmas Day\", 0, 100, 0, 0 },\r\n        { \"GB\", 1, 1, 0, 0, 0, \"New Year's Day\", 1, 100, 0, 0 },\r\n        { \"GB\", 99, -2, 0, 0, 0, \"Good Friday\", 0, 50, 0, 0 },\r\n        { \"GB\", 99, 1, 0, 0, 0, \"Easter Monday\", 0, 50, 0, 0 },\r\n        { \"GB\", 5, 0, 1, 1, 0, \"May Day Bank Holiday\", 0, 100, 0, 0 },\r\n        { \"GB\", 5, 0, 1, -1, 0, \"Spring Bank Holiday\", 0, 100, 0, 0 },\r\n        { \"GB\", 8, 0, 1, -1, 0, \"Late Summer Bank Holiday\", 0, 100, 0, 0 },\r\n        { \"GB\", 12, 25, 0, 0, 0, \"Christmas Day\", 2, 100, 0, 0 },\r\n        { \"GB\", 12, 26, 0, 0, 0, \"Boxing Day\", 1, 100, 0, 0 },\r\n        { \"IT\", 1, 1, 0, 0, 0, \"New Year's Day\", 0, 100, 0, 0 },\r\n        { \"IT\", 1, 6, 0, 0, 0, \"Epiphany\", 0, 100, 0, 0 },\r\n        { \"IT\", 99, 1, 0, 0, 0, \"Easter Monday\", 0, 100, 0, 0 },\r\n        { \"IT\", 4, 25, 0, 0, 0, \"Liberation Day\", 0, 100, 0, 0 },\r\n        { \"IT\", 5, 1, 0, 0, 0, \"Labour Day\", 0, 100, 0, 0 },\r\n        { \"IT\", 6, 2, 0, 0, 0, \"Republic Day\", 0, 100, 0, 0 },\r\n        { \"IT\", 8, 15, 0, 0, 0, \"Assumption Day\", 0, 100, 0, 0 },\r\n        { \"IT\", 11, 1, 0, 0, 0, \"All Saints' Day\", 0, 100, 0, 0 },\r\n        { \"IT\", 12, 8, 0, 0, 0, \"Immaculate Conception\", 0, 100, 0, 0 },\r\n        { \"IT\", 12, 25, 0, 0, 0, \"Christmas Day\", 0, 100, 0, 0 },\r\n        { \"IT\", 12, 26, 0, 0, 0, \"St. Stephen's Day\", 0, 100, 0, 0 },\r\n        { \"NL\", 1, 1, 0, 0, 0, \"New Year's Day\", 0, 100, 0, 0 },\r\n        { \"NL\", 99, 1, 0, 0, 0, \"Easter Monday\", 0, 50, 0, 0 },\r\n        { \"NL\", 99, 39, 0, 0, 0, \"Ascension Day\", 0, 50, 0, 0 },\r\n        { \"NL\", 99, 50, 0, 0, 0, \"Whit Monday\", 0, 50, 0, 0 },\r\n        { \"NL\", 4, 27, 0, 0, 0, \"King's Day\", 0, 100, 0, 0 },\r\n        { \"NL\", 5, 5, 0, 0, 0, \"Liberation Day\", 0, 100, 0, 0 },\r\n        { \"NL\", 12, 25, 0, 0, 0, \"Christmas Day\", 0, 100, 0, 0 },\r\n        { \"NL\", 12, 26, 0, 0, 0, \"St. Stephen's Day\", 0, 100, 0, 0 },\r\n        { \"NO\", 1, 1, 0, 0, 0, \"New Year's Day\", 0, 100, 0, 0 },\r\n        { \"NO\", 99, -3, 0, 0, 0, \"Maundy Thursday\", 0, 100, 0, 0 },\r\n        { \"NO\", 99, -2, 0, 0, 0, \"Good Friday\", 0, 50, 0, 0 },\r\n        { \"NO\", 99, 1, 0, 0, 0, \"Easter Monday\", 0, 50, 0, 0 },\r\n        { \"NO\", 99, 39, 0, 0, 0, \"Ascension Day\", 0, 50, 0, 0 },\r\n        { \"NO\", 99, 50, 0, 0, 0, \"Whit Monday\", 0, 50, 0, 0 },\r\n        { \"NO\", 5, 1, 0, 0, 0, \"Labour Day\", 0, 100, 0, 0 },\r\n        { \"NO\", 5, 17, 0, 0, 0, \"Constitution Day\", 0, 100, 0, 0 },\r\n        { \"NO\", 12, 24, 0, 0, 0, \"Christmas Eve\", 0, 50, 0, 0 },\r\n        { \"NO\", 12, 25, 0, 0, 0, \"Christmas Day\", 0, 100, 0, 0 },\r\n        { \"NO\", 12, 26, 0, 0, 0, \"Boxing Day\", 0, 100, 0, 0 },\r\n        { \"NO\", 12, 31, 0, 0, 0, \"New Year's Eve\", 0, 100, 0, 0 },\r\n        { \"PT\", 1, 1, 0, 0, 0, \"New Year's Day\", 0, 100, 0, 0 },\r\n        { \"PT\", 99, -2, 0, 0, 0, \"Good Friday\", 0, 50, 0, 0 },\r\n        { \"PT\", 99, 60, 0, 0, 0, \"Corpus Christi\", 0, 50, 0, 0 },\r\n        { \"PT\", 4, 25, 0, 0, 0, \"Freedom Day\", 0, 100, 0, 0 },\r\n        { \"PT\", 5, 1, 0, 0, 0, \"Labour Day\", 0, 100, 0, 0 },\r\n        { \"PT\", 6, 10, 0, 0, 0, \"Portugal Day\", 0, 100, 0, 0 },\r\n        { \"PT\", 8, 15, 0, 0, 0, \"Assumption Day\", 0, 100, 0, 0 },\r\n        { \"PT\", 10, 5, 0, 0, 0, \"Republic Day\", 0, 100, 0, 0 },\r\n        { \"PT\", 11, 1, 0, 0, 0, \"All Saints' Day\", 0, 100, 0, 0 },\r\n        { \"PT\", 12, 1, 0, 0, 0, \"Restoration of Independence\", 0, 100, 0, 0 },\r\n        { \"PT\", 12, 8, 0, 0, 0, \"Immaculate Conception\", 0, 50, 0, 0 },\r\n        { \"PT\", 12, 25, 0, 0, 0, \"Christmas Day\", 0, 100, 0, 0 },\r\n        { \"SE\", 1, 1, 0, 0, 0, \"New Year's Day\", 0, 100, 0, 0 },\r\n        { \"SE\", 1, 6, 0, 0, 0, \"Epiphany\", 0, 100, 0, 0 },\r\n        { \"SE\", 99, -2, 0, 0, 0, \"Good Friday\", 0, 50, 0, 0 },\r\n        { \"SE\", 99, 1, 0, 0, 0, \"Easter Monday\", 0, 50, 0, 0 },\r\n        { \"SE\", 99, 39, 0, 0, 0, \"Ascension Day\", 0, 50, 0, 0 },\r\n        { \"SE\", 5, 1, 0, 0, 0, \"Labour Day\", 0, 100, 0, 0 },\r\n        { \"SE\", 6, 6, 0, 0, 0, \"National Day\", 0, 100, 0, 0 },\r\n        { \"SE\", 12, 24, 0, 0, 0, \"Christmas Eve\", 0, 50, 0, 0 },\r\n        { \"SE\", 12, 25, 0, 0, 0, \"Christmas Day\", 0, 100, 0, 0 },\r\n        { \"SE\", 12, 26, 0, 0, 0, \"Boxing Day\", 0, 100, 0, 0 },\r\n        { \"SE\", 12, 31, 0, 0, 0, \"New Year's Eve\", 0, 100, 0, 0 },\r\n        { \"SE\", 98, -1, 0, 0, 0, \"Midsubber Eve\", 0, 50, 0, 0 },\r\n        { \"DK\", 1, 1, 0, 0, 0, \"New Year's Day\", 0, 100, 0, 0 },\r\n        { \"DK\", 99, -3, 0, 0, 0, \"Maundy Thursday\", 0, 50, 0, 0 },\r\n        { \"DK\", 99, -2, 0, 0, 0, \"Good Friday\", 0, 50, 0, 0 },\r\n        { \"DK\", 99, 1, 0, 0, 0, \"Easter Monday\", 0, 50, 0, 0 },\r\n        { \"DK\", 99, 26, 0, 0, 0, \"Prayer Day\", 0, 50, 0, 0 },\r\n        { \"DK\", 99, 39, 0, 0, 0, \"Ascension Day\", 0, 50, 0, 0 },\r\n        { \"DK\", 99, 50, 0, 0, 0, \"Whit Monday\", 0, 50, 0, 0 },\r\n        { \"DK\", 5, 1, 0, 0, 0, \"Labour Day\", 0, 100, 0, 0 },\r\n        { \"DK\", 6, 5, 0, 0, 0, \"Constitution Day\", 0, 50, 0, 0 },\r\n        { \"DK\", 12, 24, 0, 0, 0, \"Christmas Eve\", 0, 50, 0, 0 },\r\n        { \"DK\", 12, 25, 0, 0, 0, \"Christmas Day\", 0, 100, 0, 0 },\r\n        { \"DK\", 12, 26, 0, 0, 0, \"Second Day of Christmas\", 0, 100, 0, 0 },\r\n        { \"DK\", 12, 31, 0, 0, 0, \"New Year's Eve\", 0, 100, 0, 0 },\r\n        { \"BR\", 1, 1, 0, 0, 0, \"New Year's Day\", 0, 100, 0, 0 },\r\n        { \"BR\", 4, 21, 0, 0, 0, \"Tiradentes' Day\", 0, 50, 0, 0 },\r\n        { \"BR\", 99, -2, 0, 0, 0, \"Good Friday\", 0, 50, 0, 0 },\r\n        { \"BR\", 5, 1, 0, 0, 0, \"Labour Day\", 0, 100, 0, 0 },\r\n        { \"BR\", 9, 7, 0, 0, 0, \"Independence Day\", 0, 100, 0, 0 },\r\n        { \"BR\", 10, 12, 0, 0, 0, \"Lady of Aparecida\", 0, 100, 0, 0 },\r\n        { \"BR\", 11, 2, 0, 0, 0, \"All Soul's Day'\", 0, 100, 0, 0 },\r\n        { \"BR\", 11, 15, 0, 0, 0, \"Republic Day'\", 0, 100, 0, 0 },\r\n        { \"BR\", 12, 25, 0, 0, 0, \"Christmas Day\", 0, 100, 0, 0 },\r\n        { \"JP\", 1, 1, 0, 0, 0, \"New Year's Day\", 2, 100, 0, 0 },\r\n        { \"JP\", 1, 15, 0, 0, 0, \"Coming of Age Day\", 2, 100, 0, 1999 },\r\n        { \"JP\", 1, 0, 1, 2, 0, \"Coming of Age Day\", 0, 100, 2000, 0 },\r\n        { \"JP\", 2, 11, 0, 0, 0, \"National Foundation Day\", 2, 100, 0, 0 },\r\n        { \"JP\", 2, 23, 0, 0, 0, \"The Emperor's Birthday\", 2, 100, 2020, 0 },\r\n        { \"JP\", 12, 23, 0, 0, 0, \"The Emperor's Birthday\", 2, 100, 1989, 2018 },\r\n        { \"JP\", 96, 0, 0, 0, 0, \"Vernal Equinox Day\", 2, 100, 0, 0 },\r\n        { \"JP\", 4, 29, 0, 0, 0, \"The Emperor's Birthday\", 2, 100, 0, 1988 },\r\n        { \"JP\", 4, 29, 0, 0, 0, \"Greenery Day\", 2, 100, 1989, 2006 },\r\n        { \"JP\", 4, 29, 0, 0, 0, \"Shōwa Day\", 2, 100, 2007, 0 },\r\n        { \"JP\", 5, 3, 0, 0, 0, \"Constitution Memorial Day\", 2, 100, 0, 0 },\r\n        { \"JP\", 5, 4, 0, 0, 0, \"Greenery Day\", 2, 100, 2007, 0 },\r\n        { \"JP\", 5, 5, 0, 0, 0, \"Children's Day\", 2, 100, 0, 0 },\r\n        { \"JP\", 7, 20, 0, 0, 0, \"Marine Day\", 2, 100, 0, 2002 },\r\n        { \"JP\", 7, 0, 1, 3, 0, \"Marine Day\", 0, 100, 2003, 0 },\r\n        { \"JP\", 8, 11, 0, 0, 0, \"Mountain Day\", 2, 100, 2016, 0 },\r\n        { \"JP\", 9, 15, 0, 0, 0, \"Respect for the Aged Day\", 2, 100, 0, 2002 },\r\n        { \"JP\", 9, 0, 1, 3, 0, \"Respect for the Aged Day\", 0, 100, 2003, 0 },\r\n        { \"JP\", 97, 0, 0, 0, 0, \"Autumnal Equinox Day\", 2, 100, 0, 0 },\r\n        { \"JP\", 10, 10, 0, 0, 0, \"Sports Day\", 2, 100, 0, 1999 },\r\n        { \"JP\", 10, 0, 1, 2, 0, \"Sports Day\", 0, 100, 2000, 0 },\r\n        { \"JP\", 11, 3, 0, 0, 0, \"Culture Day\", 2, 100, 0, 0 },\r\n        { \"JP\", 11, 23, 0, 0, 0, \"Labour Thanksgiving Day\", 2, 100, 0, 0 },\r\n        { \"RU\", 1, 1, 0, 0, 0, \"Новогодние каникулы\", 0, 100, 0, 0 },\r\n        { \"RU\", 1, 2, 0, 0, 0, \"Новогодние каникулы\", 0, 100, 0, 0 },\r\n        { \"RU\", 1, 3, 0, 0, 0, \"Новогодние каникулы\", 0, 100, 0, 0 },\r\n        { \"RU\", 1, 4, 0, 0, 0, \"Новогодние каникулы\", 0, 100, 0, 0 },\r\n        { \"RU\", 1, 5, 0, 0, 0, \"Новогодние каникулы\", 0, 100, 0, 0 },\r\n        { \"RU\", 1, 6, 0, 0, 0, \"Новогодние каникулы\", 0, 100, 0, 0 },\r\n        { \"RU\", 1, 7, 0, 0, 0, \"Рождество Христово\", 0, 100, 0, 0 },\r\n        { \"RU\", 1, 8, 0, 0, 0, \"Новогодние каникулы\", 0, 100, 0, 0 },\r\n        { \"RU\", 2, 23, 0, 0, 0, \"День защитника Отечества\", 0, 100, 0, 0 },\r\n        { \"RU\", 3, 8, 0, 0, 0, \"Международный женский день\", 0, 100, 0, 0 },\r\n        { \"RU\", 5, 1, 0, 0, 0, \"Праздник Весны и Труда\", 0, 100, 0, 0 },\r\n        { \"RU\", 5, 9, 0, 0, 0, \"День Победы\", 0, 100, 0, 0 },\r\n        { \"RU\", 6, 12, 0, 0, 0, \"День России\", 0, 100, 0, 0 },\r\n        { \"RU\", 11, 4, 0, 0, 0, \"День народного единства\", 0, 100, 0, 0 },\r\n        { \"CN\", 1, 1, 0, 0, 0, \"元旦\", 0, 100, 0, 0 },\r\n        { \"CN\", 5, 1, 0, 0, 0, \"劳动节\", 0, 100, 0, 0 },\r\n        { \"CN\", 10, 1, 0, 0, 0, \"国庆节\", 0, 100, 0, 0 },\r\n        { \"CN\", 10, 2, 0, 0, 0, \"国庆节\", 0, 100, 0, 0 },\r\n        { \"CN\", 10, 3, 0, 0, 0, \"国庆节\", 0, 100, 0, 0 },\r\n        { \"IS\", 1, 1, 0, 0, 0, \"Nýársdagur\", 0, 100, 0, 0 },\r\n        { \"IS\", 99, -3, 0, 0, 0, \"Skírdagur\", 0, 50, 0, 0 },\r\n        { \"IS\", 99, -2, 0, 0, 0, \"Föstudagurinn langi\", 0, 50, 0, 0 },\r\n        { \"IS\", 99, 1, 0, 0, 0, \"Annar í páskum\", 0, 50, 0, 0 },\r\n        { \"IS\", 99, 39, 0, 0, 0, \"Uppstigningardagur\", 0, 50, 0, 0 },\r\n        { \"IS\", 5, 1, 0, 0, 0, \"Frídagur verkafólks\", 0, 100, 0, 0 },\r\n        { \"IS\", 8, 0, 1, 1, 0, \"Frídagur verslunarmanna\", 0, 100, 0, 0 },\r\n        { \"IS\", 6, 17, 0, 0, 0, \"Þjóðhátíðardagur Íslendinga\", 0, 100, 0, 0 },\r\n        { \"IS\", 12, 25, 0, 0, 0, \"Jóladagur\", 0, 100, 0, 0 },\r\n        { \"IS\", 12, 26, 0, 0, 0, \"Annar í jólum\", 0, 100, 0, 0 },\r\n        { \"IS\", 12, 24, 0, 0, 0, \"Aðfangadagur\", 0, 50, 0, 0 },\r\n        { \"IS\", 12, 31, 0, 0, 0, \"Gamlársdagur\", 0, 50, 0, 0 },\r\n        { \"IS\", 98, 0, 0, 0, 0, \"Sumardagurinn fyrsti\", 0, 50, 0, 0 }\r\n    }\r\n)"
+            }
+          }
+        ],
+        "annotations": [
+          {
+            "name": "SQLBI_Template",
+            "value": "Holidays"
+          },
+          {
+            "name": "SQLBI_TemplateTable",
+            "value": "HolidaysDefinition"
+          }
+        ]
+      },
+      {
+        "name": "Holidays",
+        "isHidden": true,
+        "lineageTag": "",
+        "dataCategory": "Time",
+        "columns": [
+          {
+            "type": "calculatedTableColumn",
+            "name": "Holiday Date",
+            "dataType": "dateTime",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "sourceColumn": "[Holiday Date]",
+            "formatString": "mm/dd/yyyy",
+            "lineageTag": "",
+            "summarizeBy": "none"
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "Holiday Name",
+            "dataType": "string",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "sourceColumn": "[Holiday Name]",
+            "lineageTag": "",
+            "summarizeBy": "none"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Holidays",
+            "mode": "import",
+            "source": {
+              "type": "calculated",
+              "expression": "\r\n-- \r\n--    Configuration\r\n-- \r\nVAR __FirstYear = YEAR ( MINX ( { MIN ( 'Sales'[Order Date] ), MIN ( 'Orders'[Delivery Date] ) }, ''[Value] ) )\r\nVAR __LastYear =  YEAR ( MAXX ( { MAX ( 'Sales'[Order Date] ), MAX ( 'Orders'[Delivery Date] ) }, ''[Value] ) )\r\nVAR __IsoCountryHolidays = \"US\"\r\nVAR __WorkingDays = { 2, 3, 4, 5, 6 }\r\nVAR __InLieuOfPrefix = \"(in lieu of \"\r\nVAR __InLieuOfSuffix = \")\"\r\n----------------------------------------\r\nVAR __FilterIsoConfig =\r\n    FILTER(\r\n        'HolidaysDefinition',\r\n        IF(\r\n            CONTAINS('HolidaysDefinition', 'HolidaysDefinition'[ISO Country], __IsoCountryHolidays)\r\n                || __IsoCountryHolidays = \"\",\r\n            'HolidaysDefinition'[ISO Country] = __IsoCountryHolidays,\r\n            ERROR(\"IsoCountryHolidays set to an unsupported country code\")\r\n        )\r\n    )\r\nVAR __ConfigGeneration =\r\n    GENERATE(\r\n        GENERATESERIES(__FirstYear - 1, __LastYear + 1, 1),\r\n        __FilterIsoConfig\r\n    )\r\nVAR __GeneratedRawWithDuplicatesUnfiltered =\r\n    GENERATE(\r\n        __ConfigGeneration,\r\n        VAR __HolidayYear = ''[Value]\r\n        VAR __EasterDate =\r\n            -- Code adapted from original VB version from https://www.assa.org.au/edm \r\n            VAR _EasterYear = __HolidayYear\r\n            VAR _FirstDig =\r\n                INT ( _EasterYear / 100 )\r\n            VAR _Remain19 =\r\n                MOD ( _EasterYear, 19 ) \r\n            -- Calculate PFM date\r\n            VAR _temp1 =\r\n                MOD (\r\n                    INT ( ( _FirstDig - 15 ) / 2 )\r\n                        + 202\r\n                        - 11 * _Remain19\r\n                        + SWITCH (\r\n                            TRUE,\r\n                            _FirstDig IN { 21, 24, 25, 27, 28, 29, 30, 31, 32, 34, 35, 38 },\r\n                            0\r\n                        ),\r\n                    30\r\n                )\r\n            VAR _tA =\r\n                _temp1 + 21\r\n                    + IF ( _temp1 = 29 || ( _temp1 = 28 && _Remain19 > 10 ), -1 ) // \r\n            -- Find the next Sunday\r\n            VAR _tB =\r\n                MOD ( _tA - 19, 7 )\r\n            VAR _tCpre =\r\n                MOD ( 40 - _FirstDig, 4 )\r\n            VAR _tC =\r\n                _tCpre\r\n                    + IF ( _tCpre = 3, 1 )\r\n                    + IF ( _tCpre > 1, 1 )\r\n            VAR _temp2 =\r\n                MOD ( _EasterYear, 100 )\r\n            VAR _tD =\r\n                MOD ( _temp2 + INT ( _temp2 / 4 ), 7 )\r\n            VAR _tE =\r\n                MOD ( 20 - _tB - _tC - _tD, 7 )\r\n                    + 1\r\n            VAR _d = _tA + _tE \r\n            -- Return the date\r\n            VAR _EasterDay =\r\n                IF ( _d > 31, _d - 31, _d )\r\n            VAR _EasterMonth =\r\n                IF ( _d > 31, 4, 3 )\r\n            RETURN\r\n                DATE ( _EasterYear, _EasterMonth, _EasterDay ) \r\n            -- End of code adapted from original VB version from https://www.assa.org.au/edm\r\n        VAR __SwedishMidSummer = \r\n            -- Compute the Midsummer day in Swedish - it is the Saturday between 20 and 26 June\r\n            -- This calculation is valid only for years after 1953 \r\n            -- https://sv.wikipedia.org/wiki/Midsommar_i_Sverige\r\n            VAR _June20 = \r\n                DATE ( __HolidayYear, 6, 20 )\r\n            RETURN\r\n                DATE ( __HolidayYear, 6, 20 + (7 - WEEKDAY ( _June20, 1 ) ) )\r\n            -- End of SwedishMidSummer calculation\r\n        VAR __MarchEquinoxDay =\r\n            INT ( 20.8431 + 0.242194 * ( __HolidayYear - 1980 ) )\r\n                - INT ( ( ( __HolidayYear - 1980 ) / 4 ) )\r\n        VAR __MarchEquinox = DATE ( __HolidayYear, 3, __MarchEquinoxDay )\r\n        VAR __SeptemberEquinoxDay =\r\n            INT ( 23.2488 + 0.242194 * ( __HolidayYear - 1980 ) )\r\n                - INT ( ( __HolidayYear - 1980 ) / 4 )\r\n        VAR __SeptemberEquinox = DATE ( __HolidayYear, 9, __SeptemberEquinoxDay )\r\n        VAR __HolidayDate = \r\n//  Workaround for a SWITCH regression that fails on service from 2022-12-10 - revert to SWITCH and remove IF once the bug is fixed\r\n//            SWITCH (\r\n//                TRUE,\r\n                IF ( 'HolidaysDefinition'[DayNumber] <> 0\r\n                    && 'HolidaysDefinition'[WeekDayNumber] <> 0, ERROR ( \"Wrong configuration in HolidaysDefinition\" ),\r\n                IF ( 'HolidaysDefinition'[DayNumber] <> 0\r\n                    && 'HolidaysDefinition'[MonthNumber] <= 12, DATE ( __HolidayYear, 'HolidaysDefinition'[MonthNumber], 'HolidaysDefinition'[DayNumber] ),\r\n                IF ( 'HolidaysDefinition'[MonthNumber] = 99, -- Easter offset\r\n                    __EasterDate + 'HolidaysDefinition'[DayNumber],\r\n                IF ( 'HolidaysDefinition'[MonthNumber] = 98, -- Swedish Midsummer Day\r\n                    __SwedishMidSummer + 'HolidaysDefinition'[DayNumber],\r\n                IF ( 'HolidaysDefinition'[MonthNumber] = 97, -- September Equinox\r\n                    __SeptemberEquinox + 'HolidaysDefinition'[DayNumber],\r\n                IF ( 'HolidaysDefinition'[MonthNumber] = 96, -- March Equinox\r\n                    __MarchEquinox + 'HolidaysDefinition'[DayNumber],\r\n                IF ( 'HolidaysDefinition'[WeekDayNumber] IN { 0, 1, 2, 3, 4, 5, 6 }\r\n                    && 'HolidaysDefinition'[DayNumber] = 0\r\n                    && 'HolidaysDefinition'[OffsetWeek] <> 0\r\n                    && 'HolidaysDefinition'[MonthNumber] IN { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 },\r\n                    VAR _ReferenceDate =\r\n                        DATE ( __HolidayYear, 1\r\n                            + MOD ( 'HolidaysDefinition'[MonthNumber] - 1 + IF ( 'HolidaysDefinition'[OffsetWeek] < 0, 1 ), 12 ), 1 )\r\n                            - IF ( 'HolidaysDefinition'[OffsetWeek] < 0, 1 )\r\n                    VAR _ReferenceWeekDayNumber =\r\n                        WEEKDAY ( _ReferenceDate, 1 ) - 1\r\n                    VAR _Offset =\r\n                        'HolidaysDefinition'[WeekDayNumber] - _ReferenceWeekDayNumber\r\n                            + 7 * 'HolidaysDefinition'[OffsetWeek]\r\n                            + IF (\r\n                                'HolidaysDefinition'[OffsetWeek] > 0,\r\n                                IF ( 'HolidaysDefinition'[WeekDayNumber] >= _ReferenceWeekDayNumber, -7 ),\r\n                                IF ( _ReferenceWeekDayNumber >= 'HolidaysDefinition'[WeekDayNumber], 7)\r\n                            )\r\n                RETURN\r\n                    _ReferenceDate + _Offset + 'HolidaysDefinition'[OffsetDays],\r\n                ERROR ( \"Wrong configuration in HolidaysDefinition\" )\r\n            ) ) ) ) ) ) )\r\n//            )\r\n        VAR __HolidayWeekDay = WEEKDAY ( __HolidayDate, 1 )\r\n        VAR __SubstituteHolidayOffset = \r\n//            SWITCH (\r\n//                TRUE,\r\n                IF ( 'HolidaysDefinition'[SubstituteHoliday] = -1,\r\n                    SWITCH ( \r\n                        __HolidayWeekDay, \r\n                        1, 1,       -- If it falls on a Sunday then it is observed on Monday\r\n                        7, -1,      -- If it falls on a Saturday then it is observed on Friday\r\n                        0\r\n                    ),\r\n                IF ( 'HolidaysDefinition'[SubstituteHoliday] > 0\r\n                    && NOT CONTAINS ( __WorkingDays, ''[Value], __HolidayWeekDay ),\r\n                    VAR _NextWorkingWeekDay =\r\n                        MINX (\r\n                            FILTER ( __WorkingDays, ''[Value] > __HolidayWeekDay ),\r\n                            ''[Value]\r\n                        )\r\n                    VAR _SubstituteWeekDay =\r\n                        IF (\r\n                            ISBLANK ( _NextWorkingWeekDay ),\r\n                            MINX ( __WorkingDays, ''[Value] ) + 7,\r\n                            _NextWorkingWeekDay\r\n                        )\r\n                    RETURN\r\n                        _SubstituteWeekDay - __HolidayWeekDay\r\n                            + ( 'HolidaysDefinition'[SubstituteHoliday] - 1 )\r\n            ) )\r\n//            )\r\n        RETURN ROW ( \r\n            \"@HolidayDate\", DATE ( YEAR ( __HolidayDate ), MONTH ( __HolidayDate ), DAY ( __HolidayDate ) ),\r\n            \"@SubstituteHolidayOffset\", __SubstituteHolidayOffset\r\n        )\r\n    )\r\nVAR __GeneratedRawWithDuplicates =\r\n\tFILTER (\r\n        __GeneratedRawWithDuplicatesUnfiltered,\r\n        ( 'HolidaysDefinition'[FirstYear] = 0 || 'HolidaysDefinition'[FirstYear] <= ''[Value] )\r\n            && ( 'HolidaysDefinition'[LastYear] = 0 || 'HolidaysDefinition'[LastYear] >= ''[Value] )\r\n    )\r\nVAR __RawDatesUnique = \r\n    DISTINCT ( \r\n        SELECTCOLUMNS ( \r\n            __GeneratedRawWithDuplicates,\r\n            \"@HolidayDateUnique\", [@HolidayDate]\r\n        )\r\n    )\r\nVAR __GeneratedRaw = \r\n    GENERATE (\r\n        __RawDatesUnique,\r\n        VAR _FilterDate = [@HolidayDateUnique]\r\n        RETURN \r\n            TOPN (\r\n                1,\r\n                FILTER ( \r\n                    __GeneratedRawWithDuplicates,\r\n                    [@HolidayDate] = _FilterDate\r\n                ),\r\n                'HolidaysDefinition'[ConflictPriority],\r\n                ASC,\r\n                'HolidaysDefinition'[HolidayName], \r\n                ASC\r\n            )\r\n    )  \r\nVAR __GeneratedSubstitutesOffset =\r\n    SELECTCOLUMNS(\r\n        FILTER ( __GeneratedRawWithDuplicates, 'HolidaysDefinition'[SubstituteHoliday] <> 0 ),\r\n        \"Value\", ''[Value],\r\n        \"ISO Country\", 'HolidaysDefinition'[ISO Country],\r\n        \"MonthNumber\", 'HolidaysDefinition'[MonthNumber],\r\n        \"DayNumber\", 'HolidaysDefinition'[DayNumber],\r\n        \"WeekDayNumber\", 'HolidaysDefinition'[WeekDayNumber],\r\n        \"OffsetWeek\", 'HolidaysDefinition'[OffsetWeek],\r\n        \"HolidayName\", 'HolidaysDefinition'[HolidayName],\r\n        \"SubstituteHoliday\", 'HolidaysDefinition'[SubstituteHoliday],\r\n        \"ConflictPriority\", 'HolidaysDefinition'[ConflictPriority],\r\n        \"@HolidayDate\", [@HolidayDate],\r\n        \"@SubstituteHolidayOffset\",\r\n            VAR _CurrentHolidayDate = [@HolidayDate]\r\n            VAR _CurrentHolidayName = 'HolidaysDefinition'[HolidayName]\r\n            VAR _OriginalSubstituteDate = [@HolidayDate] + [@SubstituteHolidayOffset]\r\n            VAR _OtherHolidays = \r\n                FILTER ( \r\n                    __GeneratedRawWithDuplicates, \r\n                    [@HolidayDate] <> _CurrentHolidayDate\r\n                    || 'HolidaysDefinition'[HolidayName] <> _CurrentHolidayName\r\n                )\r\n            VAR _ConflictDay0 = \r\n                CONTAINS ( \r\n                    _OtherHolidays,\r\n                    [@HolidayDate], _OriginalSubstituteDate\r\n                )\r\n            VAR _ConflictDay1 = \r\n                _ConflictDay0 \r\n                && CONTAINS ( \r\n                    _OtherHolidays,\r\n                    [@HolidayDate], _OriginalSubstituteDate + 1\r\n                )\r\n            VAR _ConflictDay2 = \r\n                _ConflictDay1 \r\n                && CONTAINS ( \r\n                    _OtherHolidays,\r\n                    [@HolidayDate], _OriginalSubstituteDate + 2\r\n                )\r\n            VAR _SubstituteOffsetStep1 = [@SubstituteHolidayOffset] + _ConflictDay0 + _ConflictDay1 + _ConflictDay2\r\n            VAR _HolidayDateStep1 = _CurrentHolidayDate + _SubstituteOffsetStep1\r\n            VAR _HolidayWeekDayStep1 =\r\n                WEEKDAY ( _HolidayDateStep1, 1 )\r\n            VAR _SubstituteHolidayOffsetNonWorkingDays =\r\n                IF (\r\n                    NOT CONTAINS ( __WorkingDays, ''[Value], _HolidayWeekDayStep1 ),\r\n                    VAR _NextWorkingWeekDayStep2 =\r\n                        MINX (\r\n                            FILTER ( __WorkingDays, ''[Value] > _HolidayWeekDayStep1 ),\r\n                            ''[Value]\r\n                        )\r\n                    VAR _SubstituteWeekDay =\r\n                        IF (\r\n                            ISBLANK ( _NextWorkingWeekDayStep2 ),\r\n                            MINX ( __WorkingDays, ''[Value] ) + 7,\r\n                            _NextWorkingWeekDayStep2\r\n                        )\r\n                    RETURN _SubstituteWeekDay - _HolidayWeekDayStep1\r\n                )\r\n            VAR _SubstituteOffsetStep2 = _SubstituteOffsetStep1 + _SubstituteHolidayOffsetNonWorkingDays\r\n            VAR _SubstituteDateStep2 = _OriginalSubstituteDate + _SubstituteOffsetStep2\r\n            VAR _ConflictDayStep2_0 = \r\n                CONTAINS ( \r\n                    _OtherHolidays,\r\n                    [@HolidayDate], _SubstituteDateStep2\r\n                )\r\n            VAR _ConflictDayStep2_1 = \r\n                _ConflictDayStep2_0\r\n                && CONTAINS ( \r\n                    _OtherHolidays,\r\n                    [@HolidayDate], _SubstituteDateStep2 + 1\r\n                )\r\n            VAR _ConflictDayStep2_2 = \r\n                _ConflictDayStep2_1 \r\n                && CONTAINS ( \r\n                    _OtherHolidays,\r\n                    [@HolidayDate], _SubstituteDateStep2 + 2\r\n                )\r\n            VAR _FinalSubstituteHolidayOffset = \r\n                _SubstituteOffsetStep2 + _ConflictDayStep2_0 + _ConflictDayStep2_1 + _ConflictDayStep2_2\r\n            RETURN\r\n                _FinalSubstituteHolidayOffset\r\n        )\r\nVAR __GeneratedSubstitutesExpanded =\r\n    ADDCOLUMNS (\r\n        __GeneratedSubstitutesOffset,\r\n        \"@ReplacementHolidayDate\", [@HolidayDate] + [@SubstituteHolidayOffset]\r\n    )\r\nVAR __GeneratedSubstitutesUnique =\r\n    DISTINCT ( \r\n        SELECTCOLUMNS ( \r\n            __GeneratedSubstitutesExpanded,\r\n            \"@UniqueReplacementHolidayDate\", [@ReplacementHolidayDate]\r\n        )\r\n    )\r\nVAR __GeneratedSubstitutes =\r\n    GENERATE (\r\n        __GeneratedSubstitutesUnique,\r\n        TOPN (\r\n            1,\r\n            FILTER ( \r\n                __GeneratedSubstitutesExpanded,\r\n                [@UniqueReplacementHolidayDate] = [@ReplacementHolidayDate]\r\n            ),\r\n            [ConflictPriority],\r\n            ASC,\r\n            [HolidayName], \r\n            ASC\r\n        )\r\n    )  \r\nVAR __Generated =\r\n    UNION (\r\n        SELECTCOLUMNS (\r\n            __GeneratedRaw,\r\n            \"Holiday Date\", [@HolidayDate],\r\n            \"Holiday Name\", 'HolidaysDefinition'[HolidayName]\r\n        ),\r\n        SELECTCOLUMNS (\r\n            FILTER ( __GeneratedSubstitutes, [@SubstituteHolidayOffset] <> 0 ), \r\n            \"Holiday Date\", [@HolidayDate] + [@SubstituteHolidayOffset],\r\n            \"Holiday Name\", __InLieuOfPrefix & [HolidayName]\r\n                & __InLieuOfSuffix\r\n        )\r\n    )\r\nVAR __GeneratedValidDates =\r\n    FILTER ( __Generated, [Holiday Date] > 2 )\r\nRETURN\r\n    __GeneratedValidDates"
+            }
+          }
+        ],
+        "annotations": [
+          {
+            "name": "SQLBI_Template",
+            "value": "Holidays"
+          },
+          {
+            "name": "SQLBI_TemplateTable",
+            "value": "Holidays"
+          }
+        ]
+      },
+      {
+        "name": "DateAutoTemplate",
+        "isHidden": true,
+        "lineageTag": "",
+        "dataCategory": "Time",
+        "columns": [
+          {
+            "type": "calculatedTableColumn",
+            "name": "Date",
+            "dataType": "dateTime",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "isKey": true,
+            "sourceColumn": "[Date]",
+            "formatString": "m/d/yyyy",
+            "lineageTag": "",
+            "dataCategory": "PaddedDateTableDates",
+            "summarizeBy": "none",
+            "annotations": [
+              {
+                "name": "SQLBI_AttributeTypes",
+                "value": "Date, FiscalDate"
+              }
+            ]
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "Year",
+            "dataType": "int64",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "sourceColumn": "[Year]",
+            "lineageTag": "",
+            "dataCategory": "Years",
+            "summarizeBy": "none"
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "Year Quarter Number",
+            "dataType": "int64",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "sourceColumn": "[Year Quarter Number]",
+            "lineageTag": "",
+            "dataCategory": "Quarters",
+            "summarizeBy": "none"
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "Year Quarter",
+            "dataType": "string",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "sourceColumn": "[Year Quarter]",
+            "sortByColumn": "Year Quarter Number",
+            "lineageTag": "",
+            "dataCategory": "Quarters",
+            "summarizeBy": "none"
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "Quarter",
+            "dataType": "string",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "sourceColumn": "[Quarter]",
+            "lineageTag": "",
+            "dataCategory": "QuarterOfYear",
+            "summarizeBy": "none"
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "Year Month",
+            "dataType": "string",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "sourceColumn": "[Year Month]",
+            "sortByColumn": "Year Month Number",
+            "lineageTag": "",
+            "dataCategory": "Months",
+            "summarizeBy": "none"
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "Year Month Number",
+            "dataType": "int64",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "sourceColumn": "[Year Month Number]",
+            "lineageTag": "",
+            "dataCategory": "Months",
+            "summarizeBy": "none",
+            "annotations": [
+              {
+                "name": "SQLBI_AttributeTypes",
+                "value": "FiscalMonths"
+              }
+            ]
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "Month",
+            "dataType": "string",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "sourceColumn": "[Month]",
+            "sortByColumn": "Month Number",
+            "lineageTag": "",
+            "dataCategory": "MonthOfYear",
+            "summarizeBy": "none"
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "Month Number",
+            "dataType": "int64",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "sourceColumn": "[Month Number]",
+            "lineageTag": "",
+            "dataCategory": "MonthOfYear",
+            "summarizeBy": "none"
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "Day of Week Number",
+            "dataType": "int64",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "sourceColumn": "[Day of Week Number]",
+            "lineageTag": "",
+            "dataCategory": "DayOfWeek",
+            "summarizeBy": "none",
+            "annotations": [
+              {
+                "name": "SQLBI_AttributeTypes",
+                "value": "DayOfWeek"
+              },
+              {
+                "name": "SQLBI_FilterSafe",
+                "value": "True"
+              }
+            ]
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "Day of Week",
+            "dataType": "string",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "sourceColumn": "[Day of Week]",
+            "sortByColumn": "Day of Week Number",
+            "lineageTag": "",
+            "dataCategory": "DayOfWeek",
+            "summarizeBy": "none",
+            "annotations": [
+              {
+                "name": "SQLBI_FilterSafe",
+                "value": "True"
+              }
+            ]
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "Fiscal Year",
+            "dataType": "string",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "sourceColumn": "[Fiscal Year]",
+            "sortByColumn": "Fiscal Year Number",
+            "lineageTag": "",
+            "dataCategory": "Years",
+            "summarizeBy": "none"
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "Fiscal Year Number",
+            "dataType": "int64",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "sourceColumn": "[Fiscal Year Number]",
+            "lineageTag": "",
+            "dataCategory": "Years",
+            "summarizeBy": "none",
+            "annotations": [
+              {
+                "name": "SQLBI_AttributeTypes",
+                "value": "FiscalYears"
+              }
+            ]
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "Fiscal Year Quarter",
+            "dataType": "string",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "sourceColumn": "[Fiscal Year Quarter]",
+            "sortByColumn": "Fiscal Year Quarter Number",
+            "lineageTag": "",
+            "dataCategory": "Quarters",
+            "summarizeBy": "none"
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "Fiscal Year Quarter Number",
+            "dataType": "int64",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "sourceColumn": "[Fiscal Year Quarter Number]",
+            "lineageTag": "",
+            "dataCategory": "Quarters",
+            "summarizeBy": "none",
+            "annotations": [
+              {
+                "name": "SQLBI_AttributeTypes",
+                "value": "FiscalQuarters"
+              }
+            ]
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "Fiscal Quarter",
+            "dataType": "string",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "sourceColumn": "[Fiscal Quarter]",
+            "lineageTag": "",
+            "dataCategory": "QuarterOfYear",
+            "summarizeBy": "none"
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "IsWorking",
+            "dataType": "boolean",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "sourceColumn": "[IsWorking]",
+            "lineageTag": "",
+            "summarizeBy": "none",
+            "annotations": [
+              {
+                "name": "SQLBI_FilterSafe",
+                "value": "True"
+              }
+            ]
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "Working Day Value",
+            "dataType": "int64",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "sourceColumn": "[Working Day Value]",
+            "lineageTag": "",
+            "summarizeBy": "none",
+            "annotations": [
+              {
+                "name": "SQLBI_FilterSafe",
+                "value": "True"
+              }
+            ]
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "Holiday Name",
+            "dataType": "string",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "sourceColumn": "[Holiday Name]",
+            "lineageTag": "",
+            "summarizeBy": "none",
+            "annotations": [
+              {
+                "name": "SQLBI_FilterSafe",
+                "value": "True"
+              }
+            ]
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "DateWithTransactions",
+            "dataType": "boolean",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "sourceColumn": "[DateWithTransactions]",
+            "lineageTag": "",
+            "summarizeBy": "none",
+            "annotations": [
+              {
+                "name": "SQLBI_AttributeTypes",
+                "value": "DateDuration"
+              }
+            ]
+          }
+        ],
+        "partitions": [
+          {
+            "name": "DateAutoTemplate",
+            "mode": "import",
+            "source": {
+              "type": "calculated",
+              "expression": "\n--  \n--     Configuration\n--  \nVAR __FirstDayOfWeek = 0\nVAR __FirstFiscalMonth = 4\nVAR __WorkingDays = { 2, 3, 4, 5, 6 }\n----------------------------------------\nVAR __WeekDayCalculationType = IF ( __FirstDayOfWeek = 0, 7, __FirstDayOfWeek ) + 10\nVAR __Calendar = \n    VAR __FirstYear = YEAR ( MINX ( { MIN ( 'Sales'[Order Date] ), MIN ( 'Orders'[Delivery Date] ) }, ''[Value] ) )\n    VAR __LastYear =  YEAR ( MAXX ( { MAX ( 'Sales'[Order Date] ), MAX ( 'Orders'[Delivery Date] ) }, ''[Value] ) )\n    RETURN CALENDAR (\n        DATE ( __FirstYear, 1, 1 ),\n        DATE ( __LastYear, 12, 31 )\n    )\nVAR __Step3 = \n    GENERATE (\n        __Calendar,\n        VAR __LastTransactionDate = MAXX ( { MAX ( 'Sales'[Order Date] ), MAX ( 'Orders'[Delivery Date] ) }, ''[Value] )\n        VAR __Date = [Date]\n        VAR __YearNumber = YEAR ( __Date )\n        VAR __QuarterNumber = QUARTER ( __Date )\n        VAR __YearQuarterNumber = CONVERT ( __YearNumber * 4 + __QuarterNumber - 1, INTEGER )\n        VAR __MonthNumber = MONTH ( __Date )\n        VAR __WeekDayNumber = WEEKDAY ( __Date, __WeekDayCalculationType )\n        VAR __WeekDay = FORMAT ( __Date, \"ddd\", \"en-US\" )\n        VAR __FiscalYearNumber = __YearNumber + 1 * ( __FirstFiscalMonth > 1 && __MonthNumber >= __FirstFiscalMonth )\n        VAR __FiscalMonthNumber = __MonthNumber - __FirstFiscalMonth + 1 + 12 * (__MonthNumber < __FirstFiscalMonth)\n        VAR __FiscalQuarterNumber = ROUNDUP ( __FiscalMonthNumber / 3, 0 )\n        VAR __FiscalYearQuarterNumber = CONVERT ( __FiscalYearNumber * 4 + __FiscalQuarterNumber - 1, INTEGER )\n        VAR __HolidayName = LOOKUPVALUE ( 'Holidays'[Holiday Name], 'Holidays'[Holiday Date],  __Date  )\n        VAR __IsWorkingDay = WEEKDAY ( __Date, 1 ) IN __WorkingDays && ISBLANK ( __HolidayName )\n        RETURN ROW ( \n            \"Year\", __YearNumber,\n            \"Year Quarter Number\", __YearQuarterNumber,\n            \"Year Quarter\", FORMAT ( __QuarterNumber, \"\\Q0\", \"en-US\" ) & \"-\" & FORMAT ( __YearNumber, \"0000\", \"en-US\" ),\n            \"Quarter\", FORMAT( __QuarterNumber, \"\\Q0\", \"en-US\" ),\n            \"Year Month\", FORMAT ( __Date, \"mmm yyyy\", \"en-US\" ),\n            \"Year Month Number\", __YearNumber * 12 + __MonthNumber - 1,\n            \"Month\", FORMAT ( __Date, \"mmm\", \"en-US\" ),\n            \"Month Number\", __MonthNumber,\n            \"Day of Week Number\", __WeekDayNumber,\n            \"Day of Week\", __WeekDay,\n            \"Fiscal Year\", FORMAT ( __FiscalYearNumber, \"\\F\\Y 0000\", \"en-US\" ),\n            \"Fiscal Year Number\", __FiscalYearNumber,\n            \"Fiscal Year Quarter\", FORMAT ( __FiscalQuarterNumber, \"\\F\\Q0\", \"en-US\" ) & \"-\" & FORMAT ( __FiscalYearNumber, \"0000\", \"en-US\" ),\n            \"Fiscal Year Quarter Number\", __FiscalYearQuarterNumber,\n            \"Fiscal Quarter\", FORMAT( __FiscalQuarterNumber, \"\\F\\Q0\", \"en-US\" ),\n            \"IsWorking\", __IsWorkingDay,\n            \"Working Day Value\", IF ( __IsWorkingDay, 1 ),\n            \"Holiday Name\", __HolidayName,\n            \"DateWithTransactions\", __Date <= __LastTransactionDate \n        )\n    )\nRETURN\n    __Step3"
+            }
+          }
+        ],
+        "hierarchies": [
+          {
+            "name": "Calendar",
+            "isHidden": true,
+            "lineageTag": "",
+            "levels": [
+              {
+                "name": "Year",
+                "ordinal": 0,
+                "column": "Year",
+                "lineageTag": ""
+              },
+              {
+                "name": "Month",
+                "ordinal": 1,
+                "column": "Year Month",
+                "lineageTag": ""
+              },
+              {
+                "name": "Date",
+                "ordinal": 2,
+                "column": "Date",
+                "lineageTag": ""
+              }
+            ]
+          },
+          {
+            "name": "Fiscal",
+            "isHidden": true,
+            "lineageTag": "",
+            "levels": [
+              {
+                "name": "Year",
+                "ordinal": 0,
+                "column": "Fiscal Year",
+                "lineageTag": ""
+              },
+              {
+                "name": "Month",
+                "ordinal": 1,
+                "column": "Year Month",
+                "lineageTag": ""
+              },
+              {
+                "name": "Date",
+                "ordinal": 2,
+                "column": "Date",
+                "lineageTag": ""
+              }
+            ]
+          }
+        ],
+        "annotations": [
+          {
+            "name": "SQLBI_Template",
+            "value": "Dates"
+          },
+          {
+            "name": "SQLBI_TemplateTable",
+            "value": "DateAutoTemplate"
+          },
+          {
+            "name": "SQLBI_CalendarType",
+            "value": "Calendar"
+          }
+        ]
+      },
+      {
+        "name": "Date",
+        "lineageTag": "",
+        "dataCategory": "Time",
+        "columns": [
+          {
+            "type": "calculatedTableColumn",
+            "name": "Date",
+            "dataType": "dateTime",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "isKey": true,
+            "sourceColumn": "DateAutoTemplate[Date]",
+            "formatString": "m/d/yyyy",
+            "lineageTag": "",
+            "dataCategory": "PaddedDateTableDates",
+            "summarizeBy": "none",
+            "annotations": [
+              {
+                "name": "SQLBI_AttributeTypes",
+                "value": "Date, FiscalDate"
+              }
+            ]
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "Year",
+            "dataType": "int64",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "sourceColumn": "DateAutoTemplate[Year]",
+            "lineageTag": "",
+            "dataCategory": "Years",
+            "summarizeBy": "none"
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "Year Quarter Number",
+            "dataType": "int64",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "sourceColumn": "DateAutoTemplate[Year Quarter Number]",
+            "lineageTag": "",
+            "dataCategory": "Quarters",
+            "summarizeBy": "none"
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "Year Quarter",
+            "dataType": "string",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "sourceColumn": "DateAutoTemplate[Year Quarter]",
+            "sortByColumn": "Year Quarter Number",
+            "lineageTag": "",
+            "dataCategory": "Quarters",
+            "summarizeBy": "none"
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "Quarter",
+            "dataType": "string",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "sourceColumn": "DateAutoTemplate[Quarter]",
+            "lineageTag": "",
+            "dataCategory": "QuarterOfYear",
+            "summarizeBy": "none"
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "Year Month",
+            "dataType": "string",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "sourceColumn": "DateAutoTemplate[Year Month]",
+            "sortByColumn": "Year Month Number",
+            "lineageTag": "",
+            "dataCategory": "Months",
+            "summarizeBy": "none"
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "Year Month Number",
+            "dataType": "int64",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "sourceColumn": "DateAutoTemplate[Year Month Number]",
+            "lineageTag": "",
+            "dataCategory": "Months",
+            "summarizeBy": "none",
+            "annotations": [
+              {
+                "name": "SQLBI_AttributeTypes",
+                "value": "FiscalMonths"
+              }
+            ]
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "Month",
+            "dataType": "string",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "sourceColumn": "DateAutoTemplate[Month]",
+            "sortByColumn": "Month Number",
+            "lineageTag": "",
+            "dataCategory": "MonthOfYear",
+            "summarizeBy": "none"
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "Month Number",
+            "dataType": "int64",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "sourceColumn": "DateAutoTemplate[Month Number]",
+            "lineageTag": "",
+            "dataCategory": "MonthOfYear",
+            "summarizeBy": "none"
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "Day of Week Number",
+            "dataType": "int64",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "sourceColumn": "DateAutoTemplate[Day of Week Number]",
+            "lineageTag": "",
+            "dataCategory": "DayOfWeek",
+            "summarizeBy": "none",
+            "annotations": [
+              {
+                "name": "SQLBI_AttributeTypes",
+                "value": "DayOfWeek"
+              },
+              {
+                "name": "SQLBI_FilterSafe",
+                "value": "True"
+              }
+            ]
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "Day of Week",
+            "dataType": "string",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "sourceColumn": "DateAutoTemplate[Day of Week]",
+            "sortByColumn": "Day of Week Number",
+            "lineageTag": "",
+            "dataCategory": "DayOfWeek",
+            "summarizeBy": "none",
+            "annotations": [
+              {
+                "name": "SQLBI_FilterSafe",
+                "value": "True"
+              }
+            ]
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "Fiscal Year",
+            "dataType": "string",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "sourceColumn": "DateAutoTemplate[Fiscal Year]",
+            "sortByColumn": "Fiscal Year Number",
+            "lineageTag": "",
+            "dataCategory": "Years",
+            "summarizeBy": "none"
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "Fiscal Year Number",
+            "dataType": "int64",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "sourceColumn": "DateAutoTemplate[Fiscal Year Number]",
+            "lineageTag": "",
+            "dataCategory": "Years",
+            "summarizeBy": "none",
+            "annotations": [
+              {
+                "name": "SQLBI_AttributeTypes",
+                "value": "FiscalYears"
+              }
+            ]
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "Fiscal Year Quarter",
+            "dataType": "string",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "sourceColumn": "DateAutoTemplate[Fiscal Year Quarter]",
+            "sortByColumn": "Fiscal Year Quarter Number",
+            "lineageTag": "",
+            "dataCategory": "Quarters",
+            "summarizeBy": "none"
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "Fiscal Year Quarter Number",
+            "dataType": "int64",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "sourceColumn": "DateAutoTemplate[Fiscal Year Quarter Number]",
+            "lineageTag": "",
+            "dataCategory": "Quarters",
+            "summarizeBy": "none",
+            "annotations": [
+              {
+                "name": "SQLBI_AttributeTypes",
+                "value": "FiscalQuarters"
+              }
+            ]
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "Fiscal Quarter",
+            "dataType": "string",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "sourceColumn": "DateAutoTemplate[Fiscal Quarter]",
+            "lineageTag": "",
+            "dataCategory": "QuarterOfYear",
+            "summarizeBy": "none"
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "IsWorking",
+            "dataType": "boolean",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "sourceColumn": "DateAutoTemplate[IsWorking]",
+            "lineageTag": "",
+            "summarizeBy": "none",
+            "annotations": [
+              {
+                "name": "SQLBI_FilterSafe",
+                "value": "True"
+              }
+            ]
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "Working Day Value",
+            "dataType": "int64",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "sourceColumn": "DateAutoTemplate[Working Day Value]",
+            "lineageTag": "",
+            "summarizeBy": "none",
+            "annotations": [
+              {
+                "name": "SQLBI_FilterSafe",
+                "value": "True"
+              }
+            ]
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "Holiday Name",
+            "dataType": "string",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "sourceColumn": "DateAutoTemplate[Holiday Name]",
+            "lineageTag": "",
+            "summarizeBy": "none",
+            "annotations": [
+              {
+                "name": "SQLBI_FilterSafe",
+                "value": "True"
+              }
+            ]
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "DateWithTransactions",
+            "dataType": "boolean",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "sourceColumn": "DateAutoTemplate[DateWithTransactions]",
+            "lineageTag": "",
+            "summarizeBy": "none",
+            "annotations": [
+              {
+                "name": "SQLBI_AttributeTypes",
+                "value": "DateDuration"
+              }
+            ]
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Date",
+            "mode": "import",
+            "source": {
+              "type": "calculated",
+              "expression": "DateAutoTemplate"
+            }
+          }
+        ],
+        "hierarchies": [
+          {
+            "name": "Calendar",
+            "lineageTag": "",
+            "levels": [
+              {
+                "name": "Year",
+                "ordinal": 0,
+                "column": "Year",
+                "lineageTag": ""
+              },
+              {
+                "name": "Month",
+                "ordinal": 1,
+                "column": "Year Month",
+                "lineageTag": ""
+              },
+              {
+                "name": "Date",
+                "ordinal": 2,
+                "column": "Date",
+                "lineageTag": ""
+              }
+            ]
+          },
+          {
+            "name": "Fiscal",
+            "lineageTag": "",
+            "levels": [
+              {
+                "name": "Year",
+                "ordinal": 0,
+                "column": "Fiscal Year",
+                "lineageTag": ""
+              },
+              {
+                "name": "Month",
+                "ordinal": 1,
+                "column": "Year Month",
+                "lineageTag": ""
+              },
+              {
+                "name": "Date",
+                "ordinal": 2,
+                "column": "Date",
+                "lineageTag": ""
+              }
+            ]
+          }
+        ],
+        "annotations": [
+          {
+            "name": "SQLBI_Template",
+            "value": "Dates"
+          },
+          {
+            "name": "SQLBI_TemplateTable",
+            "value": "Date"
+          },
+          {
+            "name": "SQLBI_CalendarType",
+            "value": "Calendar"
+          }
+        ]
+      }
+    ]
+  }
+}

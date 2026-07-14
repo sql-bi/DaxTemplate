@@ -1,0 +1,12 @@
+{
+  "Description": "Calculation-group characterization: a disabled CalculationGroupTemplate entry removes a previously-created calculation-group table (Table is still required; Template is not read on the disabled path, which returns before reading it)",
+  "Templates": [
+    {
+      "Class": "CalculationGroupTemplate",
+      "Table": "Time Intelligence",
+      "Template": "CalcGroup-TimeIntelligence.json",
+      "IsHidden": false,
+      "IsEnabled": false
+    }
+  ]
+}

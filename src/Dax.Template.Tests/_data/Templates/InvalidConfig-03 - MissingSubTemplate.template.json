@@ -1,0 +1,6 @@
+{
+  "Description": "References a Template file that does not exist on disk",
+  "Templates": [
+    { "Class": "MeasuresTemplate", "Table": null, "Template": "InvalidConfig-DoesNotExist.json" }
+  ]
+}

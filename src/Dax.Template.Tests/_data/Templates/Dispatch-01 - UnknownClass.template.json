@@ -1,0 +1,6 @@
+{
+  "Description": "Dispatch characterization: an unrecognized template Class value",
+  "Templates": [
+    { "Class": "NotARealTemplateClass", "Table": "Whatever" }
+  ]
+}

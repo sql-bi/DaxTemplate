@@ -1,0 +1,20 @@
+{
+  "Description": "Minimal Date table plus a Calendar attached to it, for Calendar backend (Phase 1) tests",
+  "Templates": [
+    {
+      "Class": "CustomDateTable",
+      "Table": "Date",
+      "Template": "DateTemplate-01.json"
+    },
+    {
+      "Class": "CalendarTemplate",
+      "Table": "Date",
+      "Template": "Calendar-Standard.json",
+      "IsEnabled": true
+    }
+  ],
+  "IsoFormat": "en-US",
+  "OnlyTablesColumns": [],
+  "ExceptTablesColumns": [],
+  "AutoScan": "Disabled"
+}

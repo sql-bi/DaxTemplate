@@ -1,0 +1,48 @@
+<Project>
+
+  <!--
+    Centralizes build settings shared by all three projects under src/
+    (Dax.Template, Dax.Template.Tests, Dax.Template.TestUI).
+
+    TargetFramework is intentionally NOT centralized here: Dax.Template.TestUI targets
+    net10.0-windows (WinForms) while the other two target net10.0. Overriding it per-project
+    would work too, but leaving TargetFramework in each .csproj is the lower-risk choice for
+    this pass - it keeps the TFM decision visible where it already lives and avoids any chance
+    of a centralized default TFM silently leaking into the wrong project.
+
+    TreatWarningsAsErrors is intentionally NOT set here - warnings-as-errors is a CI-only gate,
+    turned on by passing -p:TreatWarningsAsErrors=true to the CI `dotnet build` command
+    (.github/workflows/ci.yml and .azure/pipelines/ci.yml), so local dev builds stay lenient.
+
+    WarningsNotAsErrors below is harmless when TreatWarningsAsErrors is off (i.e. for local dev
+    builds) - it only takes effect once CI turns warnings-as-errors on.
+  -->
+
+  <PropertyGroup>
+    <LangVersion>14.0</LangVersion>
+    <Nullable>enable</Nullable>
+
+    <!-- Conservative analyzer baseline for Stage 1 measurement; escalation is deliberate and staged. -->
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisLevel>latest-recommended</AnalysisLevel>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+
+    <!--
+      Phase M / Stage 1 step 1C: CI-WAE allowlist.
+      This is the EXACT set of analyzer codes with pre-existing warnings as of the Stage 1A
+      inventory (200 warnings total across src/Dax.Template + src/Dax.Template.Tests). It exists
+      solely so CI can turn on -p:TreatWarningsAsErrors=true today without failing on
+      already-known, already-deferred debt, while still failing CI on any NEW warning (including
+      any compiler CSxxxx warning, or any analyzer code not in this list).
+
+      Stage 3 (2026-07-03): the Stage-2 analyzer-debt allowlist is now EMPTY / fully cleared -
+      the last two codes (CA1305, CA1309) were fixed and removed. Any new analyzer or compiler
+      warning now fails CI. Do NOT add codes here to silence newly-introduced warnings; fix them
+      instead.
+    -->
+    <WarningsNotAsErrors>
+      $(WarningsNotAsErrors);
+    </WarningsNotAsErrors>
+  </PropertyGroup>
+
+</Project>

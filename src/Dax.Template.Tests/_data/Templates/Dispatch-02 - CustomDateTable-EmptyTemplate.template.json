@@ -1,0 +1,6 @@
+{
+  "Description": "Dispatch characterization: CustomDateTable with an empty Template",
+  "Templates": [
+    { "Class": "CustomDateTable", "Table": "Date", "Template": "" }
+  ]
+}

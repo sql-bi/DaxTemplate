@@ -24,7 +24,7 @@ namespace Dax.Template.Tests
 
             foreach (var template in templates)
             {
-                Assert.EndsWith(Package.TEMPLATE_FILE_EXTENSION, template);
+                Assert.EndsWith(Package.TemplateFileExtension, template);
             }
         }
 
@@ -41,7 +41,7 @@ namespace Dax.Template.Tests
         {
             var package = Package.LoadFromFile(StandardTemplatePath);
 
-            var expected = Path.GetFileName(StandardTemplatePath.Remove(StandardTemplatePath.Length - Package.TEMPLATE_FILE_EXTENSION.Length));
+            var expected = Path.GetFileName(StandardTemplatePath.Remove(StandardTemplatePath.Length - Package.TemplateFileExtension.Length));
             var actual = package.Configuration.Name;
 
             Assert.Equal(expected, actual);
@@ -53,7 +53,7 @@ namespace Dax.Template.Tests
             var package = Package.LoadFromFile(StandardTemplatePath);
 
             Assert.NotNull(package.Configuration.TemplateUri);
-           
+
             var expected = Path.GetFullPath(StandardTemplatePath);
             var actual = (new Uri(package.Configuration.TemplateUri!)).LocalPath;
 

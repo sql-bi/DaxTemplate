@@ -1,0 +1,854 @@
+# Session Handoff — DAX Template: new DAX entities
+
+> ✅ ROADMAP FULLY VALIDATED — nothing left to do. Phase M + Phases 1-3 (Calendars → Calc groups → UDFs)
+> are complete, reviewed, and pushed (HEAD `d70fb32`), AND the opt-in live-server validation has now PASSED.
+> LIVE-SERVER VALIDATION (2026-07-12): ran the `[LiveServerFact]` tests via
+> `dotnet test --filter "FullyQualifiedName~LiveServer"` against the published `EmptyTestTemplates.pbix`
+> (env vars `DAXTEMPLATE_LIVE_SERVER`/`DAXTEMPLATE_LIVE_DATABASE` set). **Result: 4 passed / 0 failed / 0 skipped**
+> — `CalendarGoldenTests` (Phase 1), `CalculationGroupGoldenTests` (Phase 2), `FunctionLibraryGoldenTests`
+> (Phase 3), plus the Phase-0 `ApplyTemplatesGoldenTests` baseline. Non-destructive (`ApplyTemplates` +
+> `GetModelChanges`, never `SaveChanges`). The Phase-3 UDF pass is the meaningful one: attaching the
+> engine-assembled `( params ) => body` signatures to `Model.Functions` on the connected compat-≥1702 model
+> did NOT throw — i.e. the generated DAX signatures compiled server-side (the one thing the offline suite
+> cannot check, since TOM treats `Function.Expression` as an opaque string offline).
+> STATUS: Phase M (Stages 0-4) COMPLETE; Phases 1-3 COMPLETE offline & pushed; LIVE-SERVER validation COMPLETE (2026-07-12). ROADMAP FULLY VALIDATED — nothing left.
+> LIVE-SERVER MODEL (decided 2026-07-12): the target is the committed empty PBIX
+> `src/Dax.Template.Tests/pbix/EmptyTestTemplates.pbix`, published to a compat-level >= 1702 workspace/instance.
+> An EMPTY model is SUFFICIENT for all three tests (verified 2026-07-12) — no tables need pre-creating:
+>   - Functions config is model-level; UDF bodies reference only their own parameters.
+>   - CalcGroup config generates its own `Time Intelligence` table; item DAX is stored as opaque strings,
+>     never compiled (no `SaveChanges`).
+>   - Calendar config self-generates its `Date` table via `CustomDateTable`, then binds the Calendar to the
+>     `Year` / `Day of Week` columns it just created.
+> The run is NON-DESTRUCTIVE: `ApplyTemplates` + `GetModelChanges` only, never `SaveChanges` (changes discarded
+> on disconnect). CAVEAT: confirm the model reports `CompatibilityLevel >= 1702`, else the Functions test fails
+> on its compat guard (`InvalidConfigurationException`) rather than on real DAX compilation. See
+> `docs/design/testing.md` (Live-server tests section).
+> Offline suite: 161 passed + 4 skipped (the 4 skips are the opt-in live-server facts). Working tree CLEAN
+> (the stray leading blank-line edit in `CalculationGroupTemplate.cs` was reverted by the user).
+> Last updated: 2026-07-12
+
+## Goal
+Extend the Dax.Template library (creates TOM objects from JSON templates) to support three new DAX
+entities, one at a time, with tests and no regressions:
+1. **Calendars** (priority 1) — native TOM `Calendar`, attached to a table; extends the existing calculated-table branch
+2. **Calculation groups** (priority 2)
+3. **User-defined functions / UDFs** (priority 3)
+
+## Decisions locked in
+- Implementation order: **Calendars -> Calc groups -> UDFs**
+- TOM upgrade to **latest released 19.114.0**, **no preview features**
+- ~~Keep `net6.0;net8.0`; drop net6 only if forced (it was NOT forced — kept)~~
+  **SUPERSEDED 2026-07-01:** now **net10.0-only / C# 14 / SDK 10** — see "Toolchain upgrade" entry
+  under Progress below.
+- CI gates on **offline** tests; **live-server** tests included but NOT required for pipeline sign-off
+- All JSON template config changes must be **purely additive** (existing templates keep working)
+- **NEW (2026-07-01):** a codebase-wide **Modernization & Refactor initiative (Phase M)** now precedes
+  Phase 1 (Calendars) — see "Phase M" under Progress below.
+  Goal: modernize to C# 14 / .NET 10 idioms, uniform style, improved readability, safe
+  behavior-preserving refactors.
+  Guardrails: golden-file BIM must stay byte-identical; JSON templates stay additive; no public-API
+  breaks without explicit sign-off; style changes are never bundled with behavior changes;
+  subsystem-scoped commits; every change reviewed; CI offline tests gate.
+
+## Architecture notes (verified)
+- Dispatch: `Engine.ApplyTemplates` routes each `Templates[]` entry by its `Class` string to a handler.
+  See `src/Dax.Template/Engine.cs` (~lines 67-211). Current classes: HolidaysDefinitionTable,
+  HolidaysTable, CustomDateTable, MeasuresTemplate.
+  ADDING AN ENTITY = new Class + handler + `*TemplateDefinition` POCO + JSON sub-templates.
+- Closest analog for calc groups / functions: `src/Dax.Template/Measures/MeasuresTemplate.cs`
+  (POCO from JSON; `ApplyTemplate(model,...)`; idempotency via `SQLBI_Template` annotation; re-runs
+  replace prior output and clean orphans).
+- Calendar branch extends `src/Dax.Template/Tables/CalculatedTableTemplateBase.cs`
+  (and CustomDateTable / ReferenceCalculatedTable).
+- Config schema: top-level `*.template.json` with `Templates[]`; `TemplateEntry` in
+  `src/Dax.Template/Interfaces/ITemplates.cs`.
+- Reflection precedent: `Engine.GetModelChanges` already pokes internal TOM members (TxManager/AllBodies)
+  via `src/Dax.Template/Extensions/ReflectionHelper.cs`.
+
+## TOM object model for the new entities (confirmed in released 19.114.0)
+- Calendar: Microsoft.AnalysisServices.Tabular.Calendar -> attaches to `Table.Calendars`.
+  Public: Name, Description, LineageTag, CalendarColumnGroups.
+  NOTE: `CalendarColumnGroup` is a public ABSTRACT base (its `CalendarColumnReferences`/`TimeUnit` are
+  internal), but the public concrete subclasses `TimeUnitColumnAssociation` / `TimeRelatedColumnGroup`
+  expose a fully public typed binding API in 19.114.0 — see "RISK ... RESOLVED" below.
+- CalculationGroup / CalculationItem: attaches to `Table.CalculationGroup`.
+  Public + complete: Expression, Ordinal, FormatStringDefinition, etc.
+- Function (UDF): attaches to `Model.Functions`. Public: Name, Expression, IsHidden, Description.
+- Compatibility level enforced SERVER-SIDE (not a hard TOM constant) — confirm exact minimum via the
+  opt-in live-server test in each phase.
+
+## RISK — Calendar column binding — RESOLVED (2026-07-04): use the PUBLIC subclass API
+The earlier RISK was based on inspecting the WRONG type. `CalendarColumnGroup` is a public **abstract**
+base (hence its private ctor + internal low-level `CalendarColumnReferences`/`TimeUnit`), but TOM
+**19.114.0 (our pinned version) already exposes a fully PUBLIC binding API via its concrete subclasses** —
+verified by reflection against the 19.114.0 assembly and cross-checked against Tabular Editor 2 (which
+compiles the same calls against an even older 19.112.0):
+- `TimeUnitColumnAssociation : CalendarColumnGroup` — public, `ctor(TimeUnit)`, public `TimeUnit`,
+  `PrimaryColumn` (Column), `AssociatedColumns` (ICollection<Column>).
+- `TimeRelatedColumnGroup : CalendarColumnGroup` — public, `ctor()`, public `Columns` (ICollection<Column>).
+- `Table.Calendars.Add(calendar)` and `calendar.CalendarColumnGroups.Add(group)` are public.
+So Phase 1 needs **NO reflection and NO TMSL/JSON injection** — build the calendar with the public typed API,
+exactly like the other template handlers. (TE2 reference: `TOMWrapper/TOMWrapper/CalendarColumnGroup.cs`
+`TimeUnitColumnAssociation.CreateNew`.)
+Remaining Phase-1 constraints (still true): (a) **min compatibility level 1701** (CompatibilityRequirement
+attribute on the calendar types) — the offline golden fixture (compat 1600) must be raised to >=1701 for a
+calendar golden test; (b) **`Calendar` has no `Annotations`** — idempotency/orphan-cleanup must key off the
+**parent table's** `SQLBI_Template` annotation (or `Calendar.Name`).
+
+## Progress
+
+### Phase 0 — Foundations
+- [x] TOM upgrade — `src/Dax.Template/Dax.Template.csproj` bumped 19.86.6 -> 19.114.0 (both
+      Microsoft.AnalysisServices and ...AdomdClient). Build GREEN on net6.0 + net8.0, zero source
+      changes, existing 5 tests pass on both TFMs. (Pre-existing CS8602 warning in
+      ApplyDaxTemplate.cs:315, unrelated.)
+- [x] Compatibility/preview spike — done; findings above. No preview binaries needed.
+- [x] Offline test harness — DONE (worktree branch claude/magical-wilbur-213ce1). Approach:
+      - `Infrastructure/OfflineModelFixture.cs` — builds a synthetic in-memory `Database` (disconnected,
+        compat 1600) with a Sales fact (Order Date + target measures Sales Amount/Total Cost/Margin/Margin %)
+        and an Orders table. Built in code rather than a committed .bim — easier to maintain.
+      - `Infrastructure/GoldenFile.cs` — serializes the DB to BIM via `JsonSerializer.SerializeDatabase`,
+        normalizes the ONLY volatile content (lineageTag GUIDs -> "") + CRLF->LF, snapshot-compares against
+        `_data/Golden/{name}.bim`. `UPDATE_GOLDEN=1` regenerates. Snapshot path found by walking up from
+        `[CallerFilePath]` to the .csproj dir (so it reads/writes committed source, not bin output).
+        Verified deterministic across runs and proven to fail on a 1-char change (has teeth).
+      - `ApplyTemplatesGoldenTests.cs` — runs the REAL `Engine.ApplyTemplates` dispatch offline and golden-files
+        the Standard config (covers holidays-def, holidays, custom date table + reference table, AND the
+        time-intelligence MeasuresTemplate output). Golden = 3681 lines.
+      - `Infrastructure/LiveServerFactAttribute.cs` — opt-in skippable live-server category; runs only when
+        `DAXTEMPLATE_LIVE_SERVER` + `DAXTEMPLATE_LIVE_DATABASE` env vars are set (applies + GetModelChanges,
+        does NOT SaveChanges). Currently SKIPPED in CI.
+      - Copied `HolidaysDefinition.json` into test `_data/Templates` (Standard config references it; was missing).
+      - Suite: 7 passed + 1 skipped on net6.0 AND net8.0.
+      ENABLER (production change, see below): guarded the 3 `Table.RequestRefresh` calls in `Engine.cs`.
+- [x] Reviewer gate for Phase 0 — APPROVED by user (guard signed off). Phase 0 COMMITTED as `972c8cc` and
+      consolidated onto the `add-calendar` feature branch (fast-forward). Branch `claude/magical-wilbur-213ce1`
+      also points at it. The duplicate uncommitted TOM bump in the main checkout was reverted; the bump now
+      lives only in committed history. Main checkout retains its independent `.gitignore` (+.serena/) and
+      `.claude/` WIP. Nothing pushed yet.
+
+### Phase 0 production change to confirm — Engine.RequestTableRefresh guard
+`Engine.cs` had 3 unconditional `table.RequestRefresh(RefreshType.Full)` calls (holidays-def, holidays, date).
+TOM throws "A disconnected object is read only and cannot be refreshed" on an in-memory model, which blocked
+offline testing of the table-creation paths (exactly the branch Calendars/Phase 1 extends). Added a private
+helper `RequestTableRefresh(Table)` that only requests refresh when `table.Model?.Server != null`. Rationale:
+a disconnected model genuinely cannot be refreshed; real deployments always operate on a server-connected
+model (TestUI does `server.Connect`), so production behavior is unchanged — this only stops the offline throw.
+Confirmed correct semantics via MS Learn docs. Low risk, but it IS a touch to the shipping engine — flagging
+for explicit sign-off.
+
+### Hierarchy back-reference fix (2026-07-01)
+- **Bug:** `AddHierarchies` in `src/Dax.Template/Tables/TableTemplateBase.cs` populated the internal
+  back-references `Model.Level.TabularLevel` / `Model.Hierarchy.TabularHierarchy` incorrectly. A first
+  loop created a `TabularLevel`, stored it on `level.TabularLevel`, then discarded it; a second loop
+  created a DIFFERENT `TabularLevel` (the one actually added to the model) but never stored it back.
+  `Hierarchy.TabularHierarchy` was never assigned (stayed null). Emitted BIM was correct, so the
+  golden-file test could not catch it — the defect was purely in internal back-reference bookkeeping.
+- **Fix:** Collapsed to a single loop mirroring the correct `AddColumns` pattern (same file): create the
+  `TabularHierarchy`/`TabularLevel` once, assign it to `hierarchy.TabularHierarchy` / `level.TabularLevel`,
+  and add that SAME instance to the model. Preserved Ordinal (0-based, declaration order),
+  Name/Column/IsHidden/DisplayFolder, and the `CompatibilityLevel >= 1540` LineageTag guard. Also restored
+  a per-level `cancellationToken.ThrowIfCancellationRequested()` inside the inner loop (parity with
+  `AddColumns`).
+- **Secondary cleanup:** Removed a redundant `modelLevel.Description = level.Description;` re-assignment
+  in `src/Dax.Template/Tables/CustomTableTemplate.cs` (value already set in the object initializer; pure
+  no-op).
+- **Tests added:** `src/Dax.Template.Tests/HierarchyTabularReferenceTests.cs` — 6 xUnit tests via a
+  minimal `TableTemplateBase` subclass exercising the real `ApplyTemplate` -> `AddHierarchies` path
+  offline. Two guard the back-reference identity contract (`Assert.Same` between
+  `Level.TabularLevel`/`Hierarchy.TabularHierarchy` and the instances in the model); four characterize
+  ordinal order, level->column binding, and `Level.Reset()`/`Hierarchy.Reset()`. Uses existing
+  `[InternalsVisibleTo("Dax.Template.Tests")]`.
+- **Output impact:** None — golden BIM snapshot byte-identical (internal back-references are not
+  serialized). Change is behavior-preserving for serialized output; fixes internal state relied on by
+  future consumers.
+- **Validation:** Build clean (0 warnings/errors); offline suite 13/13 pass on net6.0 + net8.0.
+- **Reviewer:** APPROVED (GO) on both the test file and the fix.
+- **Relevance to Calendars:** The date-table hierarchy path (Calendar/Fiscal) exercised here is the same
+  branch Phase 1 extends, so the now-correct `TabularHierarchy`/`TabularLevel` back-references are a
+  foundation for that work.
+
+### Toolchain upgrade: .NET 10 / C# 14 / SDK 10 (2026-07-01)
+- **What changed:**
+  - `global.json`: SDK `8.0.400` -> `10.0.301` (`rollForward: latestFeature`, `allowPrerelease: false`
+    unchanged).
+  - `src/Dax.Template/Dax.Template.csproj`: target `net6.0;net8.0` -> `net10.0` (single TFM);
+    `LangVersion` `12.0` -> `14.0`.
+  - `src/Dax.Template.Tests/Dax.Template.Tests.csproj`: same change (`net6.0;net8.0` -> `net10.0`,
+    `LangVersion` `12.0` -> `14.0`).
+  - `src/Dax.Template.TestUI/Dax.Template.TestUI.csproj`: `net8.0-windows` -> `net10.0-windows`; added
+    explicit `LangVersion 14.0`.
+  - `.github/workflows/ci.yml`: `setup-dotnet` now installs `10.0.x` (was `6.0.x`); still resolves the
+    exact SDK via `global-json-file`.
+- **Consumer impact:** the published `Dax.Template` NuGet package now targets **net10.0 only**
+  (previously multi-targeted `net6.0;net8.0`) — this NARROWS supported frameworks for consumers on
+  older TFMs. See `CHANGELOG.md` `### Changed` under `[Unreleased]`.
+- **Verification:** build GREEN on the single net10.0 target; offline suite 13/13 pass; golden BIM
+  snapshot (`_data/Golden/Config-01 - Standard.bim`) byte-identical/unchanged. One pre-existing CS8602
+  warning remains in `Dax.Template.TestUI` — unrelated to this upgrade (predates it).
+- **Supersedes** the "Keep `net6.0;net8.0`" decision recorded above under "Decisions locked in".
+
+### Phase M — Modernization & Refactor (IN PROGRESS — Stage 0 + Stage 1 + Stage 2 COMPLETE, Stage 3 active, precedes Phase 1)
+Codebase inventory (verified 2026-07-01): 61 library `.cs` files, ~93 public types.
+Subsystems: Model(7) / Tables(11) / Measures(2) / Syntax(11) / Extensions(6) / Interfaces(7) /
+Enums(2) / Exceptions(7) / Constants(2) / root(6).
+All namespaces are block-scoped (0 file-scoped).
+A comprehensive `.editorconfig` (266 lines) exists but is under-enforced — no `Directory.Build.props`,
+no `dotnet format` CI gate, many rules at `:suggestion`.
+1 shipped template config has golden coverage; coverlet is wired but inert (no coverage baseline).
+Only 4 members use `= default!`.
+`Dax.Template` is a published NuGet. LOCKED (2026-07-01): the public API is open to improvement and
+breaking changes are acceptable — there is no Web API surface to preserve, and NuGet consumers may need
+to adapt on the next major version. This is NOT a hard freeze constraint (see "Phase M — locked
+decisions" below).
+
+- **Stage 0 — Safety net first (test hardening before refactor) — COMPLETE (2026-07-02)** — qa + devops.
+  Prioritized tests:
+  - [x] P0 DELIVERED: public-API baseline (PublicApiAnalyzers or a committed API-dump snapshot). LOCKED
+    scope: this is a change-detector to surface intended vs. accidental public-surface changes for
+    review in each PR — NOT a hard freeze/gate (public API is open to improvement; see "Phase M —
+    locked decisions").
+  - [x] P0 DELIVERED: coverage baseline (activate the currently-inert coverlet, record baseline). LOCKED
+    target (2026-07-01): CI-enforced floor of 80% line coverage on the core library `Dax.Template` only
+    (`Dax.Template.TestUI` excluded from the metric); ~90% on the refactor-target subsystems (Tables,
+    Measures, Model, Extensions dependency-sort, Engine/Package dispatch); justified, attributed
+    exclusions for live-server-only branches and generated/trivial members; add Stryker.NET mutation
+    testing on the 2-3 highest-risk subsystems alongside the golden-file gate. 100% remains aspirational
+    for the core transformation logic; the CI floor may be raised (e.g. to 85%) once Stage 0 reveals the
+    real baseline.
+  - [x] P1 DELIVERED: broaden golden coverage with synthetic configs beyond Config-01 (custom non-date
+    table w/ hierarchies, measures-only, holidays variants); Engine dispatch tests (each Class -> handler,
+    unknown/invalid Class); idempotency (apply-twice identical normalized BIM + SQLBI_Template orphan
+    cleanup); dependency ordering (TSort DAG + cycle -> CircularDependencyException,
+    ComputeDependencies/GetDependencies/GetScanColumns); reflection paths
+    (ReflectionHelper/GetModelChanges diff correctness).
+  - [x] P2 DELIVERED: StringExtensions macro/var substitution, Package load/invalid-config,
+    CustomTableTemplate.GetHierarchies non-date path, MeasuresTemplate wrapping, determinism +
+    cancellation honoring.
+  - [x] Exit MET: API + coverage baselines committed, new tests green. See "Stage 0 — outcomes
+    (2026-07-02)" below for the full result.
+
+#### Stage 0 — outcomes (2026-07-02)
+- **Suite growth:** offline suite grew from 13 -> **129 passed + 1 skipped** (116 new tests: 1
+  public-API baseline + 28 P1 + 46 P2 + 41 Measures/Package top-up).
+- **Public-API baseline:** change-detector committed — `src/Dax.Template.Tests/_data/Golden/PublicApi.txt`
+  via `Infrastructure/PublicApiSurface.cs` (reflection dump) + `PublicApiGoldenTests.cs`; regenerate with
+  `UPDATE_GOLDEN=1`. Confirmed change-detector, not a freeze gate.
+- **Coverage:** baseline recorded in `docs/design/coverage.md`; core `Dax.Template` line coverage
+  **81.1%**; **CI floor raised to the locked 80%** target in `.github/workflows/ci.yml` (~1.1pt
+  headroom). Per-subsystem: Extensions ~97.6%, Measures 98.9%, Package 100%, Engine 81.2%, Engine+Package
+  dispatch 88.3%, Tables 79.9%, Model 6.9%. Restored the missing `coverlet.runsettings` (CI had been
+  broken referencing it). 3 justified `[ExcludeFromCodeCoverage]` sites (`ModelChanges.PopulatePreview`,
+  `ModelChanges.GetPreviewData`, `EntityBase.ToString`).
+- **Stryker.NET** wired (non-gating) via `stryker-config.json` (Tables/Measures/dependency-sort);
+  dependency-sort baseline mutation score **52.25%** — a blind-spot signal despite 97.8% line coverage.
+- **Commits:** 5 commits on `add-calendar` (`50eb033`..`8a49b46`); not pushed.
+- **Residual subsystem gaps vs the ~90% target** (tracked, accepted): Tables 79.9%, Engine 81.2%, and
+  Model 6.9% (Model's low figure is reflection-heavy, live-server-tilted `ModelChanges` diff code — not
+  core transformation logic).
+
+#### Defect backlog surfaced by Stage 0 characterization (for Stage 2/3)
+Pinned as CURRENT BEHAVIOR today (characterization tests lock the existing behavior); convert to
+fix-tests when each is scheduled.
+- **Hierarchy/Level `Description` silently dropped** — `Tables/TableTemplateBase.cs` `AddHierarchies`
+  (~lines 370-389) never copies `Description` onto the TOM `Hierarchy`/`Level` (source values set in
+  `Tables/CustomTableTemplate.cs` `GetHierarchies`). Medium (metadata data-loss). Fix: add
+  `Description = hierarchy.Description` / `= level.Description`.
+- **`GetHierarchies` unknown-column -> bare `InvalidOperationException`** —
+  `Tables/CustomTableTemplate.cs:134` unguarded `Columns.First(...)`. Medium (debuggability). Fix:
+  `FirstOrDefault` + `TemplateException` naming the column/hierarchy.
+- **Holidays phantom empty table on validation throw** — `Engine.cs` `ApplyHolidaysDefinitionTable`
+  (~124-136) adds the table BEFORE validating empty `Template`. Medium (idempotency/retry). Fix: hoist
+  the validation above the `Tables.Add`.
+- **`CustomDateTable` disabled never cleans up its table** (asymmetric `IsEnabled=false` handling across
+  the 4 dispatch handlers) — `Engine.cs`. Medium.
+- **Cycle detection inconsistency** — a 1-node self-cycle throws `CircularDependencyException`
+  immediately; a 2-node A<->B cycle is only caught after ~1000 recursive calls via `MAX_NESTED_CALLS` —
+  `Extensions/TSort.cs` `VisitDependencies`. Low/Med (Stage 3).
+- **Inconsistent `Package` exception mapping** (BCL vs `Template*` exceptions) — `Package.cs`. Low
+  (API-shape decision).
+- **`GetModelChanges` returns empty after an offline apply** (needs a connected model for
+  `HasLocalChanges`) — `Engine.cs:29-62`. Pin-only + add an XML-doc note in Stage 4.
+
+#### Deferred PublicApiSurface renderer nits (Stage 1/2)
+Cosmetic only — do not affect baseline determinism:
+- `sealed override` mislabels implicit interface implementations.
+- Redundant transitively-inherited interfaces listed in type headers.
+- Latent `ulong`-enum `OverflowException` risk in `FormatField`.
+- `CancellationToken = default` renders as `= null`.
+
+- **Stage 1 — Style/analyzer infrastructure — COMPLETE (2026-07-02)** — devops.
+  - [x] Add `Directory.Build.props` (centralize TargetFramework/LangVersion 14/Nullable/analyzers).
+  - [x] Enable .NET analyzers (+ optional Roslynator); escalate key `.editorconfig` rules
+    suggestion->warning.
+  - [x] File-scoped namespaces recorded as house style (LOCKED) — actual conversion deferred to
+    Stage 2.
+  - [x] Add CI `dotnet format --verify-no-changes` gate.
+  - [x] Wire warnings-as-errors into the CI build (LOCKED, 2026-07-01: CI-only, not necessarily local
+    dev builds).
+  - [x] Fix the pre-existing CS8602 in `TestUI/ApplyDaxTemplate.cs:315`.
+  - [x] Exit MET: clean `dotnet format` baseline + CI enforcement; conventions recorded in AGENTS.md.
+    See "Stage 1 — outcomes (2026-07-02)" below for the full result.
+
+#### Stage 1 — outcomes (2026-07-02)
+- **`src/Directory.Build.props` (new):** centralizes `LangVersion=14.0`, `Nullable=enable`,
+  `EnableNETAnalyzers=true`, `AnalysisLevel=latest-recommended`, `EnforceCodeStyleInBuild=true`.
+  `TargetFramework` deliberately left per-project (so `TestUI` stays `net10.0-windows`). No
+  `TreatWarningsAsErrors` in the props file — WAE is wired CI-only (see below).
+- **Pre-existing `CS8602` fixed** — `TestUI/ApplyDaxTemplate.cs:315`, a real latent NRE guard (not
+  cosmetic).
+- **`dotnet format` baseline established** across **72 files** (whitespace/EOL/final-newline/using-
+  ordering only — NO file-scoped-namespace conversion, NO logic changes). Golden BIM +
+  `PublicApi.txt` confirmed byte-identical. CI now runs `dotnet format --verify-no-changes` on both
+  GitHub Actions and Azure Pipelines.
+- **CI-only warnings-as-errors** wired into both pipelines (`-p:TreatWarningsAsErrors=true`), with a
+  `WarningsNotAsErrors` allowlist in `Directory.Build.props` covering the 17 currently-present
+  analyzer codes = Stage-2-deferred debt. Gate verified to have teeth: compiler `CSxxxx` warnings and
+  any new, non-allowlisted analyzer code break CI; the 95 remaining allowlisted warnings do not.
+  Local dev builds stay lenient.
+- **`CA1707` disabled for the test project only** (idiomatic xUnit `Method_Scenario_Expected` names);
+  the 18 production `CA1707` hits remain deferred to Stage 2. `csharp_style_namespace_declarations =
+  file_scoped:suggestion` set as documented house style (actual conversion is a Stage 2 sweep).
+- **`AGENTS.md`** gained a "Code style & analyzers" subsection.
+- Suite still **129 passed + 1 skipped**. Committed as 5 commits on `add-calendar` (`27a740a`..
+  `45e2abb`); Stage 0's commits already pushed, these not yet (unless noted otherwise by the lead).
+
+#### Stage 2 entry — analyzer-debt ratchet
+Stage 2 mechanical sweeps should, per subsystem, FIX the underlying issue for each allowlisted code
+and then REMOVE that code from the `WarningsNotAsErrors` allowlist in `Directory.Build.props` — the
+list shrinks toward empty as sweeps land. Code -> work mapping to plan the sweeps:
+- **Mechanical/low-risk (fix early):** `CA1805` (redundant default init, ~29), `CA1860` (`Count == 0`
+  vs `.Any()`, ~5), `CA1874` (`Regex.IsMatch`, ~6), `CA1510` (`ArgumentNullException.ThrowIfNull`,
+  ~2), `CA1868` (~1), `CA1816`/`CA1852`/`CA1859`/`CA1869`/`CA2263` (misc small counts; several in
+  `TestUI`).
+- **Needs judgment / API decision (defer within Stage 2, review each):** `CA1707` on 18 PUBLIC
+  constants (API rename -> must deliberately update the `PublicApi.txt` baseline), `CA1051` (visible
+  instance fields — base-class field design; route to `dotnet-architect`), `CA1305`/`CA1309`
+  (culture-sensitive string ops — a real DAX/TOM correctness question, not just style),
+  `CA1711`/`CA1716` (type/param naming — public surface), `CA1725` (override param-name consistency).
+- Also fold in the Stage 0 defect backlog (dropped `Description`, Holidays phantom table,
+  `GetHierarchies` bare exception, cycle-detection weakness, etc. — see "Defect backlog surfaced by
+  Stage 0 characterization" above) as Stage 2/3 fix-tests.
+
+- **Stage 2 — Mechanical modernization sweeps (low-risk), subsystem by subsystem — COMPLETE (2026-07-02)**
+  — backend (+ frontend for the TestUI WinForms project).
+  Order leaf->core: Constants/Enums -> Exceptions -> Extensions -> Model -> Syntax -> Measures ->
+  Tables (date branch last) -> Engine/Package -> TestUI.
+  Per sweep: file-scoped namespaces, using cleanup/sort, target-typed new, collection expressions,
+  pattern matching/switch expressions, nameof, raw string literals for embedded DAX/JSON,
+  expression-bodied members where clearer, `required` for the 4 `= default!` members (LOCKED, 2026-07-01:
+  approved — source-breaking for NuGet consumers, ships under a MAJOR VERSION BUMP), primary
+  constructors where they cut boilerplate (LOCKED as house style alongside file-scoped namespaces).
+  Gate each: golden byte-identical + full offline suite + API baseline unchanged + reviewer. See
+  "Stage 2 — outcomes (2026-07-02)" below for the full result.
+
+#### Stage 2 — outcomes (2026-07-02)
+- **10 subsystem modernization sweeps** (leaf->core), all behavior-preserving & reviewed: 2.1
+  Constants/Enums/Exceptions, 2.2 Extensions, 2.3 Model, 2.4 Syntax, 2.5 Measures, 2.6a Tables base +
+  2.6b Tables/Dates, 2.7a Interfaces + 2.7b Engine/Package/root, 2.8 TestUI, plus a bucket-C
+  analyzer-cleanup pass. Applied: file-scoped namespaces (whole library), primary constructors (simple
+  exceptions), collection expressions, expression-bodied members, `is null`/pattern matching, and
+  mechanical analyzer fixes. Golden BIM + `PublicApi.txt` byte-identical across all non-breaking
+  sweeps; suite steady at **129 passed + 1 skipped**; UTF-8 BOM preserved per file.
+- **WAE allowlist ratcheted 17 -> 3 codes**: cleared CA1510, CA1868, CA1860, CA1874, CA1805, CA2263,
+  CA1816, CA1852, CA1859, CA1869, CA1707, CA1711, CA1716, CA1725 (each fully eliminated repo-wide +
+  de-allowlisted with the CI warnings-as-errors build re-verified green). CA1051 was also completed as a
+  Stage 2 tail (protected fields -> properties, `9ead9ae`). **Remaining allowlist: CA1305, CA1309 only
+  (Stage 3 culture decision).**
+- **API-breaking pass (ships as 2.0.0):** 2.10a — `required` migration (EntityBase.Name, Level.Column,
+  Var.Name, DaxStep.Name) + version bump to **2.0.0** + CHANGELOG; also enhanced `PublicApiSurface` to
+  detect `RequiredMemberAttribute` (the change-detector was blind to `required`) and regenerated the
+  baseline. 2.10b — renamed public identifiers (de-underscored 18 constants with values unchanged;
+  dropped `*Enum` suffixes -> AutoScan/AutoNaming/Substitute/WeekDay; param `template`->
+  `templateDefinition`; nested type `Step`->`TemplateStep`; `dateTable`->`tabularTable`). Emitted BIM
+  byte-identical + JSON config still loads (identifier-only changes); `PublicApi.txt` regenerated.
+  Design docs + test comments synced.
+- **NOTE for maintainer:** the Azure DevOps pipeline `AppVersionMajor` variable must be bumped to **2**
+  (ADO variables can't be changed from the repo).
+- Committed as ~15 commits on `add-calendar` (`e2f4028`..`3536cc0`); pushed through `be0b053` (Stage
+  2.1-2.8 + bucket-C); the 2.10a/2.10b/doc-sync commits (`52d9676`,`86f2ddb`,`3536cc0`) may be unpushed
+  unless the lead notes otherwise.
+
+#### Stage 2 tail — CA1051 follow-up (DONE 2026-07-02, `9ead9ae`)
+**CA1051** (visible/protected instance fields) is COMPLETE: `MeasureTemplateBase.Template` (get-only),
+`TableTemplateBase.FixRelationshipsTo`/`FixRelationshipsFrom` (get/set), and
+`Translations.LanguageDefinitions` (get/set) converted field->property (source/binary-breaking for
+subclasses, part of the 2.0.0 release; no runtime/DAX-BIM/JSON impact — verified no ref/out usage, none
+JSON-bound). CA1051 removed from the allowlist. **The full 2.0.0 public-API cleanup is now complete; the
+allowlist holds only CA1305/CA1309 (Stage 3 culture).**
+
+- **Stage 3 — Deeper refactors (higher-risk, opt-in per item) — ACTIVE** — backend.
+  De-duplicate AddAnnotations vs MeasuresTemplateBase.ApplyAnnotations (existing TODO) and unify
+  column/hierarchy add patterns; encapsulate/modernize reflection (ReflectionHelper, GetModelChanges)
+  with documented TOM-version fragility; readability pass on the Syntax subsystem; consistency pass on
+  exceptions/messages.
+  Each item proposed/reviewed/gated individually; behavior-preserving.
+
+#### Stage 3 progress
+- **Item 1 — annotation-upsert dedup — DONE (2026-07-03, not yet committed)** — `refactor-cleaner`.
+  Extracted the duplicated upsert loop (the 2+yr-old TODO at `Tables/TableTemplateBase.cs:328`) into a
+  new `internal static` extension `Extensions/AnnotationCollectionExtensions.cs` →
+  `UpsertAnnotations<TOwner>(this NamedMetadataObjectCollection<Annotation, TOwner>, IEnumerable<KeyValuePair<string,string>>?, CancellationToken)`
+  (generic over TOM's real base — there is no concrete `AnnotationCollection` type). `TableTemplateBase.AddAnnotations`
+  keeps its `protected virtual` signature and delegates (retaining its upfront `ThrowIfCancellationRequested()`);
+  `MeasureTemplateBase`'s local `ApplyAnnotations` deleted, call site delegates. Behavior-preserving:
+  build green, offline suite **129 passed + 1 skipped**, golden BIM + `PublicApi.txt` byte-identical (no
+  `UPDATE_GOLDEN`). `code-reviewer` verdict **GO**; the one should-fix (XML doc summary on the helper) was
+  applied. Group B defect fixes + the CA1305/CA1309 culture decision remain DEFERRED until after the Group A
+  refactors (per user, 2026-07-03).
+- **Item 4 — exceptions/messages consistency — DONE (2026-07-03, reviewed; commit pending user OK)** —
+  `refactor-cleaner`. Fixed the "Circulare"->"Circular" typo in `CircularDependencyException.cs`; renamed
+  the misleading public ctor params `daxExpressionmessage`->`daxExpression` (4 sites across
+  CircularDependency/InvalidVariableReference/InvalidMacroReference×3) and `entitymessage`->`entityName`
+  (`InvalidAttributeException`). `PublicApi.txt` deliberately regenerated — diff limited to exactly those 6
+  ctor-param lines; golden BIM byte-identical; suite 129 passed + 1 skipped. `code-reviewer` verdict **GO**.
+  FOLLOW-UPS surfaced (out of scope, for later decision): `TemplateUnexpectedException : Exception` breaks
+  the `: TemplateException` pattern (changing it alters `catch (TemplateException)` semantics — behavior
+  change); `TemplateConfigurationException` vs `InvalidConfigurationException` naming/role overlap; and
+  `entityName` is still a mild misnomer (call sites pass a `"Column: X"` context string, not a bare name).
+- **Item 3 — Syntax subsystem readability — DONE (2026-07-03, reviewed via lead assessment; commit
+  pending user OK)** — `dotnet-team:docs`. LEAD FINDING: the Syntax subsystem is 11 tiny files (~106 LOC)
+  of POCOs/interfaces/one enum, already modernized by Stage 2.4 — no behavior-preserving *refactor* was
+  warranted (the heavy DAX-string logic lives in `StringExtensions`/`Tables/*`, not here). The genuine
+  readability win was documentation: added XML `///` summaries to the 9 previously-undocumented public/
+  internal types (`DaxBase`, `Var`, `VarGlobal`, `VarRow`, `VarScope`, `IDependencies<T>`, `IDaxName`,
+  `IDaxComment`, `IGlobalScope`), matching the existing `DaxElement`/`DaxStep` tone. Doc-comment-only: no
+  code/signature changes, build green (no CS1570), suite 129 passed + 1 skipped, golden BIM + `PublicApi.txt`
+  byte-identical. No `code-reviewer` gate (doc-only, agreed with user).
+- **Item 2 — reflection encapsulation — DONE (2026-07-03, reviewed; commit pending user OK)** —
+  `refactor-cleaner`. Made `ReflectionHelper` + `GetPropertyValue`/`SetPropertyValue` **`internal`** (were
+  public; tests reach them via `[InternalsVisibleTo("Dax.Template.Tests")]`; deliberate 3-line `PublicApi.txt`
+  removal, ships under 2.0.0). Kept `SetPropertyValue` (no prod caller — reserved for Phase 1 Calendar
+  internal-member writes). Modernized `string.Format`->interpolation (exception type/paramName/message
+  unchanged). Centralized the 6 TOM-internal reflected member-name literals (`TxManager`, `CurrentSavepoint`,
+  `AllBodies`, `Owner`, `LastParent`, `Parent`) as documented consts in a `private static class
+  TomInternalMembers` (NOTE: consts are `internal const` — required so the outer `Engine` can read them; a
+  reviewer nit suggesting `private const` was WRONG and reverted after it broke the build — a nested class's
+  private members are not accessible from the enclosing type). Extracted `GetChangedBodies(TabularModel)` for
+  the TxManager->AllBodies traversal (exact null-propagation + hard `(IEnumerable)` cast preserved). Added
+  XML docs on both incl. the offline-apply-returns-empty `<remarks>` (closes that Stage-0 backlog doc item).
+  Behavior-preserving: whole-solution build green, suite 129 passed + 1 skipped, golden BIM byte-identical,
+  `PublicApi.txt` diff = exactly the 3 removed lines. `code-reviewer` verdict **GO** (high confidence).
+
+**GROUP A COMPLETE (2026-07-03):** items 1 (annotation dedup), 4 (exceptions naming), 3 (Syntax docs),
+2 (reflection encapsulation) all done + reviewed. Items 1/4/3 committed (`1b21352`, `82170e9`, `6d6e430`);
+item 2 commit pending. NEXT: the deferred work — Group B defect fixes (dropped Hierarchy/Level Description;
+Holidays phantom-table; CustomDateTable-disabled no-cleanup; GetHierarchies bare exception; 2-node cycle
+detection) as fix-tests, and the CA1305/CA1309 culture-correctness decision (the last 2 allowlisted analyzer
+codes).
+
+#### Group B progress (behavior-changing defect fixes — user greenlit the group 2026-07-03)
+Sequence: B1+B2 (error-path, no golden) -> B3 (golden regen) -> B4 (cycle algorithm) -> B5 (date-table
+disable cleanup). Each: TDD (convert the characterization test that PINS the bug into a fix-test) ->
+`code-reviewer` -> commit.
+- **B1 Holidays phantom empty table + B2 GetHierarchies bare exception — DONE (2026-07-03, reviewed GO)** —
+  `test-engineer`. B1: hoisted the empty-`Template` validation above `Tables.Add` in
+  `Engine.ApplyHolidaysDefinitionTable` (no phantom table on throw); converted
+  `ReviewerFollowUp..._LeavesHalfCreatedTableInModel` -> `..._DoesNotLeaveHalfCreatedTableInModel`. B2:
+  `CustomTableTemplate.GetHierarchies` `.First` -> `FirstOrDefault ?? throw new TemplateException(...)`
+  naming column/level/hierarchy; converted `CustomTableHierarchy..._ThrowsInvalidOperationException` ->
+  `..._ThrowsTemplateException`. Both error-path: golden BIM + `PublicApi.txt` byte-identical, suite 129
+  passed + 1 skipped (2 tests renamed, count unchanged), build green.
+- **B3 dropped Hierarchy/Level Description — DONE (2026-07-03, reviewed GO)** — `test-engineer`. Added
+  `Description = hierarchy.Description` / `= level.Description` to the TOM initializers in
+  `TableTemplateBase.AddHierarchies` (mirrors the existing `AddColumns` pattern). Converted
+  `CustomTableHierarchy..._AreNotCopiedToTheTabularObjects` -> `..._AreCopiedToTheTabularObjects`.
+  EMPIRICAL golden result: **no golden `.bim` changed** — no shipped config supplies hierarchy/level
+  descriptions today (the built-in date-table path `SimpleDateTable` sets none), so this is a latent-
+  correctness fix; golden BIM + `PublicApi.txt` byte-identical, suite 129 passed + 1 skipped.
+- **B4 2-node cycle detection — DONE (2026-07-03, reviewed GO-WITH-NITS, nits addressed)** — `test-engineer`.
+  Replaced the `nestedCalls`/`MAX_NESTED_CALLS` (1000) backstop + self-only `Contains(item)` check in
+  `TSort.VisitDependencies` with proper DFS recursion-path tracking (`HashSet<T> path` + `try/finally`
+  backtrack), so self-/2-node/N-node cycles all throw `CircularDependencyException` promptly with the real
+  node expression (not the generic "{STACK OVERFLOW}" message). `MAX_NESTED_CALLS` removed (no dangling
+  refs). Converted `DependencySort..._ViaNestedCallGuard` -> `..._Promptly`; the lead tightened its
+  assertion from a tautological `Contains("A")` to `Assert.Matches("expression: [AB]$", ...)` (DFS revisits
+  node B first — the reviewer's suggested "A" was also wrong). DAG sort output unchanged -> golden BIM +
+  `PublicApi.txt` byte-identical; suite 129 passed + 1 skipped. NOTE (reviewer, accepted forward-looking
+  risk): removing the soft 1000-depth backstop means a VALID but pathologically deep (>~thousands) acyclic
+  template graph now fails via an uncatchable CLR stack overflow instead of a catchable exception — no
+  current config approaches this; revisit only if very deep legitimate graphs appear.
+- **B5 CustomDateTable disabled no-cleanup — DONE (2026-07-03, reviewed GO-WITH-NITS, nits addressed)** —
+  `test-engineer`. `Engine.ApplyCustomDateTable`'s disabled branch now removes the pre-existing date table
+  AND (if set) its `ReferenceTable`, symmetric with the Holidays handlers (orphan relationships are swept
+  centrally by `RemoveOrphanTranslations` post-pass, so removing a related date table is safe). Converted
+  `EngineDispatch..._DoesNotRemovePreExistingTable` -> `..._RemovesPreExistingTable`. Follow-up (reviewer
+  nits): added `Dispatch-08 - CustomDateTable-Disabled-WithReferenceTable.template.json` fixture + a new
+  test covering the ReferenceTable-removal branch (fails if reverted), and fixed two stale comments
+  (Holidays-disable test + Dispatch-07 Description). Golden BIM + `PublicApi.txt` byte-identical; suite
+  **130 passed + 1 skipped** (one new test added).
+
+**GROUP B COMPLETE (2026-07-03):** B1+B2 (`f8d0323`), B3 (`2d251b2`), B4 (`4bf6020`), B5 (`238a9fe`).
+Suite grew 129->130 (+1 ReferenceTable-cleanup test). All five defect-backlog items from Stage 0 are now
+fixed with fix-tests.
+
+#### CA1305/CA1309 culture-correctness (Option B) — DONE (2026-07-03, reviewed GO-WITH-NITS, nit addressed)
+`refactor-cleaner` (+ lead follow-up). User chose **Option B (full correctness)**. Made all year-int->DAX
+formatting invariant in `BaseDateTemplate.GenerateMinYearExpression`/`GenerateMaxYearExpression` (flagged
+`.ToString()` -> `.ToString(CultureInfo.InvariantCulture)` + interpolated int holes wrapped in
+`FormattableString.Invariant(...)`, DAX text incl. trailing spaces byte-preserved), and made
+`MeasuresTemplate.cs:203` `Name.Equals(m.Name)` explicitly `StringComparison.Ordinal` (was already ordinal).
+The reviewer nit (the `GenerateCalendarExpression` CALENDARAUTO fallback interpolated `minYear`/`maxYear`
+with the same latent pattern) was fixed by the lead (same `FormattableString.Invariant` wrap) for
+consistency. **WAE allowlist in `src/Directory.Build.props` is now EMPTY** (removed CA1305;CA1309 - the last
+2 codes; comment updated to record full clearance). Behavior-preserving on Latin-digit cultures: golden BIM +
+`PublicApi.txt` byte-identical, suite 130 passed + 1 skipped, `dotnet build ... -p:TreatWarningsAsErrors=true`
+GREEN (0 warnings repo-wide incl. TestUI). No culture-scoped test (on .NET 10 `int.ToString()` doesn't
+digit-substitute, so it would lack teeth; guarantees = WAE-green + byte-identical golden + explicit invariant).
+
+### PHASE M STAGE 3 COMPLETE (2026-07-03)
+All Group A refactors (items 1-4) + all Group B defect fixes (B1-B5) + the CA1305/CA1309 culture item are
+done, reviewed, and committed. The Stage-2 analyzer-debt allowlist is fully cleared (empty). Suite 130
+passed + 1 skipped; golden BIM stable throughout. NEXT: **Stage 4 (docs sync & closeout)**.
+- **Stage 4 — Docs sync & closeout — DONE (2026-07-03)** — `dotnet-team:docs` + `code-reviewer`.
+  Synced CHANGELOG.md (`[Unreleased]`/2.0.0 Changed+Fixed+Added: exception param renames, ReflectionHelper
+  internal, the 5 Group B behavior fixes, invariant-culture DAX), AGENTS.md ("Code style & analyzers":
+  allowlist now empty + CA1707 production-clean), `.editorconfig` (stale CA1707 comment), and 4 design docs
+  (domain-model-and-conventions: TSort DFS cycle detection + Syntax docs; apply-templates-lifecycle:
+  CustomDateTable/Holidays disable + GetModelChanges offline note; table-generation: Description copy +
+  GetHierarchies TemplateException + invariant year formatting; coverage: dated Stage-3 suite-count note).
+  Closeout gate GREEN: WAE build 0 warnings, `dotnet format --verify-no-changes` clean, no vulnerable
+  packages, suite 130 passed + 1 skipped. `code-reviewer` final verdict **GO-WITH-NITS** (all doc claims
+  verified against source; the one wording nit on coverage.md was fixed).
+
+## ✅ PHASE M COMPLETE (2026-07-03)
+Stages 0 (test hardening) -> 1 (style/analyzer infra) -> 2 (mechanical modernization) -> 3 (deeper
+refactors + defect backlog + culture) -> 4 (docs closeout) are ALL done, reviewed, and committed. The
+WarningsNotAsErrors allowlist is empty; suite 130 passed + 1 skipped; golden BIM stable; public API on the
+2.0.0 track. **NEXT: Phase 1 (Calendars).** Before Phase 1 backend, resolve Open Question #1 (Calendar
+column-binding: TMDL/JSON injection (preferred) vs reflection) — see the RISK section near the top.
+
+### Phase M — dotnet-claude-kit alignment (2026-07-01)
+Additive to the five LOCKED decisions below — nothing here changes scope, targets, or coverage numbers;
+it only specifies which kit skills / Roslyn Navigator tools / kit agents each stage uses. Per CLAUDE.md
+"Using dotnet-claude-kit", the kit is the repo-wide default for ALL phases, not just Phase M — the
+per-stage detail below is simply Phase M's heaviest, most mechanical usage of it. The feature phases
+(1-3) share the common baseline captured in "Feature phases (Phase 1–3) — kit defaults" below.
+Composition happens at the lead.
+
+- **Stage 0 — Safety net (test hardening)** — kit `testing` / `tdd` skills ONLY for xUnit v3 idioms, the
+  AAA pattern, `FakeTimeProvider` (determinism), and Verify-style snapshot testing. SCOPE-OUT: their
+  WebApplicationFactory / Testcontainers / HTTP / Postgres guidance does NOT apply — DaxTemplate's
+  harness is offline golden-file BIM snapshots with no web/DB surface. Roslyn Navigator: `get_public_api`
+  -> the P0 public-API baseline change-detector; `get_test_coverage_map` -> a heuristic complement to
+  (not a replacement for) the coverlet-enforced coverage floor.
+- **Stage 1 — Style/analyzer infrastructure** — kit `ci-cd` skill for the `dotnet format
+  --verify-no-changes` gate and warnings-as-errors wiring — SCOPE-OUT the deploy / NuGet-push /
+  DB-service YAML (this CI is offline golden-file). Roslyn `get_diagnostics` to inventory current
+  analyzer/nullability warnings before escalating `.editorconfig` rules suggestion->warning. Kit
+  `build-error-resolver` agent for warnings-as-errors fallout.
+- **Stage 2 — Mechanical modernization sweeps** — kit `modern-csharp` skill IS the reference for the
+  feature list this stage already enumerates (primary constructors, collection expressions,
+  pattern/switch expressions, raw string literals for embedded DAX/JSON, `required`, the `field`
+  keyword) — fully consistent with the LOCKED house-style decisions. Kit `de-sloppify` skill provides
+  the ordered per-sweep engine (Step 1 format -> 2 unused usings -> 3 analyzer warnings -> 4 dead code ->
+  5 TODOs -> 6 seal -> 7 CancellationToken) with commit-per-step and build+test verification after each
+  step. CRITICAL: de-sloppify's "safe removals only" rule — verify no reflection / DI / serialization /
+  annotation string-references before deleting anything — is essential here because DaxTemplate is
+  reflection-heavy (`ReflectionHelper`, `GetModelChanges`, `SQLBI_Template` annotation lookups);
+  dead-code removal must cross-check string-based usage, not just Roslyn `find_references`. Kit agents:
+  `refactor-cleaner` for the structural de-sloppify steps (dead code / sealing / CancellationToken),
+  `dotnet-architect` for primary-constructor conversions that touch constructor shape.
+- **Stage 3 — Deeper refactors** — Roslyn `find_dead_code`, `detect_antipatterns` (async void,
+  sync-over-async, `DateTime.Now`), and `detect_circular_dependencies` (to validate the Extensions
+  dependency-sort / TSort subsystem) to target the refactors. Kit `error-handling` skill for the
+  exceptions/messages consistency pass (scoped to naming/message-consistency guidance only — NOT its
+  Result / RFC 9457 `ProblemDetails` HTTP-response patterns, which don't apply to this class library); `refactor-cleaner` / `dotnet-architect` agents for the
+  AddAnnotations-vs-ApplyAnnotations dedup and reflection encapsulation.
+- **Stage 4 — Docs sync & closeout** — kit `verify` skill's 7-phase pipeline as the closeout gate wrapper
+  (build -> `get_diagnostics` -> `detect_antipatterns` -> tests -> security -> format -> diff), with the
+  security phase SCOPED to `dotnet list package --vulnerable` + secrets detection only (Layers 1-2 of
+  the `security-scan` skill); the OWASP / auth / CORS layers do not apply to a class library. Kit
+  `code-reviewer` / `security-auditor` agents may supplement `experiment-team:reviewer` on C#-heavy
+  diffs.
+
+**Per-sweep gate (unchanged):** the existing hard gates — byte-identical golden BIM + full offline suite
++ public-API baseline unchanged + `experiment-team:reviewer` — REMAIN authoritative and unchanged; kit
+`verify` phases 1-4 and 6 (build, diagnostics, antipatterns, tests, format) serve as the specialist's
+pre-reviewer self-check, not a replacement for those gates.
+
+**Specialist cadence (per subsystem):** qa (characterization tests; `testing` skill, scoped) ->
+devops (infra once; `ci-cd` scoped + `get_diagnostics`) -> backend/frontend (modernize; `modern-csharp`
++ `de-sloppify`, `refactor-cleaner`/`dotnet-architect`) -> qa (verify green + byte-identical; kit
+`verify` pipeline) -> reviewer (gate; + kit `code-reviewer`/`security-auditor`) -> docs (sync).
+
+### Feature phases (Phase 1-3) — kit defaults
+Kit baseline for the greenfield template work (Calendars / Calc groups / UDFs), scoped to this offline
+TOM class library — not a change to the Phase 1/2/3 checklists below, just the kit framing for them.
+
+- **All new C#**: `modern-csharp` skill (C# 14 baseline); `dotnet-architect` agent for POCO + handler
+  design (e.g. `CalendarTemplateDefinition` + Engine dispatch wiring).
+- **Wiring into the engine**: Serena `find_symbol` / `find_implementations` (+ Roslyn `find_callers` /
+  `get_type_hierarchy`) to place each new `Class` handler in `Engine` dispatch and reuse the existing
+  template hierarchy (`BaseDateTemplate<T>` etc.); Roslyn `get_public_api` as the API-baseline
+  change-detector for each new public surface.
+- **Tests**: `tdd` / `testing` skills, scoped — red-green + xUnit v3 + AAA + `FakeTimeProvider` for
+  deterministic date/time fixtures (esp. Calendars) + Verify-style golden BIM snapshots; NOT
+  WebApplicationFactory / Testcontainers / HTTP.
+- **Gate**: kit `verify` (phases 1-4, 6) as the pre-reviewer self-check; `code-reviewer` /
+  `security-auditor` may supplement the mandatory `experiment-team:reviewer` gate. The existing hard
+  rules stay authoritative — additive JSON config, byte-identical golden BIM, opt-in-only live-server
+  tests.
+- **Out of scope** (same as Phase M): `api-designer`, `ef-core-specialist`, `ci-cd` deploy / NuGet-push
+  YAML, and the web/OWASP/auth/CORS layers of `security-scan` — no HTTP/EF/web surface here.
+
+### Phase 1 — Calendars (COMPLETE — reviewed GO-WITH-NITS, nits addressed; committed & pushed, HEAD `d70fb32`; live-server PASS 2026-07-12)
+- [x] backend (`dotnet-architect`): `CalendarTemplateDefinition` POCO + nested `CalendarColumnGroupDefinition`
+      (`src/Dax.Template/Tables/Calendars/`) + `CalendarTemplate.ApplyTemplate` + `ApplyCalendarTemplate`
+      handler wired into `Engine.ApplyTemplates` dispatch via `nameof(CalendarTemplate)`. Uses the PUBLIC
+      typed TOM API (`TimeUnitColumnAssociation`/`TimeRelatedColumnGroup`) — NO reflection, NO TMSL.
+      Additive JSON only (reuses existing `Class`/`Table`/`Template`/`IsEnabled`; no `TemplateEntry` change).
+- [x] SPIKE RESULT: TOM enforces the Calendar compat requirement at `Table.Calendars.Add(...)` itself
+      (throws `CompatibilityViolationException` below 1701, in-memory, before `Validate()`). Handler
+      pre-checks `Database.CompatibilityLevel < 1701` and throws `InvalidConfigurationException` (also
+      guards `Model?.Database` null on the public method).
+- [x] Idempotency: keyed on `Calendar.Name` within the target table (a `Calendar` has NO `Annotations`, so
+      the `SQLBI_Template` convention can't live on it). Re-apply clears+rebuilds column groups; `IsEnabled=false`
+      removes the named calendar; disabled + missing target table = safe no-op (matches sibling handlers).
+      KNOWN LIMITATION (documented, deferred): deleting/renaming an entry orphans its calendar — matches the
+      existing `CustomDateTable` rename-TODO / `MeasuresTemplate` entry-deletion precedent.
+- [x] qa (`test-engineer`): separate compat-1701 `CalendarOfflineModelFixture` (shared 1600 fixture untouched
+      → existing goldens byte-identical); `CalendarGoldenTests` = shape (typed TOM asserts) + snapshot
+      (`_data/Golden/Config-02 - Calendar.bim`) + idempotency + disabled-removal + disabled-with-missing-table
+      (blocker regression) + opt-in `[LiveServerFact]`. New template fixtures `Calendar-Standard.json`,
+      `Config-02 - Calendar.template.json`, `Config-02b - Calendar-Disabled.template.json`. `PublicApi.txt`
+      regenerated (diff = exactly the 3 new Calendar types + members). Suite: **135 passed + 2 skipped**;
+      build green under `-p:TreatWarningsAsErrors=true`; `dotnet format --verify-no-changes` clean.
+- [x] docs (`dotnet-team:docs` + lead): CHANGELOG `[Unreleased]` Added, AGENTS.md (dispatch list +
+      `Tables/Calendars/`), apply-templates-lifecycle.md (new dispatch branch), table-generation.md (Calendars
+      section: schema + compat guard + idempotency).
+- [x] reviewer gate (`code-reviewer`): NO-GO → fixed the disabled-path BLOCKER (unconditional
+      `TemplateException` aborted the whole run when the target table was already removed by a prior entry) +
+      a SHOULD-FIX `Model?.Database` null guard + regression test → re-review **GO-WITH-NITS**; the two
+      doc-accuracy nits (disabled-path no-op / Model?.Database guard) fixed in the lifecycle + table-generation docs.
+- DONE: committed & pushed on `add-calendar` (HEAD `d70fb32`). Live-server validation PASSED 2026-07-12
+  (`CalendarGoldenTests.CalendarStandardConfig_LiveServerApply_ProducesModelChanges`).
+
+### Phase 2 — Calculation groups (COMPLETE — reviewed GO; committed & pushed, HEAD `d70fb32`; live-server PASS 2026-07-12)
+Generic calc-group generator (LOCKED: NOT time-intelligence — the user is deprecating calc groups for TI;
+the calc-group template has NO dependency on Measures/Syntax/time-intelligence machinery).
+- [x] backend (`dotnet-architect`): `CalculationGroupTemplateDefinition` POCO + nested `CalculationItemDefinition`
+      (+ `GetExpression()` mirroring MeasuresTemplate) in `src/Dax.Template/Tables/CalculationGroups/`;
+      `CalculationGroupTemplate.ApplyTemplate(Table, bool isHidden, CancellationToken)`; `ApplyCalculationGroupTemplate`
+      wired into `Engine.ApplyTemplates` via `nameof(CalculationGroupTemplate)`. Additive JSON only (reuses
+      `Class`/`Table`/`Template`/`IsHidden`/`IsEnabled`; no `TemplateEntry` change).
+- [x] SPIKE: `Table.CalculationGroup` needs compat >= 1470, `CalculationItem` >= 1500, and the two
+      `CalculationGroupExpression` selection props (`MultipleOrEmptySelectionExpression`/`NoSelectionExpression`)
+      >= 1605 — all enforced immediately at assignment. Plain calc groups work at the shared 1600 fixture; the
+      selection-expression golden needs a dedicated compat-1605 fixture.
+- [x] DAY-1 scope (per user): `CalculationGroupExpression` selection expressions supported as flat optional
+      template fields (`MultipleOrEmptySelectionExpression` + `...FormatStringExpression`, `NoSelectionExpression`
+      + `...FormatStringExpression`). CalculationItem has NO IsHidden/Annotations/LineageTag (TOM) — so `IsHidden`
+      was dropped from the item schema and item reconciliation is full-replace-by-name.
+- [x] Idempotency: keyed on the TABLE's `SQLBI_Template = "CalculationGroup"` annotation (new const
+      `Attributes.SqlbiTemplateTableCalculationGroup`). Re-apply reconciles items by name (orphans removed) +
+      clears selection expressions when omitted; `IsEnabled=false` removes the whole table; disabled + missing
+      table = safe no-op. FOREIGN-TABLE GUARD (user concern #1 / decision #4): applying onto an existing table
+      that lacks the ownership annotation throws `TemplateException` (won't overwrite a user's non-calc-group
+      table). Validate-before-mutate + build-then-add => NO phantom table on invalid input. Ordinal uniqueness
+      enforced (effective ordinal = explicit `Ordinal` else array index; duplicate => `InvalidConfigurationException`).
+      KNOWN LIMITATION (documented, deferred): renaming `ColumnName` orphans the old backing column — matches
+      Calendar/CustomDateTable precedent.
+- [x] qa (`test-engineer`): dedicated compat-1605 `CalcGroupOfflineModelFixture` (shared 1600 + Calendar 1701
+      fixtures untouched); `CalculationGroupGoldenTests` = shape (typed TOM asserts incl. CalculationGroupSource +
+      selection exprs) + snapshot (`_data/Golden/Config-03 - CalculationGroup.bim`) + idempotency + orphan-item
+      removal + selection-expr clear-on-empty + disabled-removal + disabled-with-missing-table + foreign-collision
+      + ordinal-uniqueness + opt-in `[LiveServerFact]`. New fixtures `CalcGroup-TimeIntelligence.json`,
+      `Config-03`/`Config-03b`. `PublicApi.txt` regenerated (diff = the new types + the new const). Suite:
+      **144 passed + 3 skipped**; build green under `-p:TreatWarningsAsErrors=true`; `dotnet format` clean.
+- [x] docs (`dotnet-team:docs`): CHANGELOG `[Unreleased]` Added, AGENTS.md (dispatch list + `Tables/CalculationGroups/`),
+      apply-templates-lifecycle.md (dispatch branch + mermaid), table-generation.md (Calculation groups section:
+      schema, FormatStringExpression quoting gotcha, ordinal rule, compat 1470/1500/1605, annotation idempotency +
+      foreign guard + rename limitation), README.md index.
+- [x] reviewer gate (`code-reviewer`): first pass GO-WITH-NITS -> fixed 2 should-fixes (backing-column LineageTag
+      backfill in Engine after Add; `EnsureBackingColumn` type-guard throws on non-String/non-DataColumn reuse) +
+      2 nits (regenerated golden = single added backing-column lineageTag; Config-03b Description wording) + added
+      the 2 missing coverage tests -> re-review **GO** (no residual issues; one harmless cosmetic double compat
+      check left as-is).
+- DONE: committed & pushed on `add-calendar` (HEAD `d70fb32`). Live-server validation PASSED 2026-07-12
+  (`CalculationGroupGoldenTests.CalculationGroupStandardConfig_LiveServerApply_ProducesModelChanges`).
+### Phase 3 — User-defined functions (COMPLETE — reviewed GO-WITH-NITS, nits addressed; committed & pushed, HEAD `d70fb32`; live-server PASS 2026-07-12)
+DAX UDFs adopting the current standard (GA Sept 2025 + March 2026 reference types): structured typed
+parameters + optional parameters (default expressions), per the user's explicit requirement.
+- [x] backend (`dotnet-architect`): `FunctionLibraryTemplateDefinition` + `FunctionDefinition`
+      (+`GetBody()`) + `ParameterDefinition` POCOs in `src/Dax.Template/Functions/`;
+      `FunctionLibraryTemplate.ApplyTemplate(Model, bool isEnabled, CancellationToken)`;
+      `ApplyFunctionLibraryTemplate` wired into `Engine.ApplyTemplates` via `nameof(FunctionLibraryTemplate)`.
+      MODEL-LEVEL (target `Model.Functions`, no Table, no refresh). Additive JSON (reuses
+      `Class`/`Template`/`IsHidden`/`IsEnabled`; no `TemplateEntry` change). One sub-template = a LIBRARY
+      of many functions.
+- [x] SPIKE: `Function` has Name/Expression/Description/IsHidden/LineageTag AND `Annotations`.
+      `Expression` stores ONLY `( params ) => body`. **Minimum compat = 1702** (TOM throws below, at
+      `Model.Functions.Add`). TOM does NO grammar validation of the Expression (opaque string) — so the
+      engine's structured validation is the only pre-server safety net.
+- [x] HYBRID schema (user decision): structured params first-class (engine assembles `( ... ) => body` per
+      the grammar — types ANYVAL/SCALAR+Subtype/TABLE/REF-family, VAL/EXPR passing modes, REF types force
+      EXPR/no mode, `= default` => optional) + a `RawExpression` escape hatch (verbatim). Body via
+      `Body`/`MultiLineBody`. Engine-enforced validation: RawExpression XOR Body; SCALAR needs Subtype;
+      PassingMode rejected on REF types; PassingMode requires an explicit Type; optional-must-trail-mandatory;
+      no dup names in a library; non-blank function/param names. PascalCase guidance-only (not enforced).
+      Cross-FILE name collisions NOT detected (last-applied-wins) — documented, deferred (MeasuresTemplate
+      precedent).
+- [x] Idempotency: annotation-keyed (`SQLBI_Template = "Functions"`, new const
+      `Attributes.SqlbiTemplateFunctions`) like Measures/CalcGroups — reconcile-by-name + orphan cleanup;
+      `IsEnabled=false` removes all this-template functions. NO rename limitation (renamed function's old
+      object swept as an orphan), unlike Phase 1 Calendar.
+- [x] qa (`test-engineer`): dedicated compat-1702 `FunctionOfflineModelFixture` (the 1600/1605/1701 fixtures
+      untouched); `FunctionLibraryGoldenTests` = shape (exact rendered Expression strings) + snapshot
+      (`_data/Golden/Config-04 - Functions.bim`) + idempotency + orphan-cleanup + disabled-removal +
+      disabled-with-nothing + compat-1702 guard + RawExpression-positive + all validation rules (incl. the
+      four added in the review round: PassingMode-without-Type, blank function name, blank param name,
+      neither-RawExpression-nor-Body) + opt-in `[LiveServerFact]`. New fixtures `Functions-Statistics.json`,
+      `Config-04`/`Config-04b`. `PublicApi.txt` regenerated (diff = the 4 new types + the new const). Suite:
+      **161 passed + 4 skipped**; build green under `-p:TreatWarningsAsErrors=true`; `dotnet format` clean.
+- [x] docs (`dotnet-team:docs`): new page `docs/design/functions.md` (indexed in AGENTS.md Documentation
+      map + README.md); CHANGELOG `[Unreleased]` Added; AGENTS.md (dispatch list + `Functions/` folder);
+      apply-templates-lifecycle.md (dispatch branch + mermaid).
+- [x] reviewer gate (`code-reviewer`): first pass GO-WITH-NITS -> fixed 3 should-fixes (PassingMode-without-Type
+      validation; RawExpression/Parameters doc accuracy; 4 added regression tests) -> re-review GO-WITH-NITS
+      (2 residual doc-sync nits — functions.md validation list + CHANGELOG rule list/test count — fixed by the
+      lead). Net: **GO**, all findings addressed.
+- DONE: committed & pushed on `add-calendar` (HEAD `d70fb32`). Live-server validation PASSED 2026-07-12
+  (`FunctionLibraryGoldenTests.FunctionLibraryStandardConfig_LiveServerApply_ProducesModelChanges`) — the
+  UDF signatures compiled server-side at compat ≥1702 (the only DAX-compilation check TOM performs).
+
+## ✅ ROADMAP COMPLETE (offline AND live-server): Phase 1 Calendars + Phase 2 Calc groups + Phase 3 UDFs
+all done, reviewed & pushed (HEAD `d70fb32`), and the opt-in live-server validation has now PASSED.
+LIVE-SERVER VALIDATION (2026-07-12): `dotnet test --filter "FullyQualifiedName~LiveServer"` against the
+published `src/Dax.Template.Tests/pbix/EmptyTestTemplates.pbix` (compat >= 1702, env vars set) →
+**4 passed / 0 failed / 0 skipped** (Calendar, CalculationGroup, FunctionLibrary + the Phase-0 baseline).
+Non-destructive (`ApplyTemplates` + `GetModelChanges`, never `SaveChanges`). The Phase-3 UDF pass confirms
+the generated `( params ) => body` signatures compile server-side — the only DAX check TOM performs, since
+it treats `Function.Expression` as an opaque string offline. NOTHING LEFT ON THIS ROADMAP.
+Full rationale in the top banner and `docs/design/testing.md`.
+
+## Phase M — locked decisions (2026-07-01)
+All five decisions below are LOCKED by the user. Phase M is now IN EXECUTION (kicked off 2026-07-01):
+Stage 0 (test hardening) and Stage 1 (style/analyzer infrastructure) are COMPLETE (both 2026-07-02);
+Stage 2 (mechanical modernization sweeps) is the ACTIVE work; Stages 3-4 remain queued behind it. The
+locks are the agreed constraints for that execution.
+
+1. **Warnings-as-errors: YES, CI-only.** Treat warnings as errors in the CI build, not necessarily in
+   local dev builds. Stage 1 wires this into the CI pipeline(s).
+2. **File-scoped namespaces + primary constructors: APPROVED as house style.** Stage 2 converts all 61
+   library files to file-scoped namespaces and uses primary constructors where they reduce boilerplate.
+3. **`required` migration + MAJOR VERSION BUMP: APPROVED.** Stage 2 converts the 4 `= default!` non-null
+   members (e.g. `Level.Column`) to `required`. This is a source-breaking change for NuGet consumers and
+   will ship under a major version bump.
+4. **Public API: OPEN TO IMPROVEMENT; breaking changes ACCEPTABLE.** There is no published Web API
+   surface to preserve; consumers of the `Dax.Template` NuGet package may need to adapt on the next
+   major version, which is acceptable. Consequence for Stage 0: the public-API baseline test is RETAINED
+   but REFRAMED — it is a change-detector to surface intended vs. accidental public-surface changes for
+   review in each PR, NOT a hard freeze/gate.
+5. **Coverage target (confirmed alternative to a flat 100%):**
+   - CI-enforced floor of **80% line coverage on the core library `Dax.Template` only** (exclude
+     `Dax.Template.TestUI` from the metric).
+   - **~90% on the refactor-target subsystems**: `Tables`, `Measures`, `Model`, `Extensions` (dependency
+     sort), and `Engine`/`Package` dispatch.
+   - **Justified, attributed exclusions** for live-server-only branches (can't run in offline CI) and
+     generated/trivial members (DTO/`ToString`/`Reset` boilerplate), so the percentage reflects reachable
+     code.
+   - **Add Stryker.NET mutation testing** on the 2-3 highest-risk subsystems as a stronger
+     refactor-safety signal than raw line coverage (pairs with the byte-identical golden-file gate).
+   - 100% remains aspirational for the core transformation logic; the CI floor may be raised (e.g. to
+     85%) once Stage 0 reveals the real baseline.
+
+## Open questions for the user
+1. ~~Calendar column-binding approach: TMDL/JSON injection vs reflection?~~ RESOLVED 2026-07-04 — use the
+   PUBLIC `TimeUnitColumnAssociation`/`TimeRelatedColumnGroup` subclass API (no reflection, no TMSL); see
+   the "RISK — Calendar column binding — RESOLVED" section above.
+2. Resume the test harness solo, or first get the experiment-team specialist subagents reachable?
+
+## Environment / delegation note (CORRECTED 2026-06-28)
+SYMPTOM: invoking a specialist (e.g. `Agent(reviewer)`) fails with "Agent type 'reviewer' not found.
+Available agents:" (empty list). The lead loads fine, but its team is invisible to it.
+
+PRIOR ROOT CAUSE WAS WRONG. The earlier note blamed git worktrees / project-vs-user plugin scope. That
+theory is DISPROVEN — re-verified 2026-06-28 directly in the MAIN checkout (NOT a worktree:
+`git --git-dir` and `--git-common-dir` both = `.git` real dir):
+- `installed_plugins.json` has experiment-team@my-claude-teams at `scope: project`, bound to exactly
+  `C:\Users\MarcoRusso\source\repos\sql-bi\DaxTemplate`, version 0.5.0.
+- All 7 agent files exist in `.../cache/my-claude-teams/experiment-team/0.5.0/agents/`
+  (reviewer/backend/frontend/qa/devops/docs/experiment-lead) with valid frontmatter (`name:`, `model:`,
+  `tools:`). So install / scope / worktree / frontmatter are all FINE.
+- Yet the `Agent` tool registry is EMPTY. Delegation fails in the main repo too — location is irrelevant,
+  and a restart never helps.
+
+ACTUAL ROOT CAUSE: the `experiment-lead` is being run AS A SUBAGENT itself, and Claude Code enforces a
+shallow delegation tree — a subagent cannot spawn further subagents. So when the lead is entered as the
+active agent (e.g. via `--agent experiment-lead` / agent switch), the platform never populates the
+child-agent registry, and every `Agent(<specialist>)` resolves to "not found". The lead's
+`tools: Agent(backend)...Agent(reviewer)` allow-list is necessary but NOT sufficient — it only takes
+effect when the lead runs at the TOP LEVEL.
+
+FIX: the lead's coordinating behavior must belong to the TOP-LEVEL (main) agent, which IS allowed to spawn
+the specialist subagents. Do NOT launch the session with `experiment-lead` pre-selected as the driver
+(that demotes it to a subagent). Recommended, repo-local, auto-on-start approach: put the lead's
+coordinating instructions in the project `CLAUDE.md` (or a project-scoped output style), keep the
+specialists as plugin subagents, and let the normal top-level agent coordinate + delegate. Verify after
+launch with a trivial probe (a one-line `reviewer` invocation) BEFORE relying on delegation.
+andrej-karpathy-skills is only a dependency of experiment-team and exposes one on-demand skill
+(`karpathy-guidelines`); it is never auto-injected, so it was not applied during Phase 0.
+
+RESOLVED 2026-07-02: this repo switched from `experiment-team` to the new `dotnet-team` plugin
+(marcosqlbi/my-claude-teams). `dotnet-team` pins `dotnet-lead` as the top-level agent via its bundled
+`settings.json`, and `dotnet-lead`'s tool allowlist explicitly grants the `dotnet-claude-kit:*`
+specialists + `mcp__cwm-roslyn-navigator` + `mcp__serena` + `dotnet-team:docs` — so the lead now reaches
+the kit specialists and Roslyn MCP directly (one-level tree). The earlier "empty team" symptom was purely
+a too-narrow allowlist on the pinned lead, not the pin itself. `experiment-team` is now disabled here
+(`.claude/settings.json`) to avoid a colliding `agent` pin; keep only one team plugin enabled per repo.
+The review gate is now `dotnet-claude-kit:code-reviewer` (+ `security-auditor` for sensitive diffs).
+
+## Working-tree state
+Phase 0 is COMMITTED as `972c8cc` on `add-calendar` (and `claude/magical-wilbur-213ce1` points at the same
+commit). Not pushed. Commit contents: csproj bump, Engine.cs guard, ApplyTemplatesGoldenTests.cs,
+Infrastructure/ (OfflineModelFixture, GoldenFile, LiveServerFactAttribute), _data/Golden/Config-01 - Standard.bim,
+_data/Templates/HolidaysDefinition.json.
+Main checkout (add-calendar) still has uncommitted, INDEPENDENT WIP: `.gitignore` (+ `.serena/`) and untracked
+`.claude/`. Leave or commit separately as you see fit — unrelated to Phase 0.
+Worktrees on the tree: main=add-calendar (@972c8cc), funny-blackwell-7789aa (@32b86b0, stale), magical-wilbur-213ce1
+(@972c8cc). The funny-blackwell worktree is now behind; prune it if unused.
+
+## Next session — start here
+1. `add-calendar` is pushed to origin (@6bbad5d, 2026-07-01); Stage 0 landed as 5 further commits
+   (`50eb033`..`8a49b46`) and Stage 1 as another 5 commits (`27a740a`..`45e2abb`) — none of these 10
+   pushed yet.
+2. Phase M Stage 0 (test hardening) is COMPLETE (2026-07-02) — see "Stage 0 — outcomes (2026-07-02)"
+   under "Phase M" above for the full result (129 passed + 1 skipped, public-API baseline, coverage
+   baseline + CI floor, Stryker.NET wired).
+3. Phase M Stage 1 (style/analyzer infrastructure) is also COMPLETE (2026-07-02) — see "Stage 1 —
+   outcomes (2026-07-02)" under "Phase M" above (`Directory.Build.props`, 72-file `dotnet format`
+   baseline, CI-only warnings-as-errors with a 17-code `WarningsNotAsErrors` allowlist, the CS8602 fix,
+   `AGENTS.md` style docs; suite still 129 passed + 1 skipped).
+4. Phase M Stage 2 (mechanical modernization sweeps) is COMPLETE (2026-07-02) — see "Stage 2 —
+   outcomes (2026-07-02)" under "Phase M" above (10 subsystem sweeps, WAE allowlist ratcheted 17 -> 3,
+   the `required`/2.0.0 API-breaking pass; suite still 129 passed + 1 skipped). The Azure DevOps
+   `AppVersionMajor` variable still needs bumping to 2 (repo-side change is done; ADO variable is not).
+5. Phase M is now on **Stage 3 (deeper refactors)** — backend. Opt-in per item, each proposed/reviewed/
+   gated individually, behavior-preserving:
+   - De-duplicate `AddAnnotations` vs `MeasuresTemplateBase.ApplyAnnotations` (existing TODO); unify
+     column/hierarchy add patterns.
+   - Encapsulate/modernize reflection (`ReflectionHelper`, `Engine.GetModelChanges`), with the
+     TOM-version fragility explicitly documented.
+   - Readability pass on the `Syntax` subsystem.
+   - Consistency pass on exceptions/messages, including the pre-existing "Circulare" typo in
+     `CircularDependencyException`.
+   - Decide the CA1305/CA1309 culture-correctness question (does DAX/number formatting need
+     `InvariantCulture`?) — the last two allowlisted analyzer codes hinge on this.
+   - Fold in the Stage 0 defect backlog (see "Defect backlog surfaced by Stage 0 characterization"
+     above) as fix-tests: dropped Hierarchy/Level `Description` in `AddHierarchies`; Holidays
+     phantom-table-on-validation-throw; `CustomDateTable`-disabled no-cleanup; `GetHierarchies` bare
+     `InvalidOperationException`; 2-node cycle-detection weakness; the `GetModelChanges`
+     empty-offline XML-doc note.
+   - ~~CA1051 follow-up~~ DONE (`9ead9ae`) — allowlist now CA1305/CA1309 only.
+   - Address the deferred `PublicApiSurface` renderer nits (see "Deferred PublicApiSurface renderer
+     nits" above) if convenient.
+6. The "Phase M — locked decisions" (warnings-as-errors, file-scoped namespaces + primary constructors,
+   `required` migration, public-API scope, coverage threshold) remain LOCKED and continue to govern
+   Stage 3 work.
+7. Once Phase M reaches its Stage 4 closeout, resolve Open Question #1 (Calendar column-binding:
+   TMDL/JSON injection vs reflection) BEFORE Phase 1 backend.
+8. Begin Phase 1 (Calendars): CalendarTemplateDefinition POCO + ApplyCalendarTemplate handler in Engine dispatch
+   + additive TemplateEntry/config + idempotency via SQLBI_Template annotation. Add a Calendar golden test next
+   to ApplyTemplatesGoldenTests (extend OfflineModelFixture as needed) + opt-in live-server check.

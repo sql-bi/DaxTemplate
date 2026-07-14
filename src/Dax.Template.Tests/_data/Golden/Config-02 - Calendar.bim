@@ -1,0 +1,414 @@
+{
+  "name": "CalendarOfflineFixture",
+  "compatibilityLevel": 1701,
+  "model": {
+    "tables": [
+      {
+        "name": "Sales",
+        "columns": [
+          {
+            "name": "Order Date",
+            "dataType": "dateTime",
+            "sourceColumn": "Order Date"
+          },
+          {
+            "name": "Quantity",
+            "dataType": "int64",
+            "sourceColumn": "Quantity"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Sales",
+            "source": {
+              "type": "calculated",
+              "expression": "{ (DATE(2020,1,1), 1) }"
+            }
+          }
+        ],
+        "measures": [
+          {
+            "name": "Sales Amount",
+            "expression": "SUM(Sales[Quantity])"
+          },
+          {
+            "name": "Total Cost",
+            "expression": "SUM(Sales[Quantity])"
+          },
+          {
+            "name": "Margin",
+            "expression": "[Sales Amount] - [Total Cost]"
+          },
+          {
+            "name": "Margin %",
+            "expression": "DIVIDE([Margin], [Sales Amount])"
+          }
+        ]
+      },
+      {
+        "name": "Orders",
+        "columns": [
+          {
+            "name": "Delivery Date",
+            "dataType": "dateTime",
+            "sourceColumn": "Delivery Date"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Orders",
+            "source": {
+              "type": "calculated",
+              "expression": "{ (DATE(2020,1,1)) }"
+            }
+          }
+        ]
+      },
+      {
+        "name": "Date",
+        "lineageTag": "",
+        "dataCategory": "Time",
+        "columns": [
+          {
+            "type": "calculatedTableColumn",
+            "name": "Date",
+            "dataType": "dateTime",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "isKey": true,
+            "sourceColumn": "[Date]",
+            "formatString": "m/d/yyyy",
+            "lineageTag": "",
+            "dataCategory": "PaddedDateTableDates",
+            "summarizeBy": "none",
+            "annotations": [
+              {
+                "name": "SQLBI_AttributeTypes",
+                "value": "Date, FiscalDate"
+              }
+            ]
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "Year",
+            "dataType": "int64",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "sourceColumn": "[Year]",
+            "lineageTag": "",
+            "dataCategory": "Years",
+            "summarizeBy": "none"
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "Year Quarter Number",
+            "dataType": "int64",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "sourceColumn": "[Year Quarter Number]",
+            "lineageTag": "",
+            "dataCategory": "Quarters",
+            "summarizeBy": "none"
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "Year Quarter",
+            "dataType": "string",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "sourceColumn": "[Year Quarter]",
+            "sortByColumn": "Year Quarter Number",
+            "lineageTag": "",
+            "dataCategory": "Quarters",
+            "summarizeBy": "none"
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "Quarter",
+            "dataType": "string",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "sourceColumn": "[Quarter]",
+            "lineageTag": "",
+            "dataCategory": "QuarterOfYear",
+            "summarizeBy": "none"
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "Year Month",
+            "dataType": "string",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "sourceColumn": "[Year Month]",
+            "sortByColumn": "Year Month Number",
+            "lineageTag": "",
+            "dataCategory": "Months",
+            "summarizeBy": "none"
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "Year Month Number",
+            "dataType": "int64",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "sourceColumn": "[Year Month Number]",
+            "lineageTag": "",
+            "dataCategory": "Months",
+            "summarizeBy": "none",
+            "annotations": [
+              {
+                "name": "SQLBI_AttributeTypes",
+                "value": "FiscalMonths"
+              }
+            ]
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "Month",
+            "dataType": "string",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "sourceColumn": "[Month]",
+            "sortByColumn": "Month Number",
+            "lineageTag": "",
+            "dataCategory": "MonthOfYear",
+            "summarizeBy": "none"
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "Month Number",
+            "dataType": "int64",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "sourceColumn": "[Month Number]",
+            "lineageTag": "",
+            "dataCategory": "MonthOfYear",
+            "summarizeBy": "none"
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "Day of Week Number",
+            "dataType": "int64",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "sourceColumn": "[Day of Week Number]",
+            "lineageTag": "",
+            "dataCategory": "DayOfWeek",
+            "summarizeBy": "none",
+            "annotations": [
+              {
+                "name": "SQLBI_AttributeTypes",
+                "value": "DayOfWeek"
+              },
+              {
+                "name": "SQLBI_FilterSafe",
+                "value": "True"
+              }
+            ]
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "Day of Week",
+            "dataType": "string",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "sourceColumn": "[Day of Week]",
+            "sortByColumn": "Day of Week Number",
+            "lineageTag": "",
+            "dataCategory": "DayOfWeek",
+            "summarizeBy": "none",
+            "annotations": [
+              {
+                "name": "SQLBI_FilterSafe",
+                "value": "True"
+              }
+            ]
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "Fiscal Year",
+            "dataType": "string",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "sourceColumn": "[Fiscal Year]",
+            "sortByColumn": "Fiscal Year Number",
+            "lineageTag": "",
+            "dataCategory": "Years",
+            "summarizeBy": "none"
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "Fiscal Year Number",
+            "dataType": "int64",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "sourceColumn": "[Fiscal Year Number]",
+            "lineageTag": "",
+            "dataCategory": "Years",
+            "summarizeBy": "none",
+            "annotations": [
+              {
+                "name": "SQLBI_AttributeTypes",
+                "value": "FiscalYears"
+              }
+            ]
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "Fiscal Year Quarter",
+            "dataType": "string",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "sourceColumn": "[Fiscal Year Quarter]",
+            "sortByColumn": "Fiscal Year Quarter Number",
+            "lineageTag": "",
+            "dataCategory": "Quarters",
+            "summarizeBy": "none"
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "Fiscal Year Quarter Number",
+            "dataType": "int64",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "sourceColumn": "[Fiscal Year Quarter Number]",
+            "lineageTag": "",
+            "dataCategory": "Quarters",
+            "summarizeBy": "none",
+            "annotations": [
+              {
+                "name": "SQLBI_AttributeTypes",
+                "value": "FiscalQuarters"
+              }
+            ]
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "Fiscal Quarter",
+            "dataType": "string",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "sourceColumn": "[Fiscal Quarter]",
+            "lineageTag": "",
+            "dataCategory": "QuarterOfYear",
+            "summarizeBy": "none"
+          },
+          {
+            "type": "calculatedTableColumn",
+            "name": "DateWithTransactions",
+            "dataType": "boolean",
+            "isNameInferred": true,
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "sourceColumn": "[DateWithTransactions]",
+            "lineageTag": "",
+            "summarizeBy": "none",
+            "annotations": [
+              {
+                "name": "SQLBI_AttributeTypes",
+                "value": "DateDuration"
+              }
+            ]
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Date",
+            "mode": "import",
+            "source": {
+              "type": "calculated",
+              "expression": "\n--  \n--     Configuration\n--  \nVAR __FirstDayOfWeek = 0\nVAR __FirstFiscalMonth = 7\n----------------------------------------\nVAR __WeekDayCalculationType = IF ( __FirstDayOfWeek = 0, 7, __FirstDayOfWeek ) + 10\nVAR __Calendar = CALENDARAUTO()\nVAR __Step3 = \n    GENERATE (\n        __Calendar,\n        VAR __LastTransactionDate = TODAY()\n        VAR __Date = [Date]\n        VAR __YearNumber = YEAR ( __Date )\n        VAR __QuarterNumber = QUARTER ( __Date )\n        VAR __YearQuarterNumber = CONVERT ( __YearNumber * 4 + __QuarterNumber - 1, INTEGER )\n        VAR __MonthNumber = MONTH ( __Date )\n        VAR __WeekDayNumber = WEEKDAY ( __Date, __WeekDayCalculationType )\n        VAR __WeekDay = FORMAT ( __Date, \"ddd\", \"en-US\" )\n        VAR __FiscalYearNumber = __YearNumber + 1 * ( __FirstFiscalMonth > 1 && __MonthNumber >= __FirstFiscalMonth )\n        VAR __FiscalMonthNumber = __MonthNumber - __FirstFiscalMonth + 1 + 12 * (__MonthNumber < __FirstFiscalMonth)\n        VAR __FiscalQuarterNumber = ROUNDUP ( __FiscalMonthNumber / 3, 0 )\n        VAR __FiscalYearQuarterNumber = CONVERT ( __FiscalYearNumber * 4 + __FiscalQuarterNumber - 1, INTEGER )\n        RETURN ROW ( \n            \"Year\", __YearNumber,\n            \"Year Quarter Number\", __YearQuarterNumber,\n            \"Year Quarter\", FORMAT ( __QuarterNumber, \"\\Q0\", \"en-US\" ) & \"-\" & FORMAT ( __YearNumber, \"0000\", \"en-US\" ),\n            \"Quarter\", FORMAT( __QuarterNumber, \"\\Q0\", \"en-US\" ),\n            \"Year Month\", FORMAT ( __Date, \"mmm yyyy\", \"en-US\" ),\n            \"Year Month Number\", __YearNumber * 12 + __MonthNumber - 1,\n            \"Month\", FORMAT ( __Date, \"mmm\", \"en-US\" ),\n            \"Month Number\", __MonthNumber,\n            \"Day of Week Number\", __WeekDayNumber,\n            \"Day of Week\", __WeekDay,\n            \"Fiscal Year\", FORMAT ( __FiscalYearNumber, \"\\F\\Y 0000\", \"en-US\" ),\n            \"Fiscal Year Number\", __FiscalYearNumber,\n            \"Fiscal Year Quarter\", FORMAT ( __FiscalQuarterNumber, \"\\F\\Q0\", \"en-US\" ) & \"-\" & FORMAT ( __FiscalYearNumber, \"0000\", \"en-US\" ),\n            \"Fiscal Year Quarter Number\", __FiscalYearQuarterNumber,\n            \"Fiscal Quarter\", FORMAT( __FiscalQuarterNumber, \"\\F\\Q0\", \"en-US\" ),\n            \"DateWithTransactions\", __Date <= __LastTransactionDate \n        )\n    )\nRETURN\n    __Step3"
+            }
+          }
+        ],
+        "hierarchies": [
+          {
+            "name": "Calendar",
+            "lineageTag": "",
+            "levels": [
+              {
+                "name": "Year",
+                "ordinal": 0,
+                "column": "Year",
+                "lineageTag": ""
+              },
+              {
+                "name": "Month",
+                "ordinal": 1,
+                "column": "Year Month",
+                "lineageTag": ""
+              },
+              {
+                "name": "Date",
+                "ordinal": 2,
+                "column": "Date",
+                "lineageTag": ""
+              }
+            ]
+          },
+          {
+            "name": "Fiscal",
+            "lineageTag": "",
+            "levels": [
+              {
+                "name": "Year",
+                "ordinal": 0,
+                "column": "Fiscal Year",
+                "lineageTag": ""
+              },
+              {
+                "name": "Month",
+                "ordinal": 1,
+                "column": "Year Month",
+                "lineageTag": ""
+              },
+              {
+                "name": "Date",
+                "ordinal": 2,
+                "column": "Date",
+                "lineageTag": ""
+              }
+            ]
+          }
+        ],
+        "calendars": [
+          {
+            "name": "Calendar",
+            "lineageTag": "",
+            "calendarColumnGroups": [
+              {
+                "timeUnit": "year",
+                "primaryColumn": "Year"
+              },
+              {
+                "columns": [
+                  "Day of Week"
+                ]
+              }
+            ]
+          }
+        ],
+        "annotations": [
+          {
+            "name": "SQLBI_Template",
+            "value": "Dates"
+          },
+          {
+            "name": "SQLBI_TemplateTable",
+            "value": "DateAutoTemplate"
+          },
+          {
+            "name": "SQLBI_CalendarType",
+            "value": "Calendar"
+          }
+        ]
+      }
+    ]
+  }
+}

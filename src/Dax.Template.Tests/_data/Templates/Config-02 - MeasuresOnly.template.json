@@ -1,0 +1,15 @@
+{
+  "Description": "Measures-only characterization config: wraps Sales target measures without any date table or holidays",
+  "Templates": [
+    {
+      "Class": "MeasuresTemplate",
+      "Table": null,
+      "Template": "MeasuresOnly-01.json"
+    }
+  ],
+  "AutoNaming": "Suffix",
+  "TargetMeasures": [
+    { "Name": "Sales Amount" },
+    { "Name": "Total Cost" }
+  ]
+}

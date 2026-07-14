@@ -1,82 +1,80 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Collections.Generic;
 
-namespace Dax.Template
+namespace Dax.Template;
+
+public class CustomTemplateDefinition
 {
-    public class CustomTemplateDefinition
+    public class DaxExpression
     {
-        public class DaxExpression
+        public string? Name { get; set; }
+        public string? Expression { get; set; }
+        public string[]? MultiLineExpression { get; set; }
+        public string? Comment { get; set; }
+        public string[]? MultiLineComment { get; set; }
+        public string[]? GetComments()
         {
-            public string? Name { get; set; }
-            public string? Expression { get; set; }
-            public string[]? MultiLineExpression { get; set; }
-            public string? Comment { get; set; }
-            public string[]? MultiLineComment { get; set; }
-            public string[]? GetComments()
-            {
-                return (MultiLineComment != null && MultiLineComment.Length > 0)
-                    ? MultiLineComment
-                    : (!string.IsNullOrWhiteSpace(Comment) ? new string[] { Comment } : null);
-            }
-            public string? GetExpression(string? padding = null)
-            {
-                return (string.IsNullOrEmpty(Expression) && MultiLineExpression != null)
-                    ? string.Join("", MultiLineExpression.Select(line => $"\r\n{padding}{line}"))
-                    : Expression;
-            }
+            return (MultiLineComment != null && MultiLineComment.Length > 0)
+                ? MultiLineComment
+                : (!string.IsNullOrWhiteSpace(Comment) ? [Comment] : null);
         }
-        public class Step : DaxExpression
+        public string? GetExpression(string? padding = null)
         {
+            return (string.IsNullOrEmpty(Expression) && MultiLineExpression != null)
+                ? string.Join("", MultiLineExpression.Select(line => $"\r\n{padding}{line}"))
+                : Expression;
         }
-        public abstract class Variable : DaxExpression
-        {
-        }
-        public class GlobalVariable : DaxExpression
-        {
-            public bool IsConfigurable { get; set; } = false;
-        }
-        public class RowVariable : DaxExpression
-        {
-        }
-        public class Column : DaxExpression
-        {
-            public string? DataType { get; set; }
-            public string? FormatString { get; set; }
-            public bool IsHidden { get; set; } = false;
-            public bool IsTemporary { get; set; } = false;
-            public bool RequiresHolidays { get; set; } = false;
-            public string? SortByColumn { get; set; }
-            public string? DisplayFolder { get; set; }
-            public string? DataCategory { get; set; }
-            public string? Description { get; set; }
-            public string? Step { get; set; }
-            public string? AttributeType { get; set; }
-            public string[]? AttributeTypes { get; set; }
-            public Dictionary<string, object> Annotations { get; set; } = new();
-        }
-        public class HierarchyLevel
-        {
-            public string? Name { get; set; }
-            public string? Column { get; set; }
-            public string? Description { get; set; }
-        }
-        public class Hierarchy
-        {
-            public string? Name { get; set; }
-            public string? Description { get; set; }
-            public HierarchyLevel[] Levels { get; set; } = Array.Empty<HierarchyLevel>();
-        }
-        public string[] FormatPrefixes { get; set; } = Array.Empty<string>();
-        public Step[] Steps { get; set; } = Array.Empty<Step>();
-        public GlobalVariable[] GlobalVariables { get; set; } = Array.Empty<GlobalVariable>();
-        public RowVariable[] RowVariables { get; set; } = Array.Empty<RowVariable>();
-        public Column[] Columns { get; set; } = Array.Empty<Column>();
-        public Hierarchy[] Hierarchies { get; set; } = Array.Empty<Hierarchy>();
-        public Dictionary<string, string> Annotations { get; set; } = new();
-        /// <summary>
-        /// Define the calendar type for time intelligence calculations
-        /// </summary>
-        // public string? CalendarType { get; set; }
     }
+    public class TemplateStep : DaxExpression
+    {
+    }
+    public abstract class Variable : DaxExpression
+    {
+    }
+    public class GlobalVariable : DaxExpression
+    {
+        public bool IsConfigurable { get; set; }
+    }
+    public class RowVariable : DaxExpression
+    {
+    }
+    public class Column : DaxExpression
+    {
+        public string? DataType { get; set; }
+        public string? FormatString { get; set; }
+        public bool IsHidden { get; set; }
+        public bool IsTemporary { get; set; }
+        public bool RequiresHolidays { get; set; }
+        public string? SortByColumn { get; set; }
+        public string? DisplayFolder { get; set; }
+        public string? DataCategory { get; set; }
+        public string? Description { get; set; }
+        public string? Step { get; set; }
+        public string? AttributeType { get; set; }
+        public string[]? AttributeTypes { get; set; }
+        public Dictionary<string, object> Annotations { get; set; } = new();
+    }
+    public class HierarchyLevel
+    {
+        public string? Name { get; set; }
+        public string? Column { get; set; }
+        public string? Description { get; set; }
+    }
+    public class Hierarchy
+    {
+        public string? Name { get; set; }
+        public string? Description { get; set; }
+        public HierarchyLevel[] Levels { get; set; } = [];
+    }
+    public string[] FormatPrefixes { get; set; } = [];
+    public TemplateStep[] Steps { get; set; } = [];
+    public GlobalVariable[] GlobalVariables { get; set; } = [];
+    public RowVariable[] RowVariables { get; set; } = [];
+    public Column[] Columns { get; set; } = [];
+    public Hierarchy[] Hierarchies { get; set; } = [];
+    public Dictionary<string, string> Annotations { get; set; } = new();
+    /// <summary>
+    /// Define the calendar type for time intelligence calculations
+    /// </summary>
+    // public string? CalendarType { get; set; }
 }

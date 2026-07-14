@@ -21,13 +21,57 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: |
-            6.0.x
+            10.0.x
           global-json-file: global.json
       - name: restore
         run: dotnet restore ./src
+      - name: restore dotnet tools
+        run: dotnet tool restore
       - name: build
-        run: dotnet build ./src/Dax.Template.sln --configuration Release --no-restore
+        # Phase M / Stage 1 step 1C: CI-only warnings-as-errors. TreatWarningsAsErrors is passed
+        # here (not in Directory.Build.props) so local dev builds stay lenient. The matching
+        # WarningsNotAsErrors allowlist (Stage-2 deferred debt) lives in src/Directory.Build.props
+        # so both this pipeline and .azure/pipelines/ci.yml share one source of truth.
+        run: dotnet build ./src/Dax.Template.sln --configuration Release --no-restore -p:TreatWarningsAsErrors=true
+      - name: format check
+        # Verifies the dotnet-format baseline (clean as of Stage 1B) doesn't drift. Runs against
+        # the same solution as the build step; --no-restore reuses the restore above.
+        run: dotnet format ./src/Dax.Template.sln --verify-no-changes --no-restore
       - name: test
-        run: dotnet test ./src/Dax.Template.Tests/Dax.Template.Tests.csproj --configuration Release --no-build --verbosity normal
+        run: dotnet test ./src/Dax.Template.Tests/Dax.Template.Tests.csproj --configuration Release --no-build --verbosity normal --collect:"XPlat Code Coverage" --settings ./src/Dax.Template.Tests/coverlet.runsettings --results-directory ./artifacts/coverage
+      - name: coverage report
+        shell: pwsh
+        run: |
+          dotnet tool run reportgenerator "-reports:./artifacts/coverage/*/coverage.cobertura.xml" "-targetdir:./artifacts/coverage/report" "-reporttypes:Cobertura;TextSummary;MarkdownSummaryGithub"
+          Get-Content ./artifacts/coverage/report/Summary.txt
+          if (Test-Path ./artifacts/coverage/report/SummaryGithub.md) {
+            Get-Content ./artifacts/coverage/report/SummaryGithub.md | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+          }
+      - name: coverage threshold gate (Dax.Template core library)
+        shell: pwsh
+        # Phase M / Stage 0 / P0-b (see .claude/SESSION_HANDOFF.md, locked decision #5): the CI-enforced
+        # target is 80% line coverage on Dax.Template only. This is now the enforced LOCKED TARGET, not
+        # an interim floor: a targeted Measures + Package characterization-test top-up (2026-07-02, 41
+        # new tests, offline suite grown from 88 to 129 passed + 1 skipped) raised the measured overall
+        # from 75.2% to 81.1%, clearing 80% with headroom. COVERAGE_LINE_THRESHOLD is set to 80 and the
+        # gate fails only if line coverage drops below it (a real regression), not as a step toward a
+        # still-pending target; see docs/design/coverage.md for the measured baseline, the per-subsystem
+        # breakdown, and the remaining per-subsystem (~90%) gaps.
+        env:
+          COVERAGE_LINE_THRESHOLD: "80"
+        run: |
+          [xml]$cobertura = Get-Content ./artifacts/coverage/report/Cobertura.xml
+          $linePct = [math]::Round([double]$cobertura.coverage.'line-rate' * 100, 1)
+          $thresholdPct = [double]$env:COVERAGE_LINE_THRESHOLD
+          Write-Host "Dax.Template line coverage: $linePct% (locked target / floor: $thresholdPct%)"
+          if ($linePct -lt $thresholdPct) {
+            Write-Error "Dax.Template line coverage $linePct% dropped below the locked target of $thresholdPct%."
+            exit 1
+          }
+      - name: upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report-${{ matrix.os-version }}
+          path: artifacts/coverage/report
       - name: pack
         run: dotnet pack ./src/Dax.Template/Dax.Template.csproj --configuration Release --no-build --no-restore --verbosity normal

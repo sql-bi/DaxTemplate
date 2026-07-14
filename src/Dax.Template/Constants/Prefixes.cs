@@ -1,7 +1,6 @@
-﻿namespace Dax.Template.Constants
+﻿namespace Dax.Template.Constants;
+
+public static class Prefixes
 {
-    public static class Prefixes
-    {
-        public const string CONFLICT_RENAME_PREFIX = "_old";
-    }
+    public const string ConflictRenamePrefix = "_old";
 }

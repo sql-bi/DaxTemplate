@@ -1,0 +1,84 @@
+# AGENTS.md
+
+This file is the entry-point operating manual for coding agents working on **Dax.Template**.
+It is self-sufficient: it does not assume you have read `README.md`.
+It stays lean on purpose — go to the linked [docs/design/](docs/design/README.md) docs for depth.
+
+## What this project is
+
+`Dax.Template` is a .NET library, published as the `Dax.Template` NuGet package, that generates Tabular Object Model (TOM) objects — DAX columns, measures, calculated tables, hierarchies — into an Analysis Services / Power BI Tabular model, driven by JSON template configuration files.
+Consumers load a template package, then call into the engine to mutate an in-memory or connected TOM `Model`.
+
+## Build & test
+
+- Restore: `dotnet restore ./src`
+- Build: `dotnet build ./src/Dax.Template.sln --configuration Release`
+- Test (all offline): `dotnet test ./src/Dax.Template.Tests/Dax.Template.Tests.csproj --configuration Release`
+- Single test: `dotnet test ./src/Dax.Template.Tests/Dax.Template.Tests.csproj --filter "FullyQualifiedName~<TestName>"`
+- Offline-only (exclude opt-in live-server tests): add `--filter "FullyQualifiedName!~LiveServer"` (usually unnecessary — see below)
+- Pack: `dotnet pack ./src/Dax.Template/Dax.Template.csproj --configuration Release`
+- Single project build: `dotnet build ./src/Dax.Template/Dax.Template.csproj --configuration Release`
+
+## Running locally
+
+- SDK is pinned via [global.json](global.json) to `10.0.301` (`rollForward: latestFeature`); install/use that .NET SDK.
+- All three projects target `net10.0` (`Dax.Template.TestUI` targets `net10.0-windows`), `LangVersion 14.0`.
+- No external services are needed to build or run the offline test suite — the tests build a synthetic, disconnected TOM `Database` in memory.
+- `src/Dax.Template.TestUI` is a WinForms manual harness (net10.0-windows) for interactively exercising templates against a real or offline model; it is **not** part of automated CI.
+- Live-server tests are opt-in only: set `DAXTEMPLATE_LIVE_SERVER` and `DAXTEMPLATE_LIVE_DATABASE` env vars to un-skip them (see [testing.md](docs/design/testing.md)).
+
+## Architecture (mental model)
+
+- Entry point: `Engine.ApplyTemplates` (`src/Dax.Template/Engine.cs`) reads `Configuration.Templates[]` and dispatches each entry by its `Class` string to a handler (`HolidaysDefinitionTable`, `HolidaysTable`, `CustomDateTable`, `MeasuresTemplate`, `CalendarTemplate`, `CalculationGroupTemplate`, `FunctionLibraryTemplate`).
+- Each handler finds-or-creates the target TOM `Table`, builds a template object (a `Tables/*` or `Measures/*` class), calls its `ApplyTemplate(...)`, and requests a table refresh (skipped automatically for disconnected/offline models). `CalendarTemplate` is the exception: it requires an **existing** table (`TemplateException` if not found) and attaches a native TOM `Calendar` rather than generating table content, so no refresh is requested. `CalculationGroupTemplate` generates its own table (build-then-add, so an invalid definition never leaves a phantom table) but also skips the refresh — calculation items are pure metadata, and the `CalculationGroupSource` partition has no query. `FunctionLibraryTemplate` is model-level, not table-level: it never finds/creates a `Table` (`TemplateEntry.Table` is unused) and there is nothing to refresh.
+- `Engine.GetModelChanges` computes a diff of what changed in the model (added/removed/modified tables, columns, measures, hierarchies) by reading TOM's internal transaction log via reflection.
+- Table generation flows through `Tables/TableTemplateBase` → `Tables/CalculatedTableTemplateBase` → `Tables/ReferenceCalculatedTable` → `Tables/CustomTableTemplate<T>` → `Tables/Dates/BaseDateTemplate<T>`, with `CustomDateTable`, `SimpleDateTable`, `HolidaysTable` as concrete date-table templates; `HolidaysDefinitionTable` sits directly on `CalculatedTableTemplateBase`.
+- `Tables/Calendars/CalendarTemplate` (+ `CalendarTemplateDefinition`) sits outside that hierarchy: it attaches a TOM `Calendar` and its `CalendarColumnGroups` to a table a prior template already created, keyed by `Calendar.Name` for idempotency (a `Calendar` has no `Annotations`, so it can't use the `SQLBI_Template` convention below). Requires database compatibility level >= 1701.
+- `Tables/CalculationGroups/CalculationGroupTemplate` (+ `CalculationGroupTemplateDefinition`) also sits outside that hierarchy: it generates a calculation-group table — a native TOM `CalculationGroup` and its `CalculationItem`s — from JSON, independent of the `Measures`/`Syntax` machinery. Keyed for idempotency by the generated table's `SQLBI_Template = "CalculationGroup"` annotation, with a foreign-table guard that refuses to take over a same-named table lacking that annotation. Requires database compatibility level >= 1470 (calculation groups), >= 1500 (calculation items), and >= 1605 (the two selection expressions).
+- `Functions/FunctionLibraryTemplate` (+ `FunctionLibraryTemplateDefinition`) is the only **model-level** template: it attaches DAX user-defined functions (UDFs) directly to `Model.Functions`, not to any `Table`. One sub-template file is a library declaring one or more functions (structured `Parameters`/`Body` or a `RawExpression` escape hatch). Keyed for idempotency by each generated `Function`'s own `SQLBI_Template = "Functions"` annotation (`Attributes.SqlbiTemplateFunctions`) — reconciled by name, so unlike `CalendarTemplate` a renamed function is not orphaned. Requires database compatibility level >= 1702. See [docs/design/functions.md](docs/design/functions.md).
+- Measures are generated by `Measures/MeasuresTemplate` + `Measures/MeasureTemplateBase` (time-intelligence-style wrapping of target measures), tagged with a `SQLBI_Template` annotation so re-applying a template replaces its own prior output and cleans up orphans.
+- See [docs/design/](docs/design/README.md) for the full picture, including a lifecycle diagram.
+
+## Project layout & dependency direction
+
+- `src/Dax.Template/` — the library (`IsPackable=true`; the shipped NuGet package). Notable top-level folders: `Tables/` (table generation, including `Tables/Calendars/` and `Tables/CalculationGroups/`), `Measures/`, and `Functions/` (model-level DAX user-defined functions — see `FunctionLibraryTemplate` above).
+- `src/Dax.Template.Tests/` — xUnit offline test suite (golden-file snapshots).
+- `src/Dax.Template.TestUI/` — WinForms manual harness, not automated.
+- Dependency direction is one-way: `Dax.Template.Tests` and `Dax.Template.TestUI` reference `Dax.Template`; `Dax.Template` has no dependency on either.
+
+## Non-obvious conventions
+
+- **JSON template config changes must be purely additive** — existing template JSON files must keep working unchanged.
+- Model objects (`Model/Column`, `Model/Hierarchy`, `Model/Level`) hold an internal `Tabular*` back-reference (e.g. `Column.TabularColumn`) to the live TOM object they created; `Reset()` nulls these before a template is re-applied, so templates are safely re-runnable.
+- Generated measures/tables carry a `SQLBI_Template` annotation (`Constants/Attributes.cs`) used for idempotency: re-running a template replaces its own prior output and removes orphaned objects it previously created.
+- `[InternalsVisibleTo("Dax.Template.Tests")]` in `src/Dax.Template/AssemblyInfo.cs` lets tests observe internal `Tabular*` members directly.
+- Testing is an **offline golden-file (snapshot) harness**: CI gates only on these tests. Live-server tests exist but are opt-in and never required for sign-off (see [testing.md](docs/design/testing.md)).
+- Multi-phase roadmap (Calendars → Calc groups → UDFs) is tracked in [.claude/SESSION_HANDOFF.md](.claude/SESSION_HANDOFF.md) — read it before resuming that work.
+- A `cwm-roslyn-navigator` MCP server (from `dotnet-claude-kit`) is available for precise .NET semantic navigation — call graphs, overrides, type hierarchy, diagnostics, anti-patterns, dead/circular code — complementary to Serena (see `CLAUDE.md` for the full agent/tooling policy).
+- New C# should target the modern C# 14 / .NET 10 baseline (kit `modern-csharp` skill). The auto-format-on-edit hook is disabled for this repo; run `dotnet format` explicitly when needed.
+
+## Code style & analyzers
+
+- Analyzers are enabled repo-wide via `src/Directory.Build.props` (`EnableNETAnalyzers`, `AnalysisLevel=latest-recommended`, `EnforceCodeStyleInBuild=true`, `Nullable=enable`).
+- `dotnet format` is the formatting authority — run it explicitly (the auto-format-on-edit hook is disabled); CI verifies the baseline with `dotnet format --verify-no-changes` and fails on drift.
+- Warnings-as-errors is a **CI-only** gate: CI passes `-p:TreatWarningsAsErrors=true` to the build command (local dev builds stay lenient). The `WarningsNotAsErrors` allowlist in `src/Directory.Build.props`, which used to cover the Stage-2 analyzer-debt codes, is now **empty** (Stage 3, 2026-07-03 — the last two codes, CA1305/CA1309, were fixed and removed): any analyzer or compiler warning (including compiler `CSxxxx` warnings) now fails CI. Do not add a code back to silence a newly-introduced warning — fix it instead.
+- `CA1707` (identifiers should not contain underscores) is disabled for `src/Dax.Template.Tests/**` only, via `.editorconfig`, because the idiomatic xUnit `Method_Scenario_Expected` test naming convention relies on underscores. The rule stays active for `src/Dax.Template` production code and is fully clean there — the Stage 2 public-API rename sweep (2.10b) eliminated all 18 production hits and `CA1707` was removed from the `WarningsNotAsErrors` allowlist.
+- File-scoped namespaces (`csharp_style_namespace_declarations = file_scoped:suggestion`) are the documented house style going forward; the existing block-scoped code is intentionally left as-is until a dedicated Stage 2 mechanical sweep converts it.
+
+## Documentation map
+
+- [docs/design/README.md](docs/design/README.md) — index of all design docs; start here for anything not covered above.
+- [docs/design/overview.md](docs/design/overview.md) — read for system context and package purpose before making cross-cutting changes.
+- [docs/design/apply-templates-lifecycle.md](docs/design/apply-templates-lifecycle.md) — read before touching `Engine.cs` or adding a new template `Class`.
+- [docs/design/table-generation.md](docs/design/table-generation.md) — read before touching table/column/hierarchy/date-table generation code under `Tables/`.
+- [docs/design/measures.md](docs/design/measures.md) — read before touching `Measures/` or the `SQLBI_Template` idempotency logic.
+- [docs/design/functions.md](docs/design/functions.md) — read before touching `Functions/` or the DAX user-defined-function (UDF) JSON schema.
+- [docs/design/domain-model-and-conventions.md](docs/design/domain-model-and-conventions.md) — read before touching `Model/`, the `Syntax/` DAX expression subsystem, or dependency ordering.
+- [docs/design/testing.md](docs/design/testing.md) — read before adding/changing tests or the golden-file harness.
+- [docs/design/coverage.md](docs/design/coverage.md) — read before changing the coverlet configuration, the CI coverage gate, `[ExcludeFromCodeCoverage]` usage, or the Stryker.NET mutation-testing setup.
+
+## Documentation maintenance
+
+Documentation is living.
+Whenever a change affects behavior, architecture, public API/contracts, project layout, or conventions, update the affected docs — this file, its Documentation map, and the relevant `docs/design/*` file — **as part of the same change**.
+If a doc cannot be updated right away, add a short status banner at its top marking it stale/historical rather than leaving it silently wrong.

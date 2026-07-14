@@ -107,7 +107,11 @@ csharp_preferred_modifier_order = public,private,protected,internal,static,exter
 # Code-block preferences
 csharp_prefer_braces = true:silent
 csharp_prefer_simple_using_statement = true:suggestion
-csharp_style_namespace_declarations = block_scoped:silent
+# House style: file-scoped namespaces are preferred going forward. Kept at :suggestion (not
+# :warning) because the existing codebase is block-scoped throughout; the conversion is a
+# deliberate Stage 2 mechanical sweep (Phase M), not this pass. Escalating to :warning now would
+# add ~61 new build warnings and break the CI warnings-as-errors gate.
+csharp_style_namespace_declarations = file_scoped:suggestion
 
 # Expression-level preferences
 csharp_prefer_simple_default_expression = true:suggestion
@@ -264,3 +268,11 @@ dotnet_diagnostic.IDE0046.severity = none
 
 # IDE0045: Convert to conditional expression
 dotnet_diagnostic.IDE0045.severity = none
+
+# CA1707 ("identifiers should not contain underscores") is disabled for the test project only
+# (see the [src/Dax.Template.Tests/**.cs] section below). The 105 hits there are the idiomatic xUnit
+# `Method_Scenario_Expected` naming convention (intentional, not debt). In src/Dax.Template production
+# code CA1707 is fully clean: the Stage 2 public-API rename sweep (2.10b) eliminated all 18 hits and
+# CA1707 was removed from the WarningsNotAsErrors allowlist. CA1707 is NOT disabled repo-wide.
+[src/Dax.Template.Tests/**.cs]
+dotnet_diagnostic.CA1707.severity = none

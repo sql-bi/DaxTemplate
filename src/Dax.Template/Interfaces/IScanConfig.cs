@@ -1,14 +1,13 @@
-﻿using System.Text.Json.Serialization;
-using Dax.Template.Enums;
+﻿using Dax.Template.Enums;
+using System.Text.Json.Serialization;
 
-namespace Dax.Template.Interfaces
+namespace Dax.Template.Interfaces;
+
+public interface IScanConfig
 {
-    public interface IScanConfig
-    {
-        public string[]? OnlyTablesColumns { get; set; }
-        public string[]? ExceptTablesColumns { get; set; }
+    public string[]? OnlyTablesColumns { get; set; }
+    public string[]? ExceptTablesColumns { get; set; }
 
-        [JsonConverter(typeof(JsonStringEnumConverter))]
-        public AutoScanEnum? AutoScan { get; set; }
-    }
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public AutoScan? AutoScan { get; set; }
 }

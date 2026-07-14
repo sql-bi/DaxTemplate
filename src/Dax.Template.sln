@@ -9,6 +9,18 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dax.Template.TestUI", "Dax.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dax.Template.Tests", "Dax.Template.Tests\Dax.Template.Tests.csproj", "{7429EC2C-81D9-42E2-8D69-D5CD729BD503}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A35F22B1-B92D-4F74-B36E-F14BDE1B3B3E}"
+	ProjectSection(SolutionItems) = preProject
+		..\AGENTS.md = ..\AGENTS.md
+		..\docs\design\README.md = ..\docs\design\README.md
+		..\docs\design\overview.md = ..\docs\design\overview.md
+		..\docs\design\apply-templates-lifecycle.md = ..\docs\design\apply-templates-lifecycle.md
+		..\docs\design\table-generation.md = ..\docs\design\table-generation.md
+		..\docs\design\measures.md = ..\docs\design\measures.md
+		..\docs\design\domain-model-and-conventions.md = ..\docs\design\domain-model-and-conventions.md
+		..\docs\design\testing.md = ..\docs\design\testing.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

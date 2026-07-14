@@ -1,14 +1,13 @@
 ﻿using TabularLevel = Microsoft.AnalysisServices.Tabular.Level;
 
-namespace Dax.Template.Model
+namespace Dax.Template.Model;
+
+public class Level : EntityBase
 {
-    public class Level : EntityBase
+    public required Column Column { get; init; }
+    internal TabularLevel? TabularLevel { get; set; }
+    public override void Reset()
     {
-        public Column Column { get; init; } = default!;
-        internal TabularLevel? TabularLevel { get; set; }
-        public override void Reset()
-        {
-            TabularLevel = null;
-        }
+        TabularLevel = null;
     }
 }

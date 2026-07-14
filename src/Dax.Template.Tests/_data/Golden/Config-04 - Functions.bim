@@ -1,0 +1,95 @@
+{
+  "name": "FunctionOfflineFixture",
+  "compatibilityLevel": 1702,
+  "model": {
+    "tables": [
+      {
+        "name": "Sales",
+        "columns": [
+          {
+            "name": "Order Date",
+            "dataType": "dateTime",
+            "sourceColumn": "Order Date"
+          },
+          {
+            "name": "Quantity",
+            "dataType": "int64",
+            "sourceColumn": "Quantity"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Sales",
+            "source": {
+              "type": "calculated",
+              "expression": "{ (DATE(2020,1,1), 1) }"
+            }
+          }
+        ],
+        "measures": [
+          {
+            "name": "Sales Amount",
+            "expression": "SUM(Sales[Quantity])"
+          },
+          {
+            "name": "Total Cost",
+            "expression": "SUM(Sales[Quantity])"
+          },
+          {
+            "name": "Margin",
+            "expression": "[Sales Amount] - [Total Cost]"
+          },
+          {
+            "name": "Margin %",
+            "expression": "DIVIDE([Margin], [Sales Amount])"
+          }
+        ]
+      },
+      {
+        "name": "Orders",
+        "columns": [
+          {
+            "name": "Delivery Date",
+            "dataType": "dateTime",
+            "sourceColumn": "Delivery Date"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Orders",
+            "source": {
+              "type": "calculated",
+              "expression": "{ (DATE(2020,1,1)) }"
+            }
+          }
+        ]
+      }
+    ],
+    "functions": [
+      {
+        "name": "PercentOfTotal",
+        "description": "Returns Amount as a percentage of its total when Filter is removed, rounded to DecimalPlaces.",
+        "expression": "( Amount: SCALAR DECIMAL VAL, Filter: TABLEREF, DecimalPlaces: INT64 = 2 ) => \r\nROUND (\r\n    DIVIDE ( Amount, CALCULATE ( Amount, REMOVEFILTERS ( Filter ) ) ) * 100,\r\n    DecimalPlaces\r\n)",
+        "lineageTag": "",
+        "annotations": [
+          {
+            "name": "SQLBI_Template",
+            "value": "Functions"
+          }
+        ]
+      },
+      {
+        "name": "SafeDivide",
+        "description": "Divides Numerator by Denominator, returning AlternateResult when Denominator is blank or zero.",
+        "expression": "( Numerator: SCALAR DECIMAL, Denominator: SCALAR DECIMAL = BLANK(), AlternateResult: ANYVAL = BLANK() ) => IF ( ISBLANK ( Denominator ) || Denominator = 0, AlternateResult, Numerator / Denominator )",
+        "lineageTag": "",
+        "annotations": [
+          {
+            "name": "SQLBI_Template",
+            "value": "Functions"
+          }
+        ]
+      }
+    ]
+  }
+}

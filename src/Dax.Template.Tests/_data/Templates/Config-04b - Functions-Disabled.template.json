@@ -1,0 +1,11 @@
+{
+  "Description": "Function-library characterization: a disabled FunctionLibraryTemplate entry removes previously-created functions (Template is still required and read on the disabled path)",
+  "Templates": [
+    {
+      "Class": "FunctionLibraryTemplate",
+      "Template": "Functions-Statistics.json",
+      "IsHidden": false,
+      "IsEnabled": false
+    }
+  ]
+}
